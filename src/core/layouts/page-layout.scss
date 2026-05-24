@@ -1,0 +1,17 @@
+@media (max-width:720px) {
+  .responsive-list-paddings {
+    .dx-datagrid {
+      max-height: 90vh;
+      overflow: auto;
+    }
+  }
+}
+
+@media (min-width:720px) {
+  .responsive-list-paddings {
+    .dx-datagrid {
+      max-height: 85vh;
+    }
+
+  }
+}

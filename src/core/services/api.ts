@@ -213,7 +213,7 @@ export const ApiRequest = {
     Get : async (url:string, params:any) =>AppRequestGet({url:url, params:params}),
     Post : async (url:string, data:any) =>AppRequestPost({url:url, data:data}),
     Put : async (url:string, key:any, data:any) =>AppRequestPut({url:url, key:key, data:data}),
-    Delete : async (url:string, params:any) =>AppRequestDelete({url:url, params:params}),
+    Delete : async (url:string, key:any) =>AppRequestDelete({url:url+'/' + key, params:null}),
     Patch : async (url:string, data:any) =>AppRequestPatch({url:url, data:data}),
 
     // Get : async (url:string, params:any) =>AppRequestGet({url:BASE_URL + url, params:params}),

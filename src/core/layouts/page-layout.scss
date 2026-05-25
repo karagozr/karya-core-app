@@ -1,5 +1,6 @@
 @media (max-width:720px) {
   .responsive-list-paddings {
+
     .dx-datagrid {
       max-height: 90vh;
       overflow: auto;
@@ -10,8 +11,56 @@
 @media (min-width:720px) {
   .responsive-list-paddings {
     .dx-datagrid {
-      max-height: 85vh;
+      max-height: 76vh;
     }
 
+  }
+}
+
+.page-form-detail-card {
+  summary.page-form-detail-card-header {
+    border-bottom: 1px double var(--form-card-header-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+
+  summary.page-form-detail-card-header::-webkit-details-marker {
+    display: none;
+  }
+
+  .page-form-detail-card-toggle-button {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: none;
+    color: var(--page-breadcrumb-color);
+    background-color: transparent;
+    flex: 0 0 auto;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .page-form-detail-card-toggle-button-expanded {
+    display: none;
+  }
+
+  &[open] .page-form-detail-card-toggle-button-collapsed {
+    display: none;
+  }
+
+  &[open] .page-form-detail-card-toggle-button-expanded {
+    display: inline-flex;
+  }
+
+  .page-form-detail-card-body {
+    margin-top: 12px;
   }
 }

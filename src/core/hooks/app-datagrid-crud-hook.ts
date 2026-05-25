@@ -1,12 +1,13 @@
 import { CustomStore, ODataStore } from "devextreme/common/data";
 import DataSource from "devextreme/data/data_source";
 import { ApiRequest } from "../services";
+import { useMemo } from "react";
 
 
 
 export const useAppDatagridDatasouce = (url: string, keyName: string) => {
-
-    return new DataSource({
+    
+    const dataSource = new DataSource({
         store: new CustomStore({
             key: keyName,
             load: (options: any) =>
@@ -23,8 +24,11 @@ export const useAppDatagridDatasouce = (url: string, keyName: string) => {
             },
             remove: async (key) => {
                 await ApiRequest.Delete(url, key);
-            }
+            },
+            
         })
     })
+
+    return useMemo(() => ({ dataSource }), [url, keyName]);
 
 }

@@ -1,20 +1,20 @@
 import { CustomStore, DataSource, ODataStore } from "devextreme/common/data";
 import { ApiRequest } from "../services";
+import { useMemo } from "react";
 
-export const useAppFormDetailDatasource = (url: any, key: any) => {
-  var datasource = new DataSource({
+interface IAppFormDetailParentValueOptions {
+  key: string;
+  value: string|number|null;
+}
+
+export const useAppFormDetailDatasource = (url: any, key: any, parent: IAppFormDetailParentValueOptions) => {
+  var dataSource = new DataSource({
     store: new CustomStore({
         key: key,
         load: async (options: any) => {
-           console.log('options', key,options);
-           var result = await ApiRequest.Get(url, null);
+          var result = await ApiRequest.Get(url+`?${parent.key}=${parent.value}`, null);
           return result.data;
         },
-            // new ODataStore({
-            //     version: 2,
-            //     key: key,
-            //     url: url
-            // }).load(options),
         update: async (key, values) => {
           var result = await ApiRequest.Put(url, key,values);
           return result.data;
@@ -30,5 +30,5 @@ export const useAppFormDetailDatasource = (url: any, key: any) => {
     })
   })
 
-  return datasource;
+  return useMemo(() => ({ dataSource }), [url, key, parent.value]);
 }

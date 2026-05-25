@@ -7,5 +7,5 @@ export interface PageTitleProps {
 
 export function PageTitle({ title }: React.PropsWithChildren<PageTitleProps>) {
   return (
-     <h2 className={'app-page-title'} >{title}</h2>
+     <h4 className={'app-page-title'} >{title}</h4>
 )}

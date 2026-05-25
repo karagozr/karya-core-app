@@ -38,9 +38,6 @@ export function AppForm({ type, caption, operationUrl, metaFormOptions }: React.
 
   return <div>
     <div className={'dx-form-loader-container'} >
-
-      <div>{caption}</div>
-
       <LoadPanel shadingColor="rgba(0,0,0,0.4)" position={{ of: '.dx-form-loader-container' }}
         visible={formDatasource.isLoading}
         showIndicator={true}

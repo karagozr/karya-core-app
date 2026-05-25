@@ -13,7 +13,7 @@ export function BaseListPage({ items, isTabList, caption, breadcrumbPath }
 
 
     return (
-        <PageLayout isListPage={true} breadcrumb={{ path: breadcrumbPath }} title={{ title: caption }}>
+        <PageLayout pageType="list" breadcrumb={{ path: breadcrumbPath }} title={{ title: caption }}>
             <AppListContext.Provider value={appListContext}>
                 <React.Fragment>
                     {isTabList && items && (items.length > 1) ? 

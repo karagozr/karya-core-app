@@ -1,6 +1,6 @@
 {
   "items": [],
-  "baseTheme": "fluent.blue.light",
+  "baseTheme": "fluent.saas.light.compact",
   "assetsBasePath": "../../../node_modules/devextreme/dist/css/",
   "outputColorScheme": "additional",
   "makeSwatch": true,

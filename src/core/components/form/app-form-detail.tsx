@@ -6,20 +6,27 @@ import { useAppFormContext } from "../../contexts";
 export function AppFormDetail({caption,operationUrl,metaFormDetailOptions} : React.PropsWithChildren<IFormMetaItem>) {
 
     const {key:parentKey} = useAppFormContext();
-    
-    const editable = metaFormDetailOptions?.isEditable && parentKey!==null || false;
+    console.log('AppFormDetail render with parentKey:', parentKey);
 
-    const datasource = useAppFormDetailDatasource(operationUrl, 'id');
+    const editable = metaFormDetailOptions?.isEditable && parentKey!==null || false;
+    const parentKeyField = metaFormDetailOptions?.parentKeyField || null;
+    
+    if(parentKeyField===null){
+      return <div>Error: parentKeyField is not defined.</div>;
+    }else if(parentKey===null){
+      return <div>Please save the main form before adding details.</div>;
+    }
+
+    const {dataSource} = useAppFormDetailDatasource(operationUrl, 'id', {
+      key: parentKeyField ,
+      value: parentKey||''
+    });
 
     return (
-    <div className="notes" style={{marginBottom:'20px'}}>
-      <div style={caption ? {borderBottomStyle: 'solid', borderBottomWidth: '1px', borderBottomColor: '#e0e0e0'} : undefined}>
-        <span className="dx-form-group-caption" >{caption}</span>
-      </div>
-      <DataGrid
+    <DataGrid
         ref={metaFormDetailOptions?.gridRef}
         columns={metaFormDetailOptions?.columns} 
-        dataSource={datasource} 
+        dataSource={dataSource} 
         showBorders={true}
         columnAutoWidth={true}
 
@@ -36,6 +43,5 @@ export function AppFormDetail({caption,operationUrl,metaFormDetailOptions} : Rea
         } : undefined}
         toolbar={editable ? { items: ['addRowButton', 'saveButton', 'revertButton', ...(metaFormDetailOptions?.actionButtons || [])] } : undefined}
       />
-    </div>
   )
 }

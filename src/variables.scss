@@ -22,6 +22,7 @@
   body {
     @include theme-variables('variablesBase');
 
+    --form-card-header-color: #608afc75;
     --footer-border-color: rgba(224, 224, 224, 1);
     --plus-icon-color: #242424;
     --devextreme-logo-color: #596C7D;

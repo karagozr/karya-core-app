@@ -15,7 +15,7 @@ export function AppDatagrid({ operationUrl, metaListOptions }: React.PropsWithCh
   const navigate = useNavigate();
   const gridRef = React.useRef<DataGridRef>(null);
   const key = metaListOptions.keyId ? metaListOptions.keyId : 'id';
-  const dataSource = useAppDatagridDatasouce(operationUrl, key);
+  const {dataSource} = useAppDatagridDatasouce(operationUrl, key);
 
   const goDetail = async ()=>{
     if(metaListOptions.detailPath){      
@@ -27,7 +27,6 @@ export function AppDatagrid({ operationUrl, metaListOptions }: React.PropsWithCh
 
   const handleRowDblClick = async (e: any) => {
     if(metaListOptions.detailPath){
-      console.log('Row double clicked, navigating to detail view', e);
       if(e.rowType === 'data'){
         navigate(metaListOptions.detailPath+'?key=' + e.data[key]);
       }

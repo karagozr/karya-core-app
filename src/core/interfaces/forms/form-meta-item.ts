@@ -2,7 +2,7 @@ import type { DataGridRef, IDataGridOptions, IToolbarItemProps } from "devextrem
 import type { IFormOptions as IDevFormOptions } from "devextreme-react/cjs/form";
 
 export interface IFormOptions extends IDevFormOptions{ 
-  
+
 }
 
 
@@ -14,7 +14,7 @@ export interface IFormDetailOptions {
   columns?: IDataGridOptions['columns'];
   gridRef?: React.Ref<DataGridRef>
   masterId?: string|number|null;
-  
+  parentKeyField?: string;
 }
 
 export interface IFormMetaItem {
@@ -27,5 +27,7 @@ export interface IFormMetaItem {
 }
 
 export interface IFormMetaItemList  {
+  breadcrumbPath?: string;
+  caption?: string;
   items?: Array<IFormMetaItem>;
 }

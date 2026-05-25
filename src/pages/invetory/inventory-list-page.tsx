@@ -7,7 +7,6 @@ export function InventoryListPage() {
       {
         type: 'grid',
         caption: 'Inventory',
-
         metaListOptions: {
           keyId: 'id',
           detailPath: '/inventory/form',

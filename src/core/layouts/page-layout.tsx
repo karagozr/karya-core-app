@@ -6,21 +6,21 @@ import Toolbar, { type IItemProps } from 'devextreme-react/toolbar';
 export interface IPageLayoutProps {
     breadcrumb?: React.PropsWithChildren<PageBreadcrumbProps>;
     title?:React.PropsWithChildren<PageTitleProps>;
-    isListPage: boolean|false;
+    pageType: 'form' | 'list'|'form-detail'|'custom';
     actionButtons? :Array<IItemProps|any>;
 
 }
 
 
-export function PageLayout({ breadcrumb, title, children, isListPage=false }
+export function PageLayout({ breadcrumb, title, children, pageType }
     : React.PropsWithChildren<IPageLayoutProps>) {
   
   return (
     <React.Fragment>
-      <PageBreadcrumb {...breadcrumb} />
+      {pageType !== 'form-detail' && <PageBreadcrumb {...breadcrumb} />}
       <PageTitle {...title} />
       <div className={'content-block'}>
-        <div className={isListPage ?  'dx-card responsive-list-paddings': 'dx-card responsive-paddings'}>
+        <div className={pageType === 'list' ?  'dx-card responsive-list-paddings': 'dx-card responsive-paddings'}>
             {children}
         </div>
       </div>

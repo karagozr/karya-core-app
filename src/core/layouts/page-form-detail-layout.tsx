@@ -3,7 +3,7 @@ import { PageFormDetailTitle, type PageFormDetailTitleProps } from '../component
 import './page-layout.scss';
 
 export interface IPageFormDetailLayoutProps {
-    title?: React.PropsWithChildren<PageFormDetailTitleProps>;
+    caption?: React.PropsWithChildren<PageFormDetailTitleProps>;
     pageType: 'form' | 'list'|'form-detail'|'custom';
     defaultCollapsed?: boolean;
     collapsible?: boolean;
@@ -11,15 +11,15 @@ export interface IPageFormDetailLayoutProps {
 }
 
 
-export function PageFormDetailLayout({ title, children, collapsible = true, defaultCollapsed = false }
+export function PageFormDetailLayout({ caption, children, collapsible = true, defaultCollapsed = false }
     : React.PropsWithChildren<IPageFormDetailLayoutProps>) {
   return (
     <React.Fragment>
-      <div className={'content-block'}>
+      <div >
         {collapsible ? (
           <details className={'dx-card responsive-paddings page-form-detail-card'} open={!defaultCollapsed}>
             <summary className={'page-form-detail-card-header'}>
-              <PageFormDetailTitle {...title} />
+              <PageFormDetailTitle {...caption} />
               <span className={'page-form-detail-card-toggle-button dx-icon dx-icon-chevrondown page-form-detail-card-toggle-button-collapsed'} aria-hidden={'true'} />
               <span className={'page-form-detail-card-toggle-button dx-icon dx-icon-chevronup page-form-detail-card-toggle-button-expanded'} aria-hidden={'true'} />
             </summary>
@@ -30,7 +30,7 @@ export function PageFormDetailLayout({ title, children, collapsible = true, defa
         ) : (
           <div className={'dx-card responsive-paddings page-form-detail-card'}>
             <div className={'page-form-detail-card-header'}>
-              <PageFormDetailTitle {...title} />
+              <PageFormDetailTitle {...caption} />
             </div>
             <div className={'page-form-detail-card-body'}>
               {children}

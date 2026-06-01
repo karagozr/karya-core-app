@@ -6,7 +6,7 @@ export function InventoryFormPage() {
       <BaseFormPage key='1' breadcrumbPath='/inventory' caption='Inventory' items={[
         {
           type: 'form',
-          caption: 'Inventory',
+          title: 'Inventory',
           metaFormOptions: {
             id: 'form',
             colCount: 4,
@@ -22,8 +22,8 @@ export function InventoryFormPage() {
           operationUrl: "https://6a0efaf31736097c360af529.mockapi.io/api/inventory"
         },{
           type: 'detail',
-          caption: 'Notes',
-          inTab: true,
+          title: 'Notes',
+          inTab: false,
           operationUrl: "https://6a0efaf31736097c360af529.mockapi.io/api/inventory-detail",
           metaFormDetailOptions: {
             masterId: 'id',

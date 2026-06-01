@@ -17,7 +17,7 @@ export function PageLayout({ breadcrumb, title, children, pageType }
   
   return (
     <React.Fragment>
-      {pageType !== 'form-detail' && <PageBreadcrumb {...breadcrumb} />}
+      <PageBreadcrumb {...breadcrumb} />
       <PageTitle {...title} />
       <div className={'content-block'}>
         <div className={pageType === 'list' ?  'dx-card responsive-list-paddings': 'dx-card responsive-paddings'}>

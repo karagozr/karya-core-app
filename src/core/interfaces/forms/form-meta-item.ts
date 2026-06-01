@@ -20,7 +20,7 @@ export interface IFormDetailOptions {
 export interface IFormMetaItem {
   type: 'form' | 'detail';
   inTab?: boolean;
-  caption?: string;
+  title?: string;
   metaFormOptions?:  IFormOptions; 
   metaFormDetailOptions?: IFormDetailOptions;
   operationUrl?: string;

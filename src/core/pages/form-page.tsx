@@ -16,25 +16,21 @@ export function BaseFormPage({ items, breadcrumbPath, caption }: React.PropsWith
   return (
 
     <AppFormContext.Provider value={appFormContext}>
-      <React.Fragment>
+        <PageLayout pageType="form" breadcrumb={{ path: breadcrumbPath }} title={{ title: caption }}>
         {
           items?.filter(item => !item.inTab).map((item: any, index: number) => {
             switch (item.type) {
               case 'form':
-                return <PageLayout pageType="form" breadcrumb={{ path: breadcrumbPath }} title={{ title: caption }}>
-                  <AppForm key={index} {...item} />
-                </PageLayout>
+                return <AppForm key={index} {...item} />
               case 'detail':
-                return <PageFormDetailLayout pageType="form-detail" title={{ title: caption }}>
-                  <AppFormDetail key={index} {...item} />
-                </PageFormDetailLayout>
+                return <AppFormDetail key={index} {...item} />
               default:
                 return null;
             }
           })
         }{
           items?.some(item => item.inTab) && (
-            <PageLayout pageType="form-detail" >
+            <PageFormDetailLayout pageType="form-detail"  caption={{ title: caption }}>
               <TabPanel>
                 {items?.filter(item => item.inTab).map((item: any, index: number) => (
                   <TabPanelItem key={index} title={item.caption}>
@@ -51,11 +47,11 @@ export function BaseFormPage({ items, breadcrumbPath, caption }: React.PropsWith
 
                 }
               </TabPanel>
-            </PageLayout>
+            </PageFormDetailLayout>
           )
 
         }
-      </React.Fragment>
+      </PageLayout>
     </AppFormContext.Provider>
   );
 }

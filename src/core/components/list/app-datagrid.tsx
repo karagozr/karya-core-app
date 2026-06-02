@@ -5,6 +5,7 @@ import { useAppDatagridDatasouce } from "../../hooks";
 import type { IListMetaItem } from "../../interfaces";
 import type { ToolbarItem } from "devextreme/ui/data_grid_types";
 import type { DataGridRef } from "devextreme-react/cjs/data-grid";
+import './app-datagrid.css';
 
 const addNewText = "Yeni Ekle";
 const detailText = "Detay";
@@ -38,7 +39,7 @@ export function AppDatagrid({ operationUrl, metaListOptions }: React.PropsWithCh
   const toolbar = createToolbar(goDetail,
     editable, 
     metaListOptions.toolbarsItems || [], 
-    metaListOptions.detailPath || null );
+    metaListOptions.detailPath || null ,gridRef);
 
   return (
     <DataGrid
@@ -46,7 +47,9 @@ export function AppDatagrid({ operationUrl, metaListOptions }: React.PropsWithCh
       columns={metaListOptions?.columns}
       toolbar={toolbar}
       dataSource={dataSource}
+      showBorders={false}
       id={key}
+      className={'app-list-page-datagrid'}
       onRowDblClick={handleRowDblClick}
       filterRow={{
         visible: true,
@@ -66,7 +69,6 @@ export function AppDatagrid({ operationUrl, metaListOptions }: React.PropsWithCh
         useIcons: true,
         confirmDelete: true,
       } : {}}
-      showBorders={true}
       columnAutoWidth={true}
       columnHidingEnabled={true}
       focusedRowEnabled={true}
@@ -84,7 +86,7 @@ export function AppDatagrid({ operationUrl, metaListOptions }: React.PropsWithCh
 }
 
 
-const createToolbar = (goDetail: () => void, editable: boolean, toolbarsItems: Array<ToolbarItem>, detailPath: string | null) => {
+const createToolbar = (goDetail: () => void, editable: boolean, toolbarsItems: Array<ToolbarItem>, detailPath: string | null,gridRef? :any ) => {
 
   const addButton: any = editable ? {
     location: 'before',
@@ -114,11 +116,23 @@ const createToolbar = (goDetail: () => void, editable: boolean, toolbarsItems: A
     }
   } : null;
 
+  const externalToolbarItems = toolbarsItems.map(item => {
+    if (item.widget === 'dxButton' && item.options && item.options.onClick) 
+    {
+      const originalOnClick = item.options.onClick;
+      item.options.onClick = () => 
+      {
+        originalOnClick(gridRef?.current?.instance());
+      }    
+    }
+    return item;
+  });
+
   return toolbarsItems !== undefined ?
     {
       items:
         [
-          ...(toolbarsItems || []),
+          ...(externalToolbarItems || []),
           ...(addButton ? [addButton] : []),
           ...(detailButton ? [detailButton] : [])
         ]

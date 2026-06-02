@@ -26,9 +26,13 @@
     cursor: pointer;
     user-select: none;
     list-style: none;
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
   summary.page-form-detail-card-header::-webkit-details-marker {
+    padding-left: 10px;
+  padding-right: 10px;
     display: none;
   }
 
@@ -60,6 +64,12 @@
   }
 
   .page-form-detail-card-body {
-    margin-top: 12px;
+    padding: 10px;
+  }
+
+  .form-detail-title-text{
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    color: var(--base-text-color-alpha-7);
   }
 }

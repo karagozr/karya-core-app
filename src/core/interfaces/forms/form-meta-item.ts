@@ -2,32 +2,31 @@ import type { DataGridRef, IDataGridOptions, IToolbarItemProps } from "devextrem
 import type { IFormOptions as IDevFormOptions } from "devextreme-react/cjs/form";
 
 export interface IFormOptions extends IDevFormOptions{ 
-
+  operationUrl: string;
 }
 
 
 export interface IFormDetailOptions { 
-  caption?: string;
-  // operationUrl?: string|undefined;
   actionButtons?:Array<IToolbarItemProps>;
   isEditable?:boolean;
   columns?: IDataGridOptions['columns'];
   gridRef?: React.Ref<DataGridRef>
-  masterId?: string|number|null;
-  parentKeyField?: string;
+  parentKeyField: string;
+  operationUrl: string;
 }
 
-export interface IFormMetaItem {
+export interface IFormPageDetailMetaItem {
   type: 'form' | 'detail';
   inTab?: boolean;
   title?: string;
-  metaFormOptions?:  IFormOptions; 
-  metaFormDetailOptions?: IFormDetailOptions;
-  operationUrl?: string;
+  formOptions?:  IFormOptions; 
+  formDetailOptions?: IFormDetailOptions;
 }
 
-export interface IFormMetaItemList  {
+export interface IFormPageMetaItem  {
   breadcrumbPath?: string;
   caption?: string;
-  items?: Array<IFormMetaItem>;
+  actionButtons?:Array<any>;
+  formOptions?:  IFormOptions;
+  detailItems?: Array<IFormPageDetailMetaItem>;
 }

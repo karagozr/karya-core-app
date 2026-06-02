@@ -3,12 +3,8 @@ import {BaseFormPage} from '../../core';
 export function InventoryFormPage() {
 
   return (
-      <BaseFormPage key='1' breadcrumbPath='/inventory' caption='Inventory' items={[
-        {
-          type: 'form',
-          title: 'Inventory',
-          metaFormOptions: {
-            id: 'form',
+      <BaseFormPage key='1' breadcrumbPath='/inventory' caption='Inventory' formOptions={{
+          id: 'form',
             colCount: 4,
             items: [
                 { dataField: 'id', colSpan: 1, editorOptions:{ readOnly: true } },
@@ -18,15 +14,14 @@ export function InventoryFormPage() {
             
                 
             ],
-          },
           operationUrl: "https://6a0efaf31736097c360af529.mockapi.io/api/inventory"
-        },{
+        }} detailItems={[
+        {
           type: 'detail',
           title: 'Notes',
           inTab: false,
-          operationUrl: "https://6a0efaf31736097c360af529.mockapi.io/api/inventory-detail",
-          metaFormDetailOptions: {
-            masterId: 'id',
+          formDetailOptions: {
+            operationUrl: "https://6a0efaf31736097c360af529.mockapi.io/api/inventory-detail",
             isEditable: true,
             parentKeyField: 'inventoryId',
             columns: [

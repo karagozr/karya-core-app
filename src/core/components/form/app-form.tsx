@@ -1,8 +1,9 @@
 import { Form, LoadPanel, Toolbar } from "devextreme-react";
 import React from "react";
-import type { IFormMetaItem } from "../../interfaces";
+import type { IFormOptions } from "../../interfaces";
 import { useAppFormContext } from "../../contexts";
 import { useAppFormDatasource } from "../../hooks";
+import './app-form.css';
 
 const colCountByScreen = {
   xs: 1,
@@ -12,10 +13,10 @@ const colCountByScreen = {
 };
 
 
-export function AppForm({ type, caption, operationUrl, metaFormOptions }: React.PropsWithChildren<IFormMetaItem>) {
+export function AppForm(formOptions: React.PropsWithChildren<IFormOptions>) {
 
   const appFormContext = useAppFormContext();
-  const formDatasource = useAppFormDatasource(operationUrl, "id");
+  const formDatasource = useAppFormDatasource(formOptions.operationUrl, "id");
 
   const [formData, setFormData] = React.useState<any | null>(null);
 
@@ -46,7 +47,7 @@ export function AppForm({ type, caption, operationUrl, metaFormOptions }: React.
       />
       {/* {actionButtons && actionButtons.length > 0 &&  */}
       <Toolbar
-        className='action-button-toolbar' multiline={false} items={[
+        className='main-toolbar-content action-button-toolbar' multiline={false} items={[
           {
             location: 'after',
             widget: 'dxButton',
@@ -72,7 +73,10 @@ export function AppForm({ type, caption, operationUrl, metaFormOptions }: React.
             }
           }
         ]} />
-      <Form labelMode='static' {...metaFormOptions} formData={formDatasource.data} onFieldDataChanged={handleFieldDataChanged} colCountByScreen={colCountByScreen} />
+        <div className="main-form-content">
+          <Form labelMode='static' {...formOptions} formData={formDatasource.data} onFieldDataChanged={handleFieldDataChanged} colCountByScreen={colCountByScreen} />
+        </div>
+      
       {/* {contextMasterId && <div style={{ display: 'none' }}>{contextMasterId}</div>} */}
     </div>
   </div>

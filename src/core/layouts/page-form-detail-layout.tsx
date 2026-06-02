@@ -15,7 +15,7 @@ export function PageFormDetailLayout({ caption, children, collapsible = true, de
     : React.PropsWithChildren<IPageFormDetailLayoutProps>) {
   return (
     <React.Fragment>
-      <div >
+   
         {collapsible ? (
           <details className={'dx-card responsive-paddings page-form-detail-card'} open={!defaultCollapsed}>
             <summary className={'page-form-detail-card-header'}>
@@ -37,6 +37,5 @@ export function PageFormDetailLayout({ caption, children, collapsible = true, de
             </div>
           </div>
         )}
-      </div>
     </React.Fragment>
 )}

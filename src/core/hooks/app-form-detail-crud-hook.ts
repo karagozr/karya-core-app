@@ -3,11 +3,16 @@ import { ApiRequest } from "../services";
 import { useMemo } from "react";
 
 interface IAppFormDetailParentValueOptions {
-  key: string;
+  key: string|null;
   value: string|number|null;
 }
 
 export const useAppFormDetailDatasource = (url: any, key: any, parent: IAppFormDetailParentValueOptions) => {
+  
+  if(!parent.key){
+    throw new Error("Parent key is required for AppFormDetail datasource.");
+  }
+
   var dataSource = new DataSource({
     store: new CustomStore({
         key: key,

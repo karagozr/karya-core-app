@@ -1,8 +1,10 @@
 import type { DataGridRef, IDataGridOptions, IToolbarItemProps } from "devextreme-react/cjs/data-grid";
 import type { IFormOptions as IDevFormOptions } from "devextreme-react/cjs/form";
+import type { dxToolbarItem } from "devextreme/ui/toolbar";
 
 export interface IFormOptions extends IDevFormOptions{ 
   operationUrl: string;
+  customToolbarItems?: Array<dxToolbarItem>;
 }
 
 

@@ -11,10 +11,19 @@ export function InventoryFormPage() {
                 { dataField: 'name', colSpan: 3 },
                 { dataField: 'categoryId', colSpan: 1 },
                 { dataField: 'brand', colSpan: 1 }
-            
-                
             ],
-          operationUrl: "https://6a0efaf31736097c360af529.mockapi.io/api/inventory"
+          operationUrl: "https://6a0efaf31736097c360af529.mockapi.io/api/inventory",
+          customToolbarItems: [
+            {
+              location: 'after',
+              widget: 'dxButton',
+              options: {
+                icon: 'bell',
+                text: 'Öttür',
+                onClick: (e:any) => console.log('Custom action clicked', e)
+              }
+             }
+          ]
         }} detailItems={[
         {
           type: 'detail',

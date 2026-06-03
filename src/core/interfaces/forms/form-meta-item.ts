@@ -4,12 +4,12 @@ import type { dxToolbarItem } from "devextreme/ui/toolbar";
 
 export interface IFormOptions extends IDevFormOptions{ 
   operationUrl: string;
-  customToolbarItems?: Array<dxToolbarItem>;
+  toolbarsItems?: Array<dxToolbarItem>;
 }
 
 
 export interface IFormDetailOptions { 
-  actionButtons?:Array<IToolbarItemProps>;
+  toolbarsItems?:Array<IToolbarItemProps>;
   isEditable?:boolean;
   columns?: IDataGridOptions['columns'];
   gridRef?: React.Ref<DataGridRef>
@@ -28,7 +28,7 @@ export interface IFormPageDetailMetaItem {
 export interface IFormPageMetaItem  {
   breadcrumbPath?: string;
   caption?: string;
-  actionButtons?:Array<any>;
+  toolbarsItems?:Array<any>;
   formOptions?:  IFormOptions;
   detailItems?: Array<IFormPageDetailMetaItem>;
 }

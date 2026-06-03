@@ -34,7 +34,7 @@ export function BaseFormPage({ detailItems,formOptions, breadcrumbPath, caption 
             <PageFormDetailLayout pageType="form-detail"  caption={{ title: caption }}>
               <TabPanel>
                 {detailItems?.filter(item => item.inTab).map((item: any, index: number) => (
-                  <TabPanelItem key={index} title={item.caption}>
+                  <TabPanelItem key={index} title={item.title}>
                     {
                       item.type === 'form' ? 
                         <AppForm {...item.formOptions} />

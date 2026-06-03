@@ -15,13 +15,14 @@ const colCountByScreen = {
 };
 
 const loadingMessage = "Loading";
+const unsavedChangesMessage = "You have unsaved changes. Are you sure you want to leave?";
+const deleteConfirmMessage = "Are you sure you want to delete this item?";
 
 export function AppForm(formOptions: React.PropsWithChildren<IFormOptions>) {
 
   const formRef = React.useRef<dxForm>(null);
   const appFormContext = useAppFormContext();
   const formDatasource = useAppFormDatasource(formOptions.operationUrl, "id");
-
   const [formData, setFormData] = React.useState<any | null>(null);
 
   React.useEffect(() => {
@@ -41,18 +42,40 @@ export function AppForm(formOptions: React.PropsWithChildren<IFormOptions>) {
     }));
   }, []);
 
-  const onSave = () => {
-    formDatasource.save(appFormContext.key!, formData);
-  }
-
-  const onNew = () => {
+  const openNewForm = () => {
     appFormContext.newFormContext();
     // formDatasource.createNew();
     // setFormData(null);
   }
 
+  const onNew = () => {
+    if (formData !== null && formRef.current) {
+      const confirmResult = window.confirm(unsavedChangesMessage);
+      if (!confirmResult) {
+        return;
+      } else {
+        openNewForm();
+      }
+    } else {
+      openNewForm();
+    }
+  }
 
-  const toolbarItems = createToolbarItems(onSave, onNew, formOptions.customToolbarItems, formRef, appFormContext.isNew||false);
+  const onSave = () => {
+    const validate = formRef.current?.instance().validate() || { isValid: true };
+    if (validate.isValid) {
+      formDatasource.save(appFormContext.key!, formData);
+    }
+  }
+
+  const onDelete = () => {
+    const confirmResult = window.confirm(deleteConfirmMessage);
+    if (confirmResult) {
+      formDatasource.remove(appFormContext.key!);
+    }
+  }
+  
+  const toolbarItems = createToolbarItems(onSave, onNew,onDelete, formOptions.toolbarsItems, formRef, appFormContext.isNew || false);
 
   return <React.Fragment>
     <div className={'dx-form-loader-container'} >
@@ -71,46 +94,50 @@ export function AppForm(formOptions: React.PropsWithChildren<IFormOptions>) {
   </React.Fragment>
 }
 
-const createToolbarItems = (onSave: () => void, onNew: () => void , 
-customToolbarItems: Array<dxToolbarItem> | undefined, formRef: any,isNew: boolean) => {
+const createToolbarItems = (onSave: () => void, onNew: () => void,onDelete: () => void,toolbarsItems: Array<dxToolbarItem> | undefined, formRef: any, isNew: boolean) => {
   const defaultItems = [
-          {
-            location: 'after',
-            widget: 'dxButton',
-            options: {
-              text: 'Save',
-              type: 'success',
-              icon: 'save',
-              onClick: onSave
-            }
-          },
-          {
-            location: 'after',
-            widget: 'dxButton',
-            options: {
-              text: 'New',
-              type: 'default',
-              icon: 'plus',
-              onClick: onNew
-            }
-          }
-        ];
-  
-  if(customToolbarItems && customToolbarItems.length > 0) {
-
-    const externalToolbarItems = customToolbarItems.map(item => {
-    if (item.widget === 'dxButton' && item.options && item.options.onClick) 
     {
-      const originalOnClick = item.options.onClick;
-      item.options.onClick = () => 
-      {
-        originalOnClick(formRef?.current?.instance().option('formData'));
-      }    
+      location: 'after',
+      widget: 'dxButton',
+      options: {
+        text: 'Save',
+        type: 'success',
+        icon: 'save',
+        onClick: onSave
+      }
+    },
+    {
+      location: 'after',
+      widget: 'dxButton',
+      options: {
+        text: 'Delete',
+        type: 'danger',
+        icon: 'trash',
+        onClick: onDelete
+      }
+    },
+    {
+      location: 'after',
+      widget: 'dxButton',
+      options: {
+        text: 'New',
+        type: 'default',
+        icon: 'plus',
+        onClick: onNew
+      }
     }
-    return item;
+  ];
 
+  if (toolbarsItems && toolbarsItems.length > 0) {
+    const externalToolbarItems = toolbarsItems.map(item => {
+      if (item.widget === 'dxButton' && item.options && item.options.onClick) {
+        const originalOnClick = item.options.onClick;
+        item.options.onClick = () => {
+          originalOnClick(formRef?.current?.instance().option('formData'));
+        }
+      }
+      return item;
     });
-
     return [...defaultItems, ...externalToolbarItems];
   }
   return defaultItems;

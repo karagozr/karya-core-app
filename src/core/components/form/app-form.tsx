@@ -74,7 +74,6 @@ export function AppForm(formOptions: React.PropsWithChildren<IFormOptions>) {
       formDatasource.remove(appFormContext.key!);
     }
   }
-  
   const toolbarItems = createToolbarItems(onSave, onNew,onDelete, formOptions.toolbarsItems, formRef, appFormContext.isNew || false);
 
   return <React.Fragment>

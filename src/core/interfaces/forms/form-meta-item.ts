@@ -1,12 +1,12 @@
 import type { DataGridRef, IDataGridOptions, IToolbarItemProps } from "devextreme-react/cjs/data-grid";
 import type { IFormOptions as IDevFormOptions } from "devextreme-react/cjs/form";
 import type { dxToolbarItem } from "devextreme/ui/toolbar";
+import type { PageBreadcrumbProps } from "../../components";
 
 export interface IFormOptions extends IDevFormOptions{ 
   operationUrl: string;
   toolbarsItems?: Array<dxToolbarItem>;
 }
-
 
 export interface IFormDetailOptions { 
   toolbarsItems?:Array<IToolbarItemProps>;
@@ -25,10 +25,12 @@ export interface IFormPageDetailMetaItem {
   formDetailOptions?: IFormDetailOptions;
 }
 
-export interface IFormPageMetaItem  {
-  breadcrumbPath?: string;
+export interface IBasePageMetaItem  {
+  breadcrumb?: PageBreadcrumbProps;
   caption?: string;
-  toolbarsItems?:Array<any>;
+}
+
+export interface IFormPageMetaItem extends IBasePageMetaItem { 
   formOptions?:  IFormOptions;
   detailItems?: Array<IFormPageDetailMetaItem>;
 }

@@ -1,19 +1,18 @@
 import React from "react";
 import { AppListContext, useAppListContext } from "../contexts";
 import { AppDatagrid } from "../components/list/app-datagrid";
-import { PageLayout, PageListLayout } from "../layouts";
+import { PageListLayout } from "../layouts";
 import TabPanel, { Item as TabPanelItem } from 'devextreme-react/tab-panel';
 import type { IMetaItemList } from "../interfaces";
+import { BaseMainPage } from "./main-page";
 
-export function BaseListPage({ items, isTabList, caption, breadcrumbPath }
-    : React.PropsWithChildren<IMetaItemList>) {
+export function BaseListPage({ items, isTabList, caption, breadcrumb }: React.PropsWithChildren<IMetaItemList>) {
 
     const appListContext = useAppListContext();
 
 
-
     return (
-        <PageLayout breadcrumb={{ path: breadcrumbPath }} title={{ title: caption }}>
+        <BaseMainPage breadcrumb={breadcrumb} caption={caption}>
             <PageListLayout>
                 <AppListContext.Provider value={appListContext}>
                     <React.Fragment>
@@ -30,11 +29,10 @@ export function BaseListPage({ items, isTabList, caption, breadcrumbPath }
                             items ? (
                                 items[0].type === 'grid' ? <AppDatagrid {...items[0]} /> : <div>diğer</div>
                             ) : null}
-
                     </React.Fragment>
                 </AppListContext.Provider>
             </PageListLayout>
-        </PageLayout>
+        </BaseMainPage>
     );
 }
 

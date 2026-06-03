@@ -1,4 +1,5 @@
 import type { Column, ToolbarItem } from "devextreme/ui/data_grid_types";
+import type { PageBreadcrumbProps } from "../../components";
 
 
 export interface IListOptions{ 
@@ -20,6 +21,6 @@ export interface IListMetaItem {
 export interface IMetaItemList  {
   caption?: string;
   isTabList?: boolean | false;
-  breadcrumbPath?: string;
+  breadcrumb?: PageBreadcrumbProps;
   items?: Array<IListMetaItem>;
 }

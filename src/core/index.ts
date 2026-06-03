@@ -5,3 +5,4 @@ export * from './hooks';
 export * from './interfaces';
 export * from './services';
 export * from './layouts';
+export * from './modals';

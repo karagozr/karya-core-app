@@ -2,6 +2,7 @@ import { HomePage, TasksPage, ProfilePage } from './pages';
 import { withNavigationWatcher } from './contexts/navigation-hooks';
 import { InventoryFormPage } from './pages/invetory/inventory-form-page';
 import { InventoryListPage } from './pages/invetory/inventory-list-page';
+import { InventoryReportPage } from './pages/invetory/inventory-report';
 
 const routeData = [
     {
@@ -23,6 +24,10 @@ const routeData = [
     {
         path: '/inventory/form',
         element: InventoryFormPage
+    },
+    {
+        path: '/inventory/report',
+        element: InventoryReportPage
     }
 ];
 

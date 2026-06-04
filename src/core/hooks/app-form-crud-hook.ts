@@ -21,7 +21,7 @@ export const useAppFormDatasource = (url: any, keyName: string) => {
       if (res.data) {
         setDataValue(res.data);
       }
-    }, 1000)
+    }, 10000)
   }
 
   const createNew = React.useCallback(() => {

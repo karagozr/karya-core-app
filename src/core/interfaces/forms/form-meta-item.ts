@@ -33,4 +33,5 @@ export interface IBasePageMetaItem  {
 export interface IFormPageMetaItem extends IBasePageMetaItem { 
   formOptions?:  IFormOptions;
   detailItems?: Array<IFormPageDetailMetaItem>;
+  detailCaption?: string;
 }

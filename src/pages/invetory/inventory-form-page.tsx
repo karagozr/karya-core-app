@@ -1,10 +1,11 @@
 import React from 'react';
 import { BaseFormPage, BaseModal, type BaseModalRef, type IFormPageMetaItem } from '../../core';
+import { AppFormOperations } from './inventory-detail-modal';
 
 
 export const InventoryFormPage = () => {
-  
-  const modalRef = React.useRef<BaseModalRef>(null);
+
+  const modalRef = React.useRef<BaseModalRef | any>(null);
 
   const meta: IFormPageMetaItem = {
     caption: 'Inventory Form',
@@ -23,6 +24,7 @@ export const InventoryFormPage = () => {
         {
           location: 'after',
           widget: 'dxButton',
+          locateInMenu: "auto",
           options: {
             icon: 'bell',
             text: 'Öttür',
@@ -31,6 +33,7 @@ export const InventoryFormPage = () => {
         }
       ]
     },
+    detailCaption: 'Inventory Details',
     detailItems: [
       {
         type: 'detail',
@@ -63,7 +66,10 @@ export const InventoryFormPage = () => {
 
   return (
     <React.Fragment>
-      <BaseModal ref={modalRef} title="Custom Modal" />
+      <BaseModal ref={modalRef} title="Inventory Detail" showCloseButton={true}>
+        <AppFormOperations />
+      </BaseModal>
+      {/* <InventoryDetailModal modalRef={modalRef} /> */}
       <BaseFormPage key='1' {...meta} />
     </React.Fragment>
   );

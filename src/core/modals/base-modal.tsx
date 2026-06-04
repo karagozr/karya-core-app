@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import { Popup } from 'devextreme-react/popup';
+import { AppModalContext, useAppModalContext } from '../contexts';
 
 interface BaseModalProps {
     title?: string;
     children?: React.ReactNode;
-    width?: number | string;
-    height?: number | string;
     showCloseButton?: boolean;
 }
 
@@ -16,34 +15,38 @@ export interface BaseModalRef {
 
 export const BaseModal = React.forwardRef<BaseModalRef, BaseModalProps>((props, ref) => {
 
-    const { title, children, width = 500, height = 'auto', showCloseButton = true } = props;
+    const { title, children, showCloseButton = true } = props;
+    const modalContext = useAppModalContext() || {};
+
 
     const [visible, setVisible] = useState(false);
 
     React.useImperativeHandle(ref, () => ({
         open: (e: any) => {
-            console.log('Modal opened with event:', e);
-            setVisible(true)},
+            setVisible(true);
+            modalContext.setModalData(e);
+        },
         close: () => setVisible(false)
     }));
 
     return (
-        <Popup
-            visible={visible}
-            onHiding={() => {
-                setVisible(false);
-            }}
-            title={title}
-            width={width}
-            height={height}
-            showCloseButton={showCloseButton}
-            dragEnabled={true}
-        >
-            <div className="modal-content">
-
-                test
-            </div>
-        </Popup>
+        <React.Fragment>
+           
+                <Popup
+                    visible={visible}
+                    onHiding={() => { setVisible(false); }}
+                    title={title}
+                    resizeEnabled={true}
+                    showCloseButton={showCloseButton}
+                    dragEnabled={true} >
+                    <div className="modal-content">
+                         <AppModalContext.Provider value={modalContext}>
+                            {children}
+                         </AppModalContext.Provider>
+                        
+                    </div>
+                </Popup>
+        </React.Fragment>
     );
 });
 

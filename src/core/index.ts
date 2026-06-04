@@ -6,3 +6,4 @@ export * from './interfaces';
 export * from './services';
 export * from './layouts';
 export * from './modals';
+export * from './loaders';

@@ -5,14 +5,14 @@ import { AppFormContext, useAppFormContext } from "../contexts";
 import { PageFormDetailLayout, PageFormLayout, PageLayout } from "../layouts";
 import TabPanel, { Item as TabPanelItem } from 'devextreme-react/tab-panel';
 
-export function BaseFormPage({ detailItems,formOptions, breadcrumbPath, caption }: React.PropsWithChildren<IFormPageMetaItem>) {
+export function BaseFormPage({ detailItems,formOptions, breadcrumb, caption,detailCaption }: React.PropsWithChildren<IFormPageMetaItem>) {
 
   const appFormContext = useAppFormContext();
 
   return (
 
     <AppFormContext.Provider value={appFormContext}>
-        <PageLayout breadcrumb={{ path: breadcrumbPath }} title={{ title: caption }}>
+        <PageLayout breadcrumb={breadcrumb} title={{ title: caption }}>
         {formOptions && <PageFormLayout key={0}><AppForm key={0} {...formOptions} /></PageFormLayout>}  
         {
           detailItems?.filter(item => !item.inTab).map((item: any, index: number) => {
@@ -31,7 +31,7 @@ export function BaseFormPage({ detailItems,formOptions, breadcrumbPath, caption 
           })
         }{
           detailItems?.some(item => item.inTab) && (
-            <PageFormDetailLayout pageType="form-detail"  caption={{ title: caption }}>
+            <PageFormDetailLayout pageType="form-detail"  caption={{ title: detailCaption }}>
               <TabPanel>
                 {detailItems?.filter(item => item.inTab).map((item: any, index: number) => (
                   <TabPanelItem key={index} title={item.title}>

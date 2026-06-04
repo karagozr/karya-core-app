@@ -30,6 +30,9 @@
 
     --shadow-color-first: rgba(0, 0, 0, 0.06);
     --shadow-color-second: rgba(0, 0, 0, 0.12);
+
+    --form-isloading-bg-color: #e7e7e7;
+    --form-isloading-bg-shading-color: #e1dddd;
   }
 
   .dx-swatch-additional {
@@ -46,6 +49,9 @@
     --shadow-color-first: rgba(0, 0, 0, 0.12);
     --shadow-color-second: rgba(0, 0, 0, 0.24);
     --footer-border-color: rgba(97, 97, 97, 1);
+
+    --form-isloading-bg-color: #151b2269;
+    --form-isloading-bg-shading-color: #213d8b75;
   }
 
   .dx-swatch-additional-dark {

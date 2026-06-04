@@ -1,12 +1,11 @@
 import { Form, LoadPanel, Toolbar } from "devextreme-react";
 import React from "react";
-import type { IFormOptions } from "../../interfaces";
-import { useAppFormContext } from "../../contexts";
-import { useAppFormDatasource } from "../../hooks";
+import type { IFormOptions } from "../interfaces";
+import { useAppFormContext } from "../contexts";
+import { useAppFormDatasource } from "../hooks";
 import './app-form.css';
 import type { dxToolbarItem } from "devextreme/ui/toolbar";
 import type dxForm from "devextreme/ui/form";
-import  "../../loaders/form-skeleton.scss";
 
 const colCountByScreen = {
   xs: 1,
@@ -19,7 +18,7 @@ const loadingMessage = "Loading";
 const unsavedChangesMessage = "You have unsaved changes. Are you sure you want to leave?";
 const deleteConfirmMessage = "Are you sure you want to delete this item?";
 
-export function AppForm(formOptions: React.PropsWithChildren<IFormOptions>) {
+export function AppModalForm(formOptions: React.PropsWithChildren<IFormOptions>) {
 
   const formRef = React.useRef<dxForm>(null);
   const appFormContext = useAppFormContext();
@@ -77,15 +76,14 @@ export function AppForm(formOptions: React.PropsWithChildren<IFormOptions>) {
   }
   const toolbarItems = createToolbarItems(onSave, onNew,onDelete, formOptions.toolbarsItems, formRef, appFormContext.isNew || false);
 
-
   return <React.Fragment>
-    <div className={`${formDatasource.isLoading ? 'is-loading' : ''} dx-form-loader-container`} >
-      {/* <LoadPanel id={formOptions.id} shadingColor="rgba(0, 0, 0, 0.36)" position={{ of: '.dx-form-loader-container' }}
+    <div className={'dx-modal-form-loader-container'} >
+      <LoadPanel id={formOptions.id} shadingColor="rgba(0, 0, 0, 0.36)" position={{ of: '.dx-modal-form-loader-container' }}
         visible={formDatasource.isLoading}
         showIndicator={true}
         message={loadingMessage + '...'}
         shading={true}
-        showPane={true} /> */}
+        showPane={true} />
       <Toolbar className='main-toolbar-content action-button-toolbar' multiline={false}
         items={toolbarItems} />
       <div className="main-form-content">

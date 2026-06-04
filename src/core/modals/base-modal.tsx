@@ -1,6 +1,6 @@
-import React, { use, useState } from 'react';
+import React, { useState } from 'react';
 import { Popup } from 'devextreme-react/popup';
-import { AppModalContext, useAppModalContext } from '../contexts';
+import { AppModalProvider } from '../contexts';
 
 interface BaseModalProps {
     title?: string;
@@ -16,36 +16,36 @@ export interface BaseModalRef {
 export const BaseModal = React.forwardRef<BaseModalRef, BaseModalProps>((props, ref) => {
 
     const { title, children, showCloseButton = true } = props;
-    const modalContext = useAppModalContext() || {};
-
 
     const [visible, setVisible] = useState(false);
+    const modalDataRef = React.useRef<any>(null);
 
     React.useImperativeHandle(ref, () => ({
         open: (e: any) => {
+            modalDataRef.current = e;
             setVisible(true);
-            modalContext.setModalData(e);
         },
         close: () => setVisible(false)
     }));
 
     return (
         <React.Fragment>
-           
-                <Popup
-                    visible={visible}
-                    onHiding={() => { setVisible(false); }}
-                    title={title}
-                    resizeEnabled={true}
-                    showCloseButton={showCloseButton}
-                    dragEnabled={true} >
-                    <div className="modal-content">
-                         <AppModalContext.Provider value={modalContext}>
+
+            <Popup
+                visible={visible}
+                onHiding={() => { setVisible(false); }}
+                title={title}
+                resizeEnabled={true}
+                showCloseButton={showCloseButton}
+                dragEnabled={true} >
+                <div className="modal-content">
+                    {visible && (
+                        <AppModalProvider initialData={modalDataRef.current}>
                             {children}
-                         </AppModalContext.Provider>
-                        
-                    </div>
-                </Popup>
+                        </AppModalProvider>
+                    )}
+                </div>
+            </Popup>
         </React.Fragment>
     );
 });

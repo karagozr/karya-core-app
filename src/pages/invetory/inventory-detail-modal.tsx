@@ -1,10 +1,10 @@
 import React from "react";
 import { AppForm, BaseModal, useAppModalContext } from "../../core";
 
-const InventoryDetailModalContent = () => {
+
+export const InventoryDetailModal = ({ modalRef,id }: { id: string, modalRef: React.RefObject<any> }) => {
+  
   const modalContext = useAppModalContext();
-  const modalContextRef = React.useRef(modalContext);
-  modalContextRef.current = modalContext;
 
   const formOptions: any = {
     id: 'form',
@@ -24,19 +24,15 @@ const InventoryDetailModalContent = () => {
         options: {
           icon: 'bell',
           text: 'ÇAL',
-          onClick: () => console.log('Modal context data:', modalContextRef.current.data)
+          onClick: () => console.log('Modal context data:', modalContext?.getModalData(id))
         }
       }
     ]
   };
 
-  return <AppForm {...formOptions} />;
-};
-
-export const InventoryDetailModal = ({ modalRef }: { modalRef: React.RefObject<any> }) => {
   return (
-    <BaseModal ref={modalRef} title="Inventory Detail" showCloseButton={true}>
-      <InventoryDetailModalContent />
+    <BaseModal id={id} ref={modalRef} title="Inventory Detail" showCloseButton={true}>
+      <AppForm {...formOptions} />
     </BaseModal>
   );
 }

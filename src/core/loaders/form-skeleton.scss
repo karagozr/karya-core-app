@@ -11,7 +11,7 @@
   overflow: hidden !important;
   border-radius: 4px !important;
   pointer-events: none !important; /* Tıklamayı ve odaklanmayı tamamen engeller */
-  max-height: 34px !important; /* Yüksekliği sınırla, böylece çok büyük alanlar da aşırı görünmez olmaz */
+  //max-height: 34px !important; /* Yüksekliği sınırla, böylece çok büyük alanlar da aşırı görünmez olmaz */
   /* 🌟 TEMA DEĞİŞKENLERİ: Açık/Koyu temaya göre renkleri otomatik eşler */
   background-color: var(--form-isloading-bg-color) !important;
   
@@ -22,12 +22,38 @@
     var(--form-isloading-bg-color) 100px
   ) !important;
   background-size: 200% 100% !important;
-  animation: dxDirectShimmer 1.5s infinite linear !important;
+  animation: dxDirectShimmer 2.5s infinite linear !important;
+}
+
+.is-loading .dx-toolbar-item-content{
+position: relative !important;
+  overflow: hidden !important;
+  border-radius: 4px !important;
+  pointer-events: none !important; /* Tıklamayı ve odaklanmayı tamamen engeller */
+  //max-height: 34px !important; /* Yüksekliği sınırla, böylece çok büyük alanlar da aşırı görünmez olmaz */
+  /* 🌟 TEMA DEĞİŞKENLERİ: Açık/Koyu temaya göre renkleri otomatik eşler */
+  background-color: var(--form-isloading-bg-color) !important;
+  
+  background-image: linear-gradient(
+    90deg, 
+    var(--form-isloading-bg-color) 0px, 
+    var(--form-isloading-bg-shading-color) 50px, 
+    var(--form-isloading-bg-color) 100px
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: dxDirectShimmer 2.5s infinite linear !important;
 }
 
 /* 3. İçeride Kalan Tüm Gerçek Input, İkon, Yazı ve Kenarlıkları Tamamen Görünmez Yap */
 .is-loading .dx-field-item-content * {
   opacity: 0 !important;
+  visibility: hidden !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.is-loading .dx-toolbar-item-content * {
+  opacity: 0.1 !important;
   visibility: hidden !important;
   border: none !important;
   box-shadow: none !important;

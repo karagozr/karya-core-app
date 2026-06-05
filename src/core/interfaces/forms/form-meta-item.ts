@@ -4,6 +4,7 @@ import type { dxToolbarItem } from "devextreme/ui/toolbar";
 import type { PageBreadcrumbProps } from "../../components";
 
 export interface IFormOptions extends IDevFormOptions{ 
+  ref?: React.RefObject<any>;
   operationUrl: string;
   toolbarsItems?: Array<dxToolbarItem>;
 }

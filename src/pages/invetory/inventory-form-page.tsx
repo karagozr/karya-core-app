@@ -1,11 +1,46 @@
 import React from 'react';
-import { BaseFormPage, BaseModal, type BaseModalRef, type IFormPageMetaItem } from '../../core';
+import { BaseFormPage, type AppFormRef, type BaseModalRef, type IFormPageMetaItem } from '../../core';
 import { InventoryDetailModal } from './inventory-detail-modal';
+import { Lookup } from 'devextreme-react';
+import { CustomStore, DataSource, ODataStore } from 'devextreme/common/data';
 
 
 export const InventoryFormPage = () => {
 
-  const modalRef = React.useRef<BaseModalRef | any>(null);
+  const modalRef = React.useRef<BaseModalRef>(null);
+  const formRef = React.useRef<AppFormRef>(null);
+
+  const testDs1 = new DataSource({
+    store: new CustomStore({
+      byKey: (key) => fetch(`https://6a0efaf31736097c360af529.mockapi.io/api/category/${key}`)
+        .then(response => response.json()),
+      load: (loadOptions) => {
+        console.log('Loading categories with options:', loadOptions);
+        var data = fetch('https://6a0efaf31736097c360af529.mockapi.io/api/category')
+          .then(response => response.json())
+
+        return data;
+      }
+    })
+
+  })
+
+  const testDs2= new DataSource({
+    store: new CustomStore({
+      byKey: (key) => fetch(`https://6a0efaf31736097c360af529.mockapi.io/api/category/${key}`)
+        .then(response => response.json()),
+      load: (loadOptions) => {
+        console.log('param, loadOptions:', formRef.current?.formData,loadOptions);
+        var data = fetch('https://6a0efaf31736097c360af529.mockapi.io/api/category')
+          .then(response => response.json())
+
+        return data;
+      }
+    })
+
+  })
+
+
 
   const meta: IFormPageMetaItem = {
     caption: 'Inventory Form',
@@ -13,11 +48,12 @@ export const InventoryFormPage = () => {
     formOptions: {
       id: 'form',
       colCount: 4,
+      ref: formRef,
       items: [
         { dataField: 'id', colSpan: 1, editorOptions: { readOnly: true } },
         { dataField: 'name', colSpan: 3, isRequired: true, validationRules: [{ type: 'required', message: 'Name is required' }] },
-        { dataField: 'categoryId', colSpan: 1 },
-        { dataField: 'brand', colSpan: 1 }
+        { dataField: 'categoryId', colSpan: 1, editorType: 'dxLookup', editorOptions: { dataSource: testDs1, displayExpr: 'name', valueExpr: 'id' } },
+        { dataField: 'brand', colSpan: 1, editorType: 'dxLookup', editorOptions: { dataSource: testDs2, displayExpr: 'name', valueExpr: 'id' } }
       ],
       operationUrl: "https://6a0efaf31736097c360af529.mockapi.io/api/inventory",
       toolbarsItems: [
@@ -28,7 +64,7 @@ export const InventoryFormPage = () => {
           options: {
             icon: 'bell',
             text: 'Öttür',
-            onClick: (e: any) => {modalRef.current?.open(e)}
+            onClick: (e: any) => console.log(">>>", formRef.current?.getFormData()) //modalRef.current?.open(e)
           }
         }
       ]
@@ -64,10 +100,11 @@ export const InventoryFormPage = () => {
     ]
   };
 
+
+
   return (
     <React.Fragment>
-      
-      <InventoryDetailModal modalRef={modalRef} />
+      <InventoryDetailModal id='zzzzzz' modalRef={modalRef} />
       <BaseFormPage key='1' {...meta} />
     </React.Fragment>
   );

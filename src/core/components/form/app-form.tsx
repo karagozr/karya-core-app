@@ -1,4 +1,4 @@
-import { Form, LoadPanel, Toolbar } from "devextreme-react";
+import { Form, Toolbar } from "devextreme-react";
 import React from "react";
 import type { IFormOptions } from "../../interfaces";
 import { useAppFormContext } from "../../contexts";
@@ -15,16 +15,29 @@ const colCountByScreen = {
   lg: 4
 };
 
-const loadingMessage = "Loading";
 const unsavedChangesMessage = "You have unsaved changes. Are you sure you want to leave?";
 const deleteConfirmMessage = "Are you sure you want to delete this item?";
 
-export function AppForm(formOptions: React.PropsWithChildren<IFormOptions>) {
+export interface AppFormRef {
+  getFormData: () => any | null;
+  getChangedData: () => any | null;
+  formData: any | null;
+}
+
+export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IFormOptions>>(function AppForm(formOptions, ref) {
 
   const formRef = React.useRef<dxForm>(null);
   const appFormContext = useAppFormContext();
   const formDatasource = useAppFormDatasource(formOptions.operationUrl, "id");
   const [formData, setFormData] = React.useState<any | null>(null);
+
+  React.useImperativeHandle(ref, () => {
+    return {
+      getFormData: () => formRef.current?.instance().option('formData') ?? formDatasource.data ?? null,
+      getChangedData: () => formData,
+      formData: formData
+    };
+  }, [formDatasource.data, formData]);
 
   React.useEffect(() => {
     if (appFormContext.key && !appFormContext.isNew) {
@@ -75,17 +88,12 @@ export function AppForm(formOptions: React.PropsWithChildren<IFormOptions>) {
       formDatasource.remove(appFormContext.key!);
     }
   }
-  const toolbarItems = createToolbarItems(onSave, onNew,onDelete, formOptions.toolbarsItems, formRef, appFormContext.isNew || false);
+  
+  const toolbarItems = createToolbarItems(onSave, onNew,onDelete, formOptions.toolbarsItems, formRef);
 
 
   return <React.Fragment>
     <div className={`${formDatasource.isLoading ? 'is-loading' : ''} dx-form-loader-container`} >
-      {/* <LoadPanel id={formOptions.id} shadingColor="rgba(0, 0, 0, 0.36)" position={{ of: '.dx-form-loader-container' }}
-        visible={formDatasource.isLoading}
-        showIndicator={true}
-        message={loadingMessage + '...'}
-        shading={true}
-        showPane={true} /> */}
       <Toolbar className='main-toolbar-content action-button-toolbar' multiline={false}
         items={toolbarItems} />
       <div className="main-form-content">
@@ -93,9 +101,11 @@ export function AppForm(formOptions: React.PropsWithChildren<IFormOptions>) {
       </div>
     </div>
   </React.Fragment>
-}
+});
 
-const createToolbarItems = (onSave: () => void, onNew: () => void,onDelete: () => void,toolbarsItems: Array<dxToolbarItem> | undefined, formRef: any, isNew: boolean) => {
+AppForm.displayName = 'AppForm';
+
+const createToolbarItems = (onSave: () => void, onNew: () => void,onDelete: () => void,toolbarsItems: Array<dxToolbarItem> | undefined, formRef: any) => {
   const defaultItems = [
     {
       location: 'after',

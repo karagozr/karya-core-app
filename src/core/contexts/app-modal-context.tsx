@@ -1,32 +1,26 @@
 import React from 'react';
 
-
 type AppModalContextProps = {
-    data: any | null;
-    setModalData: (e: any) => void;
+    data: AppModalData;
+    setModalData: (e: AppModalData) => void;
+    getModalData: (key: string) => any;
 }
 
-export const AppModalContext = React.createContext<AppModalContextProps>({
-    data: null,
-    setModalData: () => {}
-});
+interface AppModalData {
+    key: string|null;
+    data: any;
+}
 
-export const AppModalProvider = ({ children, initialData }: React.PropsWithChildren<{ initialData?: any }>) => {
-    const [data, setData] = React.useState<any>(initialData ?? null);
+export const AppModalContext = React.createContext<AppModalContextProps | null>(null);
 
-    React.useEffect(() => {
-        setData(initialData ?? null);
-    }, [initialData]);
+export const AppModalProvider = ({ children }: React.PropsWithChildren<{}>) => {
+    const [data, setData] = React.useState<AppModalData>({key: null, data: null });
 
-    const setModalData = React.useCallback((e: any) => {
-        setData(e);
-    }, []);
+    const setModalData = React.useCallback((e: AppModalData) => setData(e) , []);
 
+    const getModalData = React.useCallback((key:string) => data.key === key ? data.data : null, [data]);
 
-
-
-
-    const value = React.useMemo(() => ({ data, setModalData }), [data]);
+    const value = React.useMemo(() => ({ data, setModalData, getModalData }), [data, setModalData, getModalData]);
 
     return <AppModalContext.Provider value={value}>{children}</AppModalContext.Provider>;
 }

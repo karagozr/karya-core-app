@@ -1,28 +1,28 @@
 import React, { useState } from 'react';
 import { Popup } from 'devextreme-react/popup';
-import { AppModalProvider } from '../contexts';
+import { useAppModalContext } from '../contexts';
 
 interface BaseModalProps {
     title?: string;
     children?: React.ReactNode;
     showCloseButton?: boolean;
+    id: string;
 }
 
 export interface BaseModalRef {
-    open: (e: any) => void;
+    open: (data: any) => void;
     close: () => void;
 }
 
 export const BaseModal = React.forwardRef<BaseModalRef, BaseModalProps>((props, ref) => {
 
-    const { title, children, showCloseButton = true } = props;
-
+    const { title, children, showCloseButton = true, id } = props;
     const [visible, setVisible] = useState(false);
-    const modalDataRef = React.useRef<any>(null);
+    const modalContext = useAppModalContext();
 
     React.useImperativeHandle(ref, () => ({
-        open: (e: any) => {
-            modalDataRef.current = e;
+        open: ( data: any) => {
+            modalContext?.setModalData({ key: id, data });
             setVisible(true);
         },
         close: () => setVisible(false)
@@ -30,7 +30,6 @@ export const BaseModal = React.forwardRef<BaseModalRef, BaseModalProps>((props, 
 
     return (
         <React.Fragment>
-
             <Popup
                 visible={visible}
                 onHiding={() => { setVisible(false); }}
@@ -39,11 +38,7 @@ export const BaseModal = React.forwardRef<BaseModalRef, BaseModalProps>((props, 
                 showCloseButton={showCloseButton}
                 dragEnabled={true} >
                 <div className="modal-content">
-                    {visible && (
-                        <AppModalProvider initialData={modalDataRef.current}>
-                            {children}
-                        </AppModalProvider>
-                    )}
+                    {visible && children}
                 </div>
             </Popup>
         </React.Fragment>

@@ -13,6 +13,7 @@ import { useScreenSizeClass } from './utils/media-query';
 import Content from './Content';
 import UnauthenticatedContent from './UnauthenticatedContent';
 import { ThemeContext, useThemeContext} from "./theme";
+import { AppModalProvider } from './core';
 
 function App() {
   const { user, loading } = useAuth();
@@ -37,9 +38,11 @@ export default function Root() {
       <ThemeContext.Provider value={themeContext}>
         <AuthProvider>
           <NavigationProvider>
+             <AppModalProvider>
             <div className={`app ${screenSizeClass}`}>
               <App />
             </div>
+            </AppModalProvider>
           </NavigationProvider>
         </AuthProvider>
       </ThemeContext.Provider>

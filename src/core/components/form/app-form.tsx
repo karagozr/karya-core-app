@@ -22,6 +22,7 @@ export interface AppFormRef {
   getFormData: () => any | null;
   getChangedData: () => any | null;
   formData: any | null;
+  updateData: (field: string, value: any) => void;
 }
 
 export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IFormOptions>>(function AppForm(formOptions, ref) {
@@ -35,7 +36,8 @@ export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IFor
     return {
       getFormData: () => formRef.current?.instance().option('formData') ?? formDatasource.data ?? null,
       getChangedData: () => formData,
-      formData: formData
+      formData: formData,
+      updateData: (field: string, value: any) => formRef.current?.instance().updateData(field, value),
     };
   }, [formDatasource.data, formData]);
 
@@ -47,6 +49,7 @@ export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IFor
       setFormData(null);
     }
   }, [appFormContext.key]);
+  
 
   const handleFieldDataChanged = React.useCallback((e: any) => {
     const { dataField, value } = e;
@@ -54,6 +57,9 @@ export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IFor
       ...prevData,
       [dataField]: value
     }));
+    if(formOptions.onFieldDataChanged) {
+      formOptions.onFieldDataChanged(e);
+    }
   }, []);
 
   const openNewForm = () => {
@@ -91,13 +97,13 @@ export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IFor
   
   const toolbarItems = createToolbarItems(onSave, onNew,onDelete, formOptions.toolbarsItems, formRef);
 
-
   return <React.Fragment>
     <div className={`${formDatasource.isLoading ? 'is-loading' : ''} dx-form-loader-container`} >
       <Toolbar className='main-toolbar-content action-button-toolbar' multiline={false}
         items={toolbarItems} />
       <div className="main-form-content">
-        <Form ref={formRef} labelMode='static' {...formOptions} formData={formDatasource.data} onFieldDataChanged={handleFieldDataChanged} colCountByScreen={colCountByScreen} />
+        <Form ref={formRef} labelMode='static' {...formOptions} formData={formDatasource.data} 
+        onFieldDataChanged={handleFieldDataChanged} colCountByScreen={colCountByScreen} />
       </div>
     </div>
   </React.Fragment>

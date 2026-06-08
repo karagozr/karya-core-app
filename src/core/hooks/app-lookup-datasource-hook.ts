@@ -1,5 +1,6 @@
 import React from 'react';
 import { CustomStore, DataSource } from 'devextreme/common/data';
+import { ApiRequest } from '../services';
 
 interface AppLookupCascadeConfig {
   resetField: string;
@@ -31,26 +32,27 @@ export const useAppLookupDataSource = (
     dsRef.current = new DataSource({
       paginate: false,
       store: new CustomStore({
-        byKey: (key) => fetch(`${url}/${key}`).then((r) => r.json()),
-        load: () => {
+        byKey: async (key) => {
+          const res = await ApiRequest.Get(`${url}/${key}`, null);
+          return res.data;
+        },
+        load: async () => {
           const cache = cacheRef.current;
-          if (cache.data) return Promise.resolve(cache.data);
+          if (cache.data) return cache.data;
           if (cache.pending) return cache.pending;
 
           const formData = formRef.current?.getFormData?.();
-          const params = getCascadeParamsRef.current?.(formData);
-          const queryString = params
-            ? '?' + new URLSearchParams(
-                Object.entries(params)
-                  .filter(([, v]) => v != null)
-                  .map(([k, v]) => [k, String(v)])
-              ).toString()
-            : '';
+          const params = getCascadeParamsRef.current?.(formData) ?? null;
 
-          cache.pending = fetch(`${url}${queryString}`)
-            .then((r) => r.json())
-            .then((data) => { cache.data = data; return data; })
-            .finally(() => { cache.pending = null; });
+          cache.pending = (async () => {
+            try {
+              const res = await ApiRequest.Get(url, params);
+              cache.data = res.data;
+              return cache.data;
+            } finally {
+              cache.pending = null;
+            }
+          })();
 
           return cache.pending;
         },

@@ -11,8 +11,8 @@ import  "../../loaders/form-skeleton.scss";
 const colCountByScreen = {
   xs: 1,
   sm: 2,
-  md: 3,
-  lg: 4
+  md: 4,
+  lg: 8
 };
 
 const unsavedChangesMessage = "You have unsaved changes. Are you sure you want to leave?";

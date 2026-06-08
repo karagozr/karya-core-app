@@ -31,8 +31,7 @@ export const InventoryFormPage = () => {
     formOptions: {
       id: 'form',
       ref: formRef,
-      
-      colCount: 4,
+      colCount: 8,
       items: [
         { dataField: 'id', colSpan: 1, editorOptions: { readOnly: true } },
         { dataField: 'name', colSpan: 3, isRequired: true, validationRules: [{ type: 'required', message: 'Name is required' }] },
@@ -53,35 +52,35 @@ export const InventoryFormPage = () => {
         }
       ]
     },
-    // detailCaption: 'Inventory Details',
-    // detailItems: [
-    //   {
-    //     type: 'detail',
-    //     title: 'Notes',
-    //     inTab: true,
-    //     formDetailOptions: {
-    //       operationUrl: "https://6a0efaf31736097c360af529.mockapi.io/api/inventory-detail",
-    //       isEditable: true,
-    //       parentKeyField: 'inventoryId',
-    //       columns: [
-    //         { dataField: 'id', editorOptions: { readOnly: true } },
-    //         { dataField: 'inventoryId' },
-    //         { dataField: 'note', validationRules: [{ type: 'required', message: 'Note is required' }] },
-    //         { dataField: 'noteDate' }
-    //       ],
-    //       toolbarsItems: [
-    //         {
-    //           widget: 'dxButton',
-    //           options: {
-    //             icon: 'bell',
-    //             text: 'Zil',
-    //             onClick: (e: any) => console.log('Custom action clicked', e)
-    //           }
-    //         }
-    //       ]
-    //     }
-    //   }
-    // ]
+    detailCaption: 'Inventory Details',
+    detailItems: [
+      {
+        type: 'detail',
+        title: 'Notes',
+        inTab: true,
+        formDetailOptions: {
+          operationUrl: "https://6a0efaf31736097c360af529.mockapi.io/api/inventory-detail",
+          isEditable: true,
+          parentKeyField: 'inventoryId',
+          columns: [
+            { dataField: 'id', editorOptions: { readOnly: true } },
+            { dataField: 'inventoryId' },
+            { dataField: 'note', validationRules: [{ type: 'required', message: 'Note is required' }] },
+            { dataField: 'noteDate' }
+          ],
+          toolbarsItems: [
+            {
+              widget: 'dxButton',
+              options: {
+                icon: 'bell',
+                text: 'Zil',
+                onClick: (e: any) => console.log('Custom action clicked', e)
+              }
+            }
+          ]
+        }
+      }
+    ]
   };
 
 

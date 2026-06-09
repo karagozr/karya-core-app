@@ -2,16 +2,15 @@ import React from "react";
 import { DataGrid } from "devextreme-react";
 import { useNavigate } from "react-router-dom";
 import { useAppDatagridDatasouce } from "../../hooks";
-import type { IListMetaItem } from "../../interfaces";
-import type { ToolbarItem } from "devextreme/ui/data_grid_types";
 import type { DataGridRef } from "devextreme-react/cjs/data-grid";
-import './app-datagrid.css';
+import './app-datagrid.scss';
+import type { IAppListProps } from "./types";
+import { createDatagridToolbar } from "../../utils";
 
-const addNewText = "Yeni Ekle";
-const detailText = "Detay";
 
 
-export function AppDatagrid({ operationUrl, metaListOptions }: React.PropsWithChildren<IListMetaItem>) {
+
+export function AppDatagrid({ operationUrl, metaListOptions }: React.PropsWithChildren<IAppListProps>) {
 
   const navigate = useNavigate();
   const gridRef = React.useRef<DataGridRef>(null);
@@ -36,7 +35,7 @@ export function AppDatagrid({ operationUrl, metaListOptions }: React.PropsWithCh
 
   const editable = metaListOptions.editable || false;
 
-  const toolbar = createToolbar(goDetail,
+  const toolbar = createDatagridToolbar(goDetail,
     editable, 
     metaListOptions.toolbarsItems || [], 
     metaListOptions.detailPath || null ,gridRef);
@@ -86,55 +85,3 @@ export function AppDatagrid({ operationUrl, metaListOptions }: React.PropsWithCh
 }
 
 
-const createToolbar = (goDetail: () => void, editable: boolean, toolbarsItems: Array<ToolbarItem>, detailPath: string | null,gridRef? :any ) => {
-
-  const addButton: any = editable ? {
-    location: 'before',
-    widget: 'dxButton',
-    name: 'addRowButton',
-    visible: true,
-    showText: 'always',
-    options: {
-      text: addNewText,
-    }
-  } : null;
-
-  const detailButton: any = detailPath ? {
-    location: 'before',
-    widget: 'dxButton',
-    name: 'detailButton',
-    visible: true,
-    showText: 'always',
-    options: {
-      text: detailText,
-      icon: 'dropzone',
-      onClick: () => {
-        if (detailPath) {
-          goDetail();
-        }
-      }
-    }
-  } : null;
-
-  const externalToolbarItems = toolbarsItems.map(item => {
-    if (item.widget === 'dxButton' && item.options && item.options.onClick) 
-    {
-      const originalOnClick = item.options.onClick;
-      item.options.onClick = () => 
-      {
-        originalOnClick(gridRef?.current?.instance());
-      }    
-    }
-    return item;
-  });
-
-  return toolbarsItems !== undefined ?
-    {
-      items:
-        [
-          ...(externalToolbarItems || []),
-          ...(addButton ? [addButton] : []),
-          ...(detailButton ? [detailButton] : [])
-        ]
-    } : undefined;
-}

@@ -1,9 +1,9 @@
 import React from "react";
-import type { IBasePageMetaItem } from "../interfaces";
+import type { IBasePageProps } from "./types";
 import { AppMainContext, useAppMainContext } from "../contexts";
 import { PageLayout } from "../layouts";
 
-export function BaseMainPage({ breadcrumb, caption, children }: React.PropsWithChildren<IBasePageMetaItem>) {
+export function BaseMainPage({ breadcrumb, caption, children }: React.PropsWithChildren<IBasePageProps>) {
 
   const appMainContext = useAppMainContext();
 

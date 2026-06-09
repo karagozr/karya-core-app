@@ -1,11 +1,12 @@
 import { DataGrid } from "devextreme-react";
-import type { IFormDetailOptions } from "../../interfaces";
 import { useAppFormDetailDatasource } from "../../hooks/app-form-detail-crud-hook";
 import { useAppFormContext } from "../../contexts";
 import React from "react";
 import type { DataGridRef } from "devextreme-react/cjs/data-grid";
+import type { IFormDetailProps } from "./types";
 
-export function AppFormDetail({ operationUrl, toolbarsItems, columns, isEditable, parentKeyField }: React.PropsWithChildren<IFormDetailOptions>) {
+export function AppFormDetail({ operationUrl, toolbarsItems, columns, isEditable, parentKeyField }
+  : React.PropsWithChildren<IFormDetailProps>) {
 
   const gridRef = React.useRef<DataGridRef>(null);
 

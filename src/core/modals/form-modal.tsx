@@ -18,11 +18,11 @@ const loadingMessage = "Loading";
 const unsavedChangesMessage = "You have unsaved changes. Are you sure you want to leave?";
 const deleteConfirmMessage = "Are you sure you want to delete this item?";
 
-export function AppModalForm(formOptions: React.PropsWithChildren<IFormOptions>) {
+export function AppModalForm(formOptions: React.PropsWithChildren<IFormOptions & { operationUrl?: string; toolbarsItems?: any[] }>) {
 
   const formRef = React.useRef<dxForm>(null);
   const appFormContext = useAppFormContext();
-  const formDatasource = useAppFormDatasource(formOptions.operationUrl, "id");
+  const formDatasource = useAppFormDatasource(formOptions.operationUrl || '', "id");
   const [formData, setFormData] = React.useState<any | null>(null);
 
   React.useEffect(() => {

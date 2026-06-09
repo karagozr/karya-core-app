@@ -1,8 +1,9 @@
-import { HomePage, TasksPage, ProfilePage } from './pages';
+import { HomePage, TasksPage } from './pages';
 import { withNavigationWatcher } from './contexts/navigation-hooks';
 import { InventoryFormPage } from './pages/invetory/inventory-form-page';
 import { InventoryListPage } from './pages/invetory/inventory-list-page';
 import { InventoryReportPage } from './pages/invetory/inventory-report';
+import { UserProfilPage } from './core/pages/user-profil-page';
 
 const routeData = [
     {
@@ -10,8 +11,8 @@ const routeData = [
         element: TasksPage
     },
     {
-        path: '/tasks/form',
-        element: ProfilePage
+        path: '/profile',
+        element: UserProfilPage
     },
     {
         path: '/home',

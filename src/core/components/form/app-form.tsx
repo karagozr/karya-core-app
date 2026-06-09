@@ -1,12 +1,13 @@
 import { Form, Toolbar } from "devextreme-react";
 import React from "react";
-import type { IFormOptions } from "../../interfaces";
 import { useAppFormContext } from "../../contexts";
 import { useAppFormDatasource } from "../../hooks";
-import './app-form.css';
-import type { dxToolbarItem } from "devextreme/ui/toolbar";
+import './app-form.scss';
 import type dxForm from "devextreme/ui/form";
 import  "../../loaders/form-skeleton.scss";
+import { createFormToolbarItems } from "../../utils";
+import type { AppFormRef, IAppFormProps } from "./types";
+import { all } from "axios";
 
 const colCountByScreen = {
   xs: 1,
@@ -18,14 +19,10 @@ const colCountByScreen = {
 const unsavedChangesMessage = "You have unsaved changes. Are you sure you want to leave?";
 const deleteConfirmMessage = "Are you sure you want to delete this item?";
 
-export interface AppFormRef {
-  getFormData: () => any | null;
-  getChangedData: () => any | null;
-  formData: any | null;
-  updateData: (field: string, value: any) => void;
-}
 
-export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IFormOptions>>(function AppForm(formOptions, ref) {
+
+export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IAppFormProps>>(
+function AppForm(formOptions, ref) {
 
   const formRef = React.useRef<dxForm>(null);
   const appFormContext = useAppFormContext();
@@ -64,8 +61,6 @@ export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IFor
 
   const openNewForm = () => {
     appFormContext.newFormContext();
-    // formDatasource.createNew();
-    // setFormData(null);
   }
 
   const onNew = () => {
@@ -95,12 +90,11 @@ export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IFor
     }
   }
   
-  const toolbarItems = createToolbarItems(onSave, onNew,onDelete, formOptions.toolbarsItems, formRef);
+  const toolbarItems = createFormToolbarItems(onSave, onNew,onDelete, formOptions.toolbarsItems, formRef,formOptions.formAllowOptions||undefined);
 
   return <React.Fragment>
     <div className={`${formDatasource.isLoading ? 'is-loading' : ''} dx-form-loader-container`} >
-      <Toolbar className='main-toolbar-content action-button-toolbar' multiline={false}
-        items={toolbarItems} />
+      <Toolbar className='main-toolbar-content action-button-toolbar' multiline={false} items={toolbarItems} />
       <div className="main-form-content">
         <Form ref={formRef} labelMode='static' {...formOptions} formData={formDatasource.data} 
         onFieldDataChanged={handleFieldDataChanged} colCountByScreen={colCountByScreen} />
@@ -111,52 +105,5 @@ export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IFor
 
 AppForm.displayName = 'AppForm';
 
-const createToolbarItems = (onSave: () => void, onNew: () => void,onDelete: () => void,toolbarsItems: Array<dxToolbarItem> | undefined, formRef: any) => {
-  const defaultItems = [
-    {
-      location: 'after',
-      widget: 'dxButton',
-      options: {
-        text: 'Save',
-        type: 'success',
-        icon: 'save',
-        onClick: onSave
-      }
-    },
-    {
-      location: 'after',
-      widget: 'dxButton',
-      options: {
-        text: 'Delete',
-        type: 'danger',
-        icon: 'trash',
-        onClick: onDelete
-      }
-    },
-    {
-      location: 'after',
-      widget: 'dxButton',
-      options: {
-        text: 'New',
-        type: 'default',
-        icon: 'plus',
-        onClick: onNew
-      }
-    }
-  ];
 
-  if (toolbarsItems && toolbarsItems.length > 0) {
-    const externalToolbarItems = toolbarsItems.map(item => {
-      if (item.widget === 'dxButton' && item.options && item.options.onClick) {
-        const originalOnClick = item.options.onClick;
-        item.options.onClick = () => {
-          originalOnClick(formRef?.current?.instance().option('formData'));
-        }
-      }
-      return item;
-    });
-    return [...defaultItems, ...externalToolbarItems];
-  }
-  return defaultItems;
-}
 

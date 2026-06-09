@@ -1,8 +1,14 @@
 import axios from "axios";
 import { showMessage } from "../utils/message-box";
 
-
-const BASE_URL = () => import.meta.env.MODE === 'development' ? "http://localhost:5000/api" : "https://production.api.com";
+const BASE_URL = () => {
+  try {
+    const mode = (import.meta as any).env?.MODE || 'production';
+    return mode === 'development' ? "http://localhost:5000/api" : "https://production.api.com";
+  } catch {
+    return "https://production.api.com";
+  }
+};
 
 const getToken = () => {
   var userData = localStorage.getItem("access-token");

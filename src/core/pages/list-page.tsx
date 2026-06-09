@@ -3,10 +3,10 @@ import { AppListContext, useAppListContext } from "../contexts";
 import { AppDatagrid } from "../components/list/app-datagrid";
 import { PageListLayout } from "../layouts";
 import TabPanel, { Item as TabPanelItem } from 'devextreme-react/tab-panel';
-import type { IMetaItemList } from "../interfaces";
 import { BaseMainPage } from "./main-page";
+import type { IListPageProps } from "./types";
 
-export function BaseListPage({ items, isTabList, caption, breadcrumb }: React.PropsWithChildren<IMetaItemList>) {
+export function BaseListPage({ items, isTabList, caption, breadcrumb }: React.PropsWithChildren<IListPageProps>) {
 
     const appListContext = useAppListContext();
 

@@ -10,7 +10,7 @@ export const navigation = [
     items: [
       {
         text: 'Profile',
-        path: '/tasks/form'
+        path: '/profile'
       },
       {
         text: 'Tasks',

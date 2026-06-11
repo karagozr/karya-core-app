@@ -14,7 +14,7 @@ export function InventoryListPage() {
   }
 
   return (
-    <BaseListPage caption='Inventory List' breadcrumbPath='/inventory/Inventory List'  items={[
+    <BaseListPage caption='Inventory List' breadcrumb={{path: '/inventory/Inventory List'}}  items={[
       {
         type: 'grid',
         caption: 'Inventory',

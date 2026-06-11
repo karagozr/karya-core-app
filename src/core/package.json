@@ -1,50 +1,50 @@
 {
   "name": "karya-core-ui",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "Core library components, hooks, and utilities for Karya applications",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.esm.js",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     },
     "./pages": {
+      "types": "./dist/pages/index.d.ts",
       "import": "./dist/pages/index.esm.js",
-      "require": "./dist/pages/index.js",
-      "types": "./dist/pages/index.d.ts"
+      "require": "./dist/pages/index.js"
     },
     "./components": {
+      "types": "./dist/components/index.d.ts",
       "import": "./dist/components/index.esm.js",
-      "require": "./dist/components/index.js",
-      "types": "./dist/components/index.d.ts"
+      "require": "./dist/components/index.js"
     },
     "./contexts": {
+      "types": "./dist/contexts/index.d.ts",
       "import": "./dist/contexts/index.esm.js",
-      "require": "./dist/contexts/index.js",
-      "types": "./dist/contexts/index.d.ts"
+      "require": "./dist/contexts/index.js"
     },
     "./hooks": {
+      "types": "./dist/hooks/index.d.ts",
       "import": "./dist/hooks/index.esm.js",
-      "require": "./dist/hooks/index.js",
-      "types": "./dist/hooks/index.d.ts"
+      "require": "./dist/hooks/index.js"
     },
     "./layouts": {
+      "types": "./dist/layouts/index.d.ts",
       "import": "./dist/layouts/index.esm.js",
-      "require": "./dist/layouts/index.js",
-      "types": "./dist/layouts/index.d.ts"
+      "require": "./dist/layouts/index.js"
     },
     "./modals": {
+      "types": "./dist/modals/index.d.ts",
       "import": "./dist/modals/index.esm.js",
-      "require": "./dist/modals/index.js",
-      "types": "./dist/modals/index.d.ts"
+      "require": "./dist/modals/index.js"
     },
     "./services": {
+      "types": "./dist/services/index.d.ts",
       "import": "./dist/services/index.esm.js",
-      "require": "./dist/services/index.js",
-      "types": "./dist/services/index.d.ts"
+      "require": "./dist/services/index.js"
     }
   },
   "files": [
@@ -69,17 +69,21 @@
     "directory": "src/core"
   },
   "peerDependencies": {
+    "axios": "^1.0.0",
+    "devextreme": "^24.0.0 || ^25.0.0",
+    "devextreme-react": "^24.0.0 || ^25.0.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0",
-    "react-router-dom": "^6.0.0",
-    "devextreme": "^24.0.0 || ^25.0.0",
-    "devextreme-react": "^24.0.0 || ^25.0.0"
+    "react-router-dom": "^6.0.0"
   },
   "devDependencies": {
+    "esbuild-sass-plugin": "^3.7.0",
+    "sass": "^1.100.0",
+    "tsup": "^8.5.1",
     "typescript": "~5.9.3"
   },
   "scripts": {
-    "build": "tsc --declaration --declarationMap --sourceMap --outDir dist",
+    "build": "tsup",
     "prepublishOnly": "npm run build"
   }
 }

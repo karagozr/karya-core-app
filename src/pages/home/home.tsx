@@ -1,12 +1,11 @@
 import React from 'react';
 import './home.scss';
+import { PageCustomLayout } from '../../core';
 
 export function Home() {
   return (
     <React.Fragment>
-      <h2 className={'content-block'}>Home</h2>
-      <div className={'content-block'}>
-        <div className={'dx-card responsive-paddings'}>
+      <PageCustomLayout>
           <div className={'logos-container'}>
             <svg className={'devextreme-logo'} width={'255'} height={'60'} viewBox={'0 0 255 60'} fill={'none'} xmlns={'http://www.w3.org/2000/svg'}>
               <g clipPath={'url(#clip0_93_1163)'}>
@@ -94,7 +93,6 @@ export function Home() {
             <span> and </span>
             <a href="https://js.devexpress.com/Demos/Widgetsgallery/" target="_blank" rel="noopener noreferrer">technical demos</a>.
           </p>
-        </div>
-      </div>
+      </PageCustomLayout>
     </React.Fragment>
 )}

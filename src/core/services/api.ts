@@ -68,7 +68,6 @@ export interface IApiResponse {
 }
 
 const apiCoreResponse = (msgBox: IMessageBoxStatus, data: any, title: string, message: string, success: boolean, status: number): IApiResponse => {
-  console.log("API Response:", { data, title, message, success, status },msgBox);
 
   if (msgBox.isActiveError && !success) {
     showMessage({

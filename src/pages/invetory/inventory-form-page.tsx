@@ -1,42 +1,39 @@
 import React from 'react';
-import { BaseFormPage, useAppLookupDataSource, type AppFormRef, type BaseModalRef, type IFormPageMetaItem } from '../../core';
+import { BaseFormPage, type BaseModalRef } from '../../core';
 import { InventoryDetailModal } from './inventory-detail-modal';
+import type { IBaseFormPageProps } from '../../core/pages/types/form-page';
 
 
 export const InventoryFormPage = () => {
 
   const modalRef = React.useRef<BaseModalRef>(null);
-  const formRef = React.useRef<AppFormRef>(null);
+  
 
-  const categoryLookup = useAppLookupDataSource(
-    'https://6a0efaf31736097c360af529.mockapi.io/api/category',
-    formRef,
-    { displayExpr: 'name', valueExpr: 'id' }
-  );
-
-  const brandLookup = useAppLookupDataSource(
-    'https://6a0efaf31736097c360af529.mockapi.io/api/brand',
-    formRef,
-    {
-      displayExpr: 'name',
-      valueExpr: 'id',
-      getCascadeParams: (formData) => ({ categoryId: formData?.categoryId }),
-      cascade: { resetField: 'brand' }
-    }
-  );
-
-  const meta: IFormPageMetaItem = {
+  const meta : IBaseFormPageProps = {
     caption: 'Inventory Form',
     breadcrumb: { path: '/inventory/form' },
     formOptions: {
       id: 'form',
-      ref: formRef,
       colCount: 8,
       items: [
         { dataField: 'id', colSpan: 1, editorOptions: { readOnly: true } },
         { dataField: 'name', colSpan: 3, isRequired: true, validationRules: [{ type: 'required', message: 'Name is required' }] },
-        { dataField: 'categoryId', colSpan: 1, editorType: 'dxLookup', editorOptions: brandLookup.wrapWithCascade(categoryLookup.editorOptions) },
-        { dataField: 'brand', colSpan: 1, editorType: 'dxSelectBox', editorOptions: brandLookup.editorOptions }
+        { dataField: 'categoryId', colSpan: 1, editorType: 'dxLookup', 
+          editorOptions: {displayExpr: 'name', valueExpr: 'id', 
+          dsUrl: 'https://6a0efaf31736097c360af529.mockapi.io/api/category',
+          dsCascadeChildrens: ['brand']
+        } },
+        { dataField: 'stateId', colSpan: 1, editorType: 'dxLookup', 
+          editorOptions: {displayExpr: 'name', valueExpr: 'id', 
+          dsUrl: 'https://6a0efaf31736097c360af529.mockapi.io/api/states',
+          dsCascadeChildrens: ['brand']
+        } },
+        { dataField: 'brand', colSpan: 1, editorType: 'dxLookup', editorOptions: {
+          displayExpr: 'name',
+          valueExpr: 'id',
+          dsUrl: 'https://6a0efaf31736097c360af529.mockapi.io/api/brand',
+          dsCascadeParents: ['stateId','categoryId']
+        } }
       ],
       operationUrl: "https://6a0efaf31736097c360af529.mockapi.io/api/inventory",
       toolbarsItems: [
@@ -81,7 +78,7 @@ export const InventoryFormPage = () => {
         }
       }
     ]
-  };
+  }
 
 
 

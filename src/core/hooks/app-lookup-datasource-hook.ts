@@ -13,6 +13,48 @@ interface AppLookupConfig {
   cascade?: AppLookupCascadeConfig;
 }
 
+interface IDatasourceForLookupProps {
+  url: string;
+  formData?: any;
+  
+}
+
+interface IDsLookupDependeciesProps {
+  fieldName: string;
+  fieldValue: any;
+  
+}
+
+
+
+export const useDatasourceForLookup = ({url}: IDatasourceForLookupProps, dependencies: IDsLookupDependeciesProps[] = []) => {
+  // Extract primitive values so React.useMemo can compare them correctly.
+  // Using object literals as deps would always produce new references → DataSource
+  // recreated every render → every bound lookup fires a load request.
+  const depValues = dependencies.map(d => d.fieldValue);
+
+  return React.useMemo(() => {
+    return new DataSource({
+      paginate: false,
+      store: new CustomStore({
+        byKey: async (key) => {
+          const res = await ApiRequest.Get(`${url}/${key}`, null);
+          return res.data;
+        },
+        load: async () => {
+          const params: Record<string, any> = {};
+          dependencies.forEach(dep => {
+            params[dep.fieldName] = dep.fieldValue;
+          });
+          const res = await ApiRequest.Get(url, params);
+          return res.data;
+        }
+      }),
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [url, ...depValues]);
+}
+
 export const useAppLookupDataSource = (
   url: string,
   formRef: React.RefObject<any>,

@@ -27,6 +27,10 @@ export const navigation = [
       {
         text: 'Inventory Report',
         path: '/inventory/report'
+      },
+      {
+        text: 'Inv. Categories',
+        path: '/inventory-category/list'
       }
 
     ]

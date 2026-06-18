@@ -10,12 +10,13 @@ export const useAppDatagridDatasouce = (url: string, keyName: string) => {
     const dataSource = new DataSource({
         store: new CustomStore({
             key: keyName,
-            load: (options: any) =>
-                new ODataStore({
-                    version: 2,
-                    key: keyName,
-                    url: url
-                }).load(options),
+            load: async (options: any) =>{
+                console.log('DataSource Load Options:', options);
+                var res = await ApiRequest.Get(url , options)
+
+                console.log('DataSource Load Result:', res?.data.data);
+                return res?.data.data;
+            },
             update: async (key, values) => {
                 await ApiRequest.Put(url , key, values);
             },

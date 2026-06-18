@@ -44,7 +44,7 @@ export const InventoryFormPage = () => {
           options: {
             icon: 'bell',
             text: 'Öttür',
-            onClick: (e: any) => console.log(">>>",e) //modalRef.current?.open(e)
+            onClick: (e: any) => modalRef.current?.open(e)
           }
         }
       ]
@@ -79,8 +79,6 @@ export const InventoryFormPage = () => {
       }
     ]
   }
-
-
 
   return (
     <React.Fragment>

@@ -1,8 +1,7 @@
 import React from "react";
-import { DataGrid } from "devextreme-react";
+import DataGrid, { Pager, Paging, Summary, TotalItem, type DataGridRef } from "devextreme-react/data-grid";
 import { useNavigate } from "react-router-dom";
 import { useAppDatagridDatasouce } from "../../hooks";
-import type { DataGridRef } from "devextreme-react/cjs/data-grid";
 import './app-datagrid.scss';
 import type { IAppListProps } from "./types";
 import { createDatagridToolbar } from "../../utils";
@@ -47,13 +46,14 @@ export function AppDatagrid({ operationUrl, metaListOptions }: React.PropsWithCh
       toolbar={toolbar}
       dataSource={dataSource}
       showBorders={false}
+      remoteOperations={true}
+      summary={metaListOptions?.summary}
       id={key}
       className={'app-list-page-datagrid'}
       onRowDblClick={handleRowDblClick}
       filterRow={{
         visible: true,
       }}
-      
       selection={{
         mode:'single', 
         showCheckBoxesMode: 'always', 
@@ -71,14 +71,17 @@ export function AppDatagrid({ operationUrl, metaListOptions }: React.PropsWithCh
       columnAutoWidth={true}
       columnHidingEnabled={true}
       focusedRowEnabled={true}
-      pager={{
-        showPageSizeSelector: true,
-        showInfo: true,
-        allowedPageSizes: [20, 50, 100],
-        displayMode: 'full',
-        visible:true
-      }}>
-
+      >
+      <Paging enabled={true} defaultPageSize={4}  />
+      <Pager
+        allowedPageSizes={[4, 8, 12]}
+        displayMode="adaptive"
+        showInfo={true}
+        infoText="Page {0} of {1} ({2} Total Items)"
+        showPageSizeSelector={true}
+        showNavigationButtons={true}
+      />
+      
     </DataGrid>
   )
 

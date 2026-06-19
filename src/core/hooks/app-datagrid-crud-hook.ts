@@ -1,8 +1,8 @@
-import { CustomStore, ODataStore } from "devextreme/common/data";
+import { CustomStore } from "devextreme/common/data";
 import DataSource from "devextreme/data/data_source";
 import { ApiRequest } from "../services";
 import { useMemo } from "react";
-
+import { prepareLoadOptionsForBackend } from "../utils";
 
 
 export const useAppDatagridDatasouce = (url: string, keyName: string) => {
@@ -11,10 +11,7 @@ export const useAppDatagridDatasouce = (url: string, keyName: string) => {
         store: new CustomStore({
             key: keyName,
             load: async (options: any) =>{
-                console.log('DataSource Load Options:', options);
-                var res = await ApiRequest.Get(url , options)
-
-                console.log('DataSource Load Result:', res?.data.data);
+                var res = await ApiRequest.Get(url , prepareLoadOptionsForBackend(options));
                 return res?.data.data;
             },
             update: async (key, values) => {

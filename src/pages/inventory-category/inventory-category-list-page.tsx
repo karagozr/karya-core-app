@@ -5,7 +5,7 @@ export function InventoryCategoryListPage() {
 
   return (
     
-    <BaseListPage caption='Inventory Category List' breadcrumb={{path: '/inventory-category/Inventory Category List'}}  items={[
+    <BaseListPage caption='Inventory Category List' pageRate='half' breadcrumb={{path: '/inventory-category/Inventory Category List'}}  items={[
       {
         type: 'grid',
         caption: 'Inventory Category',
@@ -15,22 +15,14 @@ export function InventoryCategoryListPage() {
           //detailPath: '/inventory/form',
           columns: [
             { dataField: 'id' },
-            { dataField: 'name' },
-            { dataField: 'tenantId' }
+            { dataField: 'name' }
           ],
           summary: {
-            groupItems: [
-              {
-                column: 'id',
-                summaryType: 'count',
-                displayFormat: 'Count: {0}'
-              }
-            ],
             totalItems: [
               {
                 column: 'id',
                 summaryType: 'count',
-                displayFormat: 'Size{0}'
+                displayFormat: '{0} Ad.'
               }
             ]
           },

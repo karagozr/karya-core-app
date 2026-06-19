@@ -1,9 +1,14 @@
 import type { Column, Summary, ToolbarItem } from "devextreme/ui/data_grid_types";
 
+interface IAppColumn extends Column {
+  dsUrl?: string;
+  dsCascadeChildrens?: string[];
+}
+
 export interface IAppDatagridProps{ 
   toolbarsItems?: Array<ToolbarItem>;
   keyId?: string;
-  columns?: Array<Column | string>;
+  columns?: Array<IAppColumn | string>;
   summary?: Summary;
   editable?: boolean| false;
   detailPath?: string| null;

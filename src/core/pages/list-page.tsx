@@ -6,14 +6,15 @@ import TabPanel, { Item as TabPanelItem } from 'devextreme-react/tab-panel';
 import { BaseMainPage } from "./main-page";
 import type { IListPageProps } from "./types";
 
-export function BaseListPage({ items, isTabList, caption, breadcrumb }: React.PropsWithChildren<IListPageProps>) {
+export function BaseListPage({ items, isTabList, caption, breadcrumb,pageRate= 'full' }: React.PropsWithChildren<IListPageProps>) {
 
     const appListContext = useAppListContext();
 
+    
 
     return (
-        <BaseMainPage breadcrumb={breadcrumb} caption={caption}>
-            <PageListLayout>
+        <BaseMainPage breadcrumb={breadcrumb} caption={caption} >
+            <PageListLayout pageRate={pageRate}>
                 <AppListContext.Provider value={appListContext}>
                     <React.Fragment>
                         {isTabList && items && (items.length > 1) ?

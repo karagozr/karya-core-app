@@ -1,45 +1,48 @@
-import { ApiRequest, BaseListPage } from '../../core';
-
+import { BaseListPage } from '../../core';
 
 export function InventoryListPage() {
-
-  const genRandomName = () => {
-    const names = ['Laptop', 'Phone', 'Tablet', 'Monitor', 'Keyboard'];
-    return names[Math.floor(Math.random() * names.length)] + '-' + Math.floor(Math.random() * 1000);
-  }
-
-  const handleCustomClick = async (e:any) => {
-    await ApiRequest.Put('https://6a0efaf31736097c360af529.mockapi.io/api/inventory','1' ,{'name': genRandomName()});
-    e.getDataSource().reload();
-  }
-
+  console.log('BaseListPage items', new Date().toISOString());
   return (
-    <BaseListPage caption='Inventory List' breadcrumb={{path: '/inventory/Inventory List'}}  items={[
+    <BaseListPage pageRate='full' caption='Inventory List' breadcrumb={{path: '>inventory/Inventory List'}}  items={[
       {
         type: 'grid',
         caption: 'Inventory',
         metaListOptions: {
           keyId: 'id',
-          detailPath: '/inventory/form',
+          //detailPath: '/inventory/form',
           editable: true,
-          toolbarsItems: [
-          {
-              widget: 'dxButton',
-              options: {
-                icon: 'airplane',
-                text: 'Transfer',
-                onClick: handleCustomClick
-              }
-            }
-          ],
+          
           columns: [
-            { dataField: 'id', editorOptions: { readOnly: true } },
+            { dataField: 'id'},
             { dataField: 'name' },
-            { dataField: 'categoryId' },
-            { dataField: 'brand' }
+            { dataField: 'brand' },
+            { dataField: 'categoryId', 
+              lookup: {
+                valueExpr: 'id',
+                displayExpr: (item: any) => item?.id + ' - ' + item?.name,
+                
+              },
+              dsUrl: 'https://localhost:7131/api/InvCategory',
+              dsCascadeChildrens: ['brand']  
+            },
+            
           ],
+          summary:{
+            totalItems: [
+              {
+                column: 'id',
+                summaryType: 'count',
+                displayFormat: '{0} Ad.'
+              },
+              {
+                column: 'name',
+                summaryType: 'count',
+                displayFormat: '{0} Marka'
+              }
+            ]
+          }
         },
-        operationUrl: "https://6a0efaf31736097c360af529.mockapi.io/api/inventory"
+        operationUrl: "https://localhost:7131/api/Inv"
       }
     ]} />
   );

@@ -1,20 +1,21 @@
 import React from "react";
-import DataGrid, { Pager, Paging, Summary, TotalItem, type DataGridRef } from "devextreme-react/data-grid";
+import DataGrid, { Pager, Paging, type DataGridRef } from "devextreme-react/data-grid";
 import { useNavigate } from "react-router-dom";
 import { useAppDatagridDatasouce } from "../../hooks";
 import './app-datagrid.scss';
 import type { IAppListProps } from "./types";
-import { createDatagridToolbar } from "../../utils";
+import { createDatagridToolbar, createLookupDsForDt } from "../../utils";
 
 
 
 
-export function AppDatagrid({ operationUrl, metaListOptions }: React.PropsWithChildren<IAppListProps>) {
+ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChildren<IAppListProps>) {
 
   const navigate = useNavigate();
   const gridRef = React.useRef<DataGridRef>(null);
   const key = metaListOptions.keyId ? metaListOptions.keyId : 'id';
   const {dataSource} = useAppDatagridDatasouce(operationUrl, key);
+
 
   const goDetail = async ()=>{
     if(metaListOptions.detailPath){      
@@ -39,10 +40,26 @@ export function AppDatagrid({ operationUrl, metaListOptions }: React.PropsWithCh
     metaListOptions.toolbarsItems || [], 
     metaListOptions.detailPath || null ,gridRef);
 
+  const columns = React.useMemo(() => metaListOptions.columns?.map((col:any) => {
+    
+    if(col.dsUrl && col.lookup){
+      console.log('create lookup datasource for column', new Date().toISOString());
+      return {
+        ...col,
+        lookup: {
+          ...col.lookup,
+          dataSource: createLookupDsForDt(col.dsUrl, col.dsCascadeChildrens)
+        }
+      } 
+    }else{
+      return col;
+    }
+  }),[])
+
   return (
     <DataGrid
       ref={gridRef}
-      columns={metaListOptions?.columns}
+      columns={columns}
       toolbar={toolbar}
       dataSource={dataSource}
       showBorders={false}
@@ -87,4 +104,5 @@ export function AppDatagrid({ operationUrl, metaListOptions }: React.PropsWithCh
 
 }
 
+export const AppDatagrid = React.memo(AppDatagridComp);
 

@@ -82,27 +82,17 @@ export const createLookupDs = (url: string, parentFields: string[] | undefined, 
           ];
         }
 
-        console.log('parentFields', parentFields);
-
         if (parentFields && parentFields.length > 0) {
           const cascadeFilter = createCascadeFilter(cascadeParams);
-
-          console.log('cascadeFilter', cascadeFilter);
 
           loadOptions.filter = loadOptions.filter
             ? [loadOptions.filter, 'and', cascadeFilter]
             : cascadeFilter;
         }
 
-        console.log('loadOptions', loadOptions);
-
         const params = {
           ...prepareLoadOptionsForBackend(loadOptions),
         };
-
-        // const res = await ApiRequest.Get(url, params, MessageBoxStatus);
-        // return normalizeLookupData(res.data?.data ?? res.data);
-
       
         const res = await ApiRequest.Get(url, params, MessageBoxStatus);
         return normalizeApiDataForArray(res);

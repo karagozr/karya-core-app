@@ -6,3 +6,4 @@ export * from './form-item-datasource';
 export * from './form-item-cascade';
 export * from './datagrid-datasource-helper';
 export * from './datagrid-item-datasource';
+export * from './api-result-normalizer';

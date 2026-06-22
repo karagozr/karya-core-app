@@ -8,7 +8,7 @@ export function InventoryListPage() {
         caption: 'Inventory',
         metaListOptions: {
           keyId: 'id',
-          //detailPath: '/inventory/form',
+          detailPath: '/inventory/form',
           editable: true,
           
           columns: [

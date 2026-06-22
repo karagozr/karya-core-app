@@ -16,14 +16,6 @@ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChild
   const key = metaListOptions.keyId ? metaListOptions.keyId : 'id';
   const { dataSource } = useAppDatagridDatasouce(operationUrl, key);
 
-  React.useEffect(() => {
-    console.debug('[AppDatagrid] mount', { operationUrl, key });
-
-    return () => {
-      console.debug('[AppDatagrid] unmount', { operationUrl, key });
-    };
-  }, [operationUrl, key]);
-
 
   const goDetail = React.useCallback(async () => {
     if (metaListOptions.detailPath) {
@@ -166,7 +158,7 @@ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChild
     deferred: true,
   }), []);
 
-  const summary = React.useMemo(() => metaListOptions?.summary, [metaListOptions?.summary]);
+  const summary = React.useMemo(() => metaListOptions?.summary, []);
 
 
 

@@ -1,6 +1,8 @@
 import { CustomStore, DataSource } from "devextreme/common/data";
 import { ApiRequest, type IMessageBoxStatus } from "../services";
 import { showMessage } from "./message-box";
+import { normalizeApiDataForArray, normalizeApiDataForObject } from "./api-result-normalizer";
+import { prepareLoadOptionsForBackend } from "./datagrid-datasource-helper";
 
 
 const MessageBoxStatus: IMessageBoxStatus = {
@@ -8,7 +10,27 @@ const MessageBoxStatus: IMessageBoxStatus = {
   isActiveError: false,
   isActiveWarning: false,
   isActiveInfo: false,
-}; 
+};
+
+const createCascadeFilter = (cascadeParams: Record<string, any>) => {
+  const entries = Object.entries(cascadeParams).filter(([, value]) => {
+    return value !== undefined && value !== null && value !== '';
+  });
+
+  if (entries.length === 0) {
+    return null;
+  }
+
+  return entries
+    .map(([field, value]) => [field, '=', value])
+    .reduce((acc: any, current: any) => {
+      if (!acc) {
+        return current;
+      }
+
+      return [acc, 'and', current];
+    }, null);
+};
 
 export const createLookupDs = (url: string, parentFields: string[] | undefined, formRef: React.RefObject<any>) =>
   new DataSource({
@@ -17,30 +39,73 @@ export const createLookupDs = (url: string, parentFields: string[] | undefined, 
     store: new CustomStore({
 
       byKey: async (key) => {
-        const res = await ApiRequest.Get(`${url}/${key}`, null,MessageBoxStatus);
-        if(res.status===404){
+        const res = await ApiRequest.Get(`${url}/${key}`, null, MessageBoxStatus);
+        if (res.status === 404) {
           showMessage({
-                type: 'error',
-                message: `${key} is not found`,
-                title: '404 Key Error',
-                displayTime: 4000,
-              });
+            type: 'error',
+            message: `${key} is not found`,
+            title: '404 Key Error',
+            displayTime: 4000,
+          });
         }
-        return res.data;
+        return normalizeApiDataForObject(res);
       },
       load: async (loadOptions: any) => {
-        const params: Record<string, any> = {};
+        
+
+        const cascadeParams: Record<string, any> = {};
+
         if (parentFields && parentFields.length > 0) {
           const currentFormData = formRef.current?.instance().option('formData') ?? {};
           parentFields.forEach((parentField) => {
             const parentValue = currentFormData[parentField];
             if (parentValue != null) {
-              params[parentField] = parentValue;
+              cascadeParams[parentField] = parentValue;
             }
           });
         }
-        const res = await ApiRequest.Get(url, params,MessageBoxStatus);
-        return res.data;
+
+        const searchFields: [string, string] = ['id', 'name'];
+
+        loadOptions.select = searchFields;
+        loadOptions.searchExpr = searchFields;
+
+        if (loadOptions.searchValue === undefined || loadOptions.searchValue === null
+          || loadOptions.searchValue === '' || loadOptions.searchValue.length < 3) {
+          loadOptions.skip = 0;
+          loadOptions.take = 10;
+        } else if (searchFields && searchFields.length > 1) {
+          loadOptions.filter = [
+            [searchFields[0], "contains", loadOptions.searchValue],
+            "or",
+            [searchFields[1], "contains", loadOptions.searchValue]
+          ];
+        }
+
+        console.log('parentFields', parentFields);
+
+        if (parentFields && parentFields.length > 0) {
+          const cascadeFilter = createCascadeFilter(cascadeParams);
+
+          console.log('cascadeFilter', cascadeFilter);
+
+          loadOptions.filter = loadOptions.filter
+            ? [loadOptions.filter, 'and', cascadeFilter]
+            : cascadeFilter;
+        }
+
+        console.log('loadOptions', loadOptions);
+
+        const params = {
+          ...prepareLoadOptionsForBackend(loadOptions),
+        };
+
+        // const res = await ApiRequest.Get(url, params, MessageBoxStatus);
+        // return normalizeLookupData(res.data?.data ?? res.data);
+
+      
+        const res = await ApiRequest.Get(url, params, MessageBoxStatus);
+        return normalizeApiDataForArray(res);
       }
     }),
   });

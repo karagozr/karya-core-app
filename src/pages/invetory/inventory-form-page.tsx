@@ -7,9 +7,9 @@ import type { IBaseFormPageProps } from '../../core/pages/types/form-page';
 export const InventoryFormPage = () => {
 
   const modalRef = React.useRef<BaseModalRef>(null);
-  
 
-  const meta : IBaseFormPageProps = {
+
+  const meta: IBaseFormPageProps = {
     caption: 'Inventory Form',
     breadcrumb: { path: '/inventory/form' },
     formOptions: {
@@ -18,24 +18,26 @@ export const InventoryFormPage = () => {
       items: [
         { dataField: 'id', colSpan: 1, editorOptions: { readOnly: true } },
         { dataField: 'name', colSpan: 3, isRequired: true, validationRules: [{ type: 'required', message: 'Name is required' }] },
-        { dataField: 'categoryId', colSpan: 1, editorType: 'dxLookup', 
-          editorOptions: {displayExpr: 'name', valueExpr: 'id', 
-          dsUrl: 'https://6a0efaf31736097c360af529.mockapi.io/api/category',
-          dsCascadeChildrens: ['brand']
-        } },
-        { dataField: 'stateId', colSpan: 1, editorType: 'dxLookup', 
-          editorOptions: {displayExpr: 'name', valueExpr: 'id', 
-          dsUrl: 'https://6a0efaf31736097c360af529.mockapi.io/api/states',
-          dsCascadeChildrens: ['brand']
-        } },
-        { dataField: 'brand', colSpan: 1, editorType: 'dxLookup', editorOptions: {
-          displayExpr: 'name',
-          valueExpr: 'id',
-          dsUrl: 'https://6a0efaf31736097c360af529.mockapi.io/api/brand',
-          dsCascadeParents: ['stateId','categoryId']
-        } }
+        {
+          dataField: 'mainCategoryId', colSpan: 1, editorType: 'dxLookup',
+          editorOptions: {
+            displayExpr: 'name', valueExpr: 'id',
+            dsUrl: 'https://localhost:7131/api/InvMainCategory',
+            dsCascadeChildrens: ['categoryId']
+          }
+        },
+        {
+          dataField: 'categoryId', colSpan: 1, editorType: 'dxLookup',
+          editorOptions: {
+            displayExpr: 'name', valueExpr: 'id',
+            dsUrl: 'https://localhost:7131/api/InvCategory',
+            dsCascadeParents: ['mainCategoryId']
+          }
+        },
+        { dataField: 'brand', colSpan: 1 },
+        
       ],
-      operationUrl: "https://6a0efaf31736097c360af529.mockapi.io/api/inventory",
+      operationUrl: "https://localhost:7131/api/Inv",
       toolbarsItems: [
         {
           location: 'after',
@@ -50,34 +52,34 @@ export const InventoryFormPage = () => {
       ]
     },
     detailCaption: 'Inventory Details',
-    detailItems: [
-      {
-        type: 'detail',
-        title: 'Notes',
-        inTab: true,
-        formDetailOptions: {
-          operationUrl: "https://6a0efaf31736097c360af529.mockapi.io/api/inventory-detail",
-          isEditable: true,
-          parentKeyField: 'inventoryId',
-          columns: [
-            { dataField: 'id', editorOptions: { readOnly: true } },
-            { dataField: 'inventoryId' },
-            { dataField: 'note', validationRules: [{ type: 'required', message: 'Note is required' }] },
-            { dataField: 'noteDate' }
-          ],
-          toolbarsItems: [
-            {
-              widget: 'dxButton',
-              options: {
-                icon: 'bell',
-                text: 'Zil',
-                onClick: (e: any) => console.log('Custom action clicked', e)
-              }
-            }
-          ]
-        }
-      }
-    ]
+    // detailItems: [
+    //   {
+    //     type: 'detail',
+    //     title: 'Notes',
+    //     inTab: true,
+    //     formDetailOptions: {
+    //       operationUrl: "https://6a0efaf31736097c360af529.mockapi.io/api/inventory-detail",
+    //       isEditable: true,
+    //       parentKeyField: 'inventoryId',
+    //       columns: [
+    //         { dataField: 'id', editorOptions: { readOnly: true } },
+    //         { dataField: 'inventoryId' },
+    //         { dataField: 'note', validationRules: [{ type: 'required', message: 'Note is required' }] },
+    //         { dataField: 'noteDate' }
+    //       ],
+    //       toolbarsItems: [
+    //         {
+    //           widget: 'dxButton',
+    //           options: {
+    //             icon: 'bell',
+    //             text: 'Zil',
+    //             onClick: (e: any) => console.log('Custom action clicked', e)
+    //           }
+    //         }
+    //       ]
+    //     }
+    //   }
+    // ]
   }
 
   return (

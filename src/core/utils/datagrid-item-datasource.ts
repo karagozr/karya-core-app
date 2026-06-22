@@ -97,8 +97,6 @@ export const createLookupDsForDt = (
           : cascadeFilter;
       }
 
-      console.log('loadOptions for lookup', loadOptions);
-
       const params = {
         ...prepareLoadOptionsForBackend(loadOptions),
       };

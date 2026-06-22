@@ -1,6 +1,7 @@
 import React from "react";
 import { ApiRequest } from "../services";
 import { useAppFormContext } from "../contexts";
+import { normalizeApiDataForObject } from "../utils";
 
 export const useAppFormDatasource = (url: any, keyName: string) => {
   const [data, setData] = React.useState<any | null>(null);
@@ -18,8 +19,8 @@ export const useAppFormDatasource = (url: any, keyName: string) => {
       
       setIsLoading(false);
 
-      if (res.data) {
-        setDataValue(res.data);
+      if (res.success) {
+        setDataValue(normalizeApiDataForObject(res));
       }
     }, 1000)
   }
@@ -31,25 +32,15 @@ export const useAppFormDatasource = (url: any, keyName: string) => {
   const insert = React.useCallback(async (data: any) => {
     setIsLoading(true);
     setTimeout(async () => {
-      var res = await ApiRequest.Post(url, data);
+      await ApiRequest.Post(url, data);
       setIsLoading(false);
-      if (res.success) {
-        appFormContext.updateFormContext(res.data[keyName]);
-        setData(res.data);
-      }
     }, 1000)
   }, []);
 
-  const update = React.useCallback(async (key: string, data: any) => {
+  const update = React.useCallback(async (key: string, updateData: any) => {
     setIsLoading(true);
-
-    var res = await ApiRequest.Put(url, key, data);
-    if (res.success) {
-      setData(res.data);
-    }
+    await ApiRequest.Put(url, key, updateData);
     setIsLoading(false);
-
-
   }, [appFormContext.key]);
 
   const save = React.useCallback(async (key: string, data: any) => {

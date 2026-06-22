@@ -2,7 +2,7 @@ import { CustomStore } from "devextreme/common/data";
 import DataSource from "devextreme/data/data_source";
 import { ApiRequest } from "../services";
 import { useMemo } from "react";
-import { prepareLoadOptionsForBackend } from "../utils";
+import { prepareLoadOptionsForBackend, normalizeApiDataForArray } from "../utils";
 
 
 export const useAppDatagridDatasouce = (url: string, keyName: string) => {
@@ -12,7 +12,7 @@ export const useAppDatagridDatasouce = (url: string, keyName: string) => {
                 key: keyName,
                 load: async (options: any) =>{
                     var res = await ApiRequest.Get(url , prepareLoadOptionsForBackend(options));
-                    return res?.data.data;
+                    return normalizeApiDataForArray(res);
                 },
                 update: async (key, values) => {
                     await ApiRequest.Put(url , key, values);

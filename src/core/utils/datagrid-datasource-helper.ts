@@ -4,6 +4,8 @@ export const prepareLoadOptionsForBackend = (loadOptions : any) => {
     if (params.sort) params.sort = JSON.stringify(params.sort);
     if (params.filter) params.filter = JSON.stringify(params.filter);
     if (params.group) params.group = JSON.stringify(params.group);
+    if (params.select) params.select = JSON.stringify(params.select);
+    if (params.searchExpr) params.searchExpr = JSON.stringify(params.searchExpr);
     if (params.totalSummary) params.totalSummary = JSON.stringify(params.totalSummary);
     if (params.groupSummary) params.groupSummary = JSON.stringify(params.groupSummary);
 

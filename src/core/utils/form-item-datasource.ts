@@ -29,7 +29,6 @@ export const createLookupDs = (url: string, parentFields: string[] | undefined, 
         return res.data;
       },
       load: async (loadOptions: any) => {
-        console.log('loadOptions', loadOptions);
         const params: Record<string, any> = {};
         if (parentFields && parentFields.length > 0) {
           const currentFormData = formRef.current?.instance().option('formData') ?? {};

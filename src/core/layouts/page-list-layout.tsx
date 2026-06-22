@@ -6,7 +6,7 @@ export function PageListLayout({ children,pageRate= 'full' }: React.PropsWithChi
 
   return (
     <React.Fragment>
-      <div className={'dx-card responsive-list-paddings'} style={{width: pageRate === 'half' ? "50%" : "100%"}}>
+      <div className={`dx-card responsive-list-paddings ${pageRate === 'half' ? 'responsive-list-paddings-half' : ''}`} >
         {children}
       </div>
     </React.Fragment>

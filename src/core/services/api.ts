@@ -52,6 +52,7 @@ export interface IAppRequestPut extends IAppBaseRequest {
   data?: any;
 }
 export interface IAppRequestPatch extends IAppBaseRequest {
+  key?: any;
   data?: any;
 }
 export interface IAppRequestDelete extends IAppBaseRequest {
@@ -187,7 +188,7 @@ const CoreRequest = async ({ method, url, data, params, key, isBlob, msgBox }: I
 const AppRequestGet = ({ url, params,msgBox }: IAppRequestGet) => CoreRequest({ method: "GET", url, params, msgBox });
 const AppRequestPost = ({ url, data,msgBox }: IAppRequestPost) => CoreRequest({ method: "POST", url, data, msgBox });
 const AppRequestPut = ({ url, data, key,msgBox }: IAppRequestPut) => CoreRequest({ method: "PUT", url: url + '/' + key, data, msgBox });
-const AppRequestPatch = ({ url, data,msgBox }: IAppRequestPatch) => CoreRequest({ method: "PATCH", url, data, msgBox });
+const AppRequestPatch = ({ url, data, key,msgBox }: IAppRequestPatch) => CoreRequest({ method: "PATCH", url: url + '/' + key, data, msgBox });
 const AppRequestDelete = ({ url, params,msgBox }: IAppRequestDelete) => CoreRequest({ method: "DELETE", url, params, msgBox });
 
 const MessageBoxInitialStatus: IMessageBoxStatus = {
@@ -203,7 +204,7 @@ export const ApiRequest = {
   Post: async (url: string, data: any,msgBox: IMessageBoxStatus=MessageBoxInitialStatus) => AppRequestPost({ url: url, data: data, msgBox: msgBox }),
   Put: async (url: string, key: any, data: any,msgBox: IMessageBoxStatus=MessageBoxInitialStatus) => AppRequestPut({ url: url, key: key, data: data, msgBox: msgBox }),
   Delete: async (url: string, key: any,msgBox: IMessageBoxStatus=MessageBoxInitialStatus) => AppRequestDelete({ url: url + '/' + key, params: null, msgBox: msgBox }),
-  Patch: async (url: string, data: any,msgBox: IMessageBoxStatus=MessageBoxInitialStatus) => AppRequestPatch({ url: url, data: data, msgBox: msgBox }),
+  Patch: async (url: string, key: any, data: any,msgBox: IMessageBoxStatus=MessageBoxInitialStatus) => AppRequestPatch({ url: url, key: key, data: data, msgBox: msgBox }),
   // Get : async (url:string, params:any) =>AppRequestGet({url:BASE_URL + url, params:params}),
   // Post : async (url:string, data:any) =>AppRequestPost({url:BASE_URL + url, data:data}),
   // Put : async (url:string, key:any, data:any) =>AppRequestPut({url:BASE_URL + url, key:key, data:data}),

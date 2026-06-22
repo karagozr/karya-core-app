@@ -1,7 +1,6 @@
 import { BaseListPage } from '../../core';
 
 export function InventoryListPage() {
-  console.log('BaseListPage items', new Date().toISOString());
   return (
     <BaseListPage pageRate='full' caption='Inventory List' breadcrumb={{path: '>inventory/Inventory List'}}  items={[
       {
@@ -16,15 +15,29 @@ export function InventoryListPage() {
             { dataField: 'id'},
             { dataField: 'name' },
             { dataField: 'brand' },
-            { dataField: 'categoryId', 
+            { dataField: 'mainCategoryId', 
+              calculateDisplayValue: (item: any) => item?.mainCategoryId ? (item?.mainCategoryId + ' - ' + item?.mainCategoryName) :'',
               lookup: {
                 valueExpr: 'id',
-                displayExpr: (item: any) => item?.id + ' - ' + item?.name,
+                displayExpr: (item: any) => item?.id ? item?.id + ' - ' + item?.name : '',
+                
+              },
+              dsUrl: 'https://localhost:7131/api/InvMainCategory',
+              dsCascadeChildrens: ['categoryId'],
+              dsSearchFields: ['id', 'name'],
+            },
+            { dataField: 'categoryId', 
+              calculateDisplayValue: (item: any) => item?.categoryId ? (item?.categoryId + ' - ' + item?.categoryName) :'',
+              lookup: {
+                valueExpr: 'id',
+                displayExpr: (item: any) => item?.id ? item?.id + ' - ' + item?.name : '',
                 
               },
               dsUrl: 'https://localhost:7131/api/InvCategory',
-              dsCascadeChildrens: ['brand']  
+              dsCascadeParents: ['mainCategoryId'],
+              dsSearchFields: ['id', 'name'],
             },
+            
             
           ],
           summary:{

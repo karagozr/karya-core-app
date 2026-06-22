@@ -5,6 +5,7 @@ import { InventoryListPage } from './pages/invetory/inventory-list-page';
 import { InventoryReportPage } from './pages/invetory/inventory-report';
 import { UserProfilPage } from './core/pages/user-profil-page';
 import { InventoryCategoryListPage } from './pages/inventory-category/inventory-category-list-page';
+import { InventoryMainCategoryListPage } from './pages/inventory-main-category/inventory-main-category-list-page';
 
 const routeData = [
     {
@@ -34,6 +35,10 @@ const routeData = [
     {
         path: '/inventory-category/list',
         element: InventoryCategoryListPage
+    },
+    {
+        path: '/inventory-main-category/list',
+        element: InventoryMainCategoryListPage
     }
 ];
 

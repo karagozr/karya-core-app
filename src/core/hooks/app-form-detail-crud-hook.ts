@@ -1,6 +1,7 @@
 import { CustomStore, DataSource, ODataStore } from "devextreme/common/data";
 import { ApiRequest } from "../services";
 import { useMemo } from "react";
+import { normalizeApiDataForArray, prepareLoadOptionsForBackend } from "../utils";
 
 interface IAppFormDetailParentValueOptions {
   key: string|null;
@@ -24,8 +25,8 @@ export const useAppFormDetailDatasource = (url: any, key: any, parent: IAppFormD
     store: new CustomStore({
         key: key,
         load: async (options: any) => {
-          var result = await ApiRequest.Get(url+`?${parent.key}=${parent.value}`, null,defaultMessageBoxStatus);
-          return result.data;
+          var result = await ApiRequest.Get(url+`/master(${parent.key}=${parent.value})`, prepareLoadOptionsForBackend(options),defaultMessageBoxStatus);
+          return normalizeApiDataForArray(result);
         },
         update: async (key, values) => {
           var result = await ApiRequest.Put(url, key,values,defaultMessageBoxStatus);

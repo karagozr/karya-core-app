@@ -10,20 +10,51 @@ export const useAppDatagridDatasouce = (url: string, keyName: string) => {
         return new DataSource({
             store: new CustomStore({
                 key: keyName,
-                load: async (options: any) =>{
-                    var res = await ApiRequest.Get(url , prepareLoadOptionsForBackend(options));
+                load: async (options: any) => {
+                    var res = await ApiRequest.Get(url, prepareLoadOptionsForBackend(options));
                     return normalizeApiDataForArray(res);
                 },
                 update: async (key, values) => {
-                    await ApiRequest.Put(url , key, values);
+                    const response = await ApiRequest.Put(url, key, values, 
+                            { 
+                                isActiveError: false, 
+                                isActiveSuccess: false,
+                                isActiveWarning: false, 
+                                isActiveInfo: false 
+                            } );
+                    if (response && response.success === false) {
+                        throw new Error(response.message || "İşlem başarısız.");
+                    }
+                    return response;
                 },
                 insert: async (values) => {
-                    await ApiRequest.Post(url, values);
+                        const response = await ApiRequest.Post(url, values,
+                            { 
+                            isActiveError: false, 
+                            isActiveSuccess: false,
+                            isActiveWarning: false, 
+                            isActiveInfo: false 
+                        }
+                        );
+                        if (response && response.success === false) {
+                            throw new Error(response.message || "İşlem başarısız.");
+                        }
+                        return response;
                 },
                 remove: async (key) => {
-                    await ApiRequest.Delete(url, key);
+                    const response = await ApiRequest.Delete(url, key,
+                        { 
+                            isActiveError: true, 
+                            isActiveSuccess: false,
+                            isActiveWarning: false, 
+                            isActiveInfo: false 
+                        });
+                    if (response && response.success === false) {
+                        throw new Error(response.message || "İşlem başarısız.");
+                    }
+                    
                 },
-                
+
             })
         })
     }, [url, keyName]);

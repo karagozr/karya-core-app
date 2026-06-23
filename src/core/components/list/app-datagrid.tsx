@@ -1,6 +1,6 @@
 import React from "react";
 import DataGrid, { Pager, Paging, type DataGridRef } from "devextreme-react/data-grid";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAppDatagridDatasouce } from "../../hooks";
 import './app-datagrid.scss';
 import type { IAppListProps } from "./types";
@@ -12,13 +12,20 @@ import { createDatagridToolbar, createLookupDsForDt } from "../../utils";
 function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChildren<IAppListProps>) {
 
   const navigate = useNavigate();
+  const location = useLocation();
+
   const gridRef = React.useRef<DataGridRef>(null);
   const key = metaListOptions.keyId ? metaListOptions.keyId : 'id';
   const { dataSource } = useAppDatagridDatasouce(operationUrl, key);
 
 
-  const goDetail = React.useCallback(async () => {
+  const goDetail = React.useCallback(async (routeKey:number|string|null=null) => {
     if (metaListOptions.detailPath) {
+      navigate(location.pathname, { state: { wentToForm: true }, replace: true });
+      if(routeKey!==null){
+        navigate(metaListOptions.detailPath + '?key=' + routeKey);
+        return;
+      }
       var dataGridInstance = gridRef.current?.instance();
       var selectedData = await dataGridInstance?.getSelectedRowsData();
       navigate(metaListOptions.detailPath + '?key=' + selectedData?.[0]?.[key]);
@@ -28,7 +35,7 @@ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChild
   const handleRowDblClick = React.useCallback(async (e: any) => {
     if (metaListOptions.detailPath) {
       if (e.rowType === 'data') {
-        navigate(metaListOptions.detailPath + '?key=' + e.data[key]);
+        goDetail(e.data[key]);
       }
     }
   }, [key, metaListOptions.detailPath, navigate]);
@@ -55,12 +62,12 @@ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChild
         lookupEditors[col.dataField] = {
           dsUrl: col.dsUrl,
           dsCascadeChildrens: col.dsCascadeChildrens,
-            dsCascadeParents: col.dsCascadeParents,
+          dsCascadeParents: col.dsCascadeParents,
           dsSearchFields: col.dsSearchFields,
           lookup: col.lookup,
         };
 
-          const { dsUrl, dsCascadeChildrens, dsCascadeParents, dsSearchFields, lookup, ...restCol } = col;
+        const { dsUrl, dsCascadeChildrens, dsCascadeParents, dsSearchFields, lookup, ...restCol } = col;
         return restCol;
       }
 
@@ -161,6 +168,22 @@ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChild
   const summary = React.useMemo(() => metaListOptions?.summary, []);
 
 
+  const loadGridState = () => {
+    const returnedFromForm = location?.state?.wentToForm === true;
+
+    if (returnedFromForm) {
+      const savedState = localStorage.getItem('app-datagrid-state');
+      return savedState ? JSON.parse(savedState) : null;
+    }
+
+    localStorage.removeItem('app-datagrid-state');
+    return null;
+  };
+
+  const saveGridState = (state: any) => {
+    localStorage.setItem('app-datagrid-state', JSON.stringify(state));
+  };
+
 
   return (
     <DataGrid
@@ -171,6 +194,7 @@ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChild
       showBorders={false}
       remoteOperations={true}
       summary={summary}
+      onDataErrorOccurred={() => {}}
       id={key}
       className={'app-list-page-datagrid'}
       onRowDblClick={handleRowDblClick}
@@ -180,6 +204,13 @@ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChild
       columnAutoWidth={true}
       columnHidingEnabled={true}
       focusedRowEnabled={true}
+      stateStoring={{
+        enabled:true,
+        savingTimeout:100,
+        type:"custom",
+        customLoad:loadGridState,
+        customSave:saveGridState
+      }}
       onEditorPreparing={handleEditorPreparing}
     >
       <Paging enabled={true} defaultPageSize={4} />

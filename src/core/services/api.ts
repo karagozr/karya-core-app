@@ -108,6 +108,7 @@ const apiCoreResponse = (msgBox: IMessageBoxStatus, data: any, title: string, me
 };
 
 const CoreRequest = async ({ method, url, data, params, key, isBlob, msgBox }: ICoreRequest): Promise<IApiResponse> => {
+  console.log("CoreRequest called with:", url);
   const headers = {
     "Access-Control-Allow-Private-Network": true,
     "Access-Control-Allow-Origin": "*",
@@ -141,6 +142,7 @@ const CoreRequest = async ({ method, url, data, params, key, isBlob, msgBox }: I
 
     const result = await axios.request(config);
 
+
     const { data: resData, status } = result;
 
     const message = resData?.message || "Success";
@@ -159,11 +161,13 @@ const CoreRequest = async ({ method, url, data, params, key, isBlob, msgBox }: I
     }
   } catch (error: any) {
 
+    
+
     const response = error?.response;
     const status = response?.status || 0;
     const data = response?.data;
-    const message = data?.message || error?.message || "Sunucu hatası";
-
+    const errors = data?.errors;
+    const message = JSON.stringify(errors).replaceAll('"', '').replaceAll('{', '').replaceAll('}', '').replaceAll('[', '').replaceAll(']', '') || data?.message || error?.message || "Sunucu hatası";
 
     switch (status) {
       case 400: return apiCoreResponse(msgBox, null, "Bad Request", message, false, status);

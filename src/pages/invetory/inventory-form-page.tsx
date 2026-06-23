@@ -52,34 +52,45 @@ export const InventoryFormPage = () => {
       ]
     },
     detailCaption: 'Inventory Details',
-    // detailItems: [
-    //   {
-    //     type: 'detail',
-    //     title: 'Notes',
-    //     inTab: true,
-    //     formDetailOptions: {
-    //       operationUrl: "https://6a0efaf31736097c360af529.mockapi.io/api/inventory-detail",
-    //       isEditable: true,
-    //       parentKeyField: 'inventoryId',
-    //       columns: [
-    //         { dataField: 'id', editorOptions: { readOnly: true } },
-    //         { dataField: 'inventoryId' },
-    //         { dataField: 'note', validationRules: [{ type: 'required', message: 'Note is required' }] },
-    //         { dataField: 'noteDate' }
-    //       ],
-    //       toolbarsItems: [
-    //         {
-    //           widget: 'dxButton',
-    //           options: {
-    //             icon: 'bell',
-    //             text: 'Zil',
-    //             onClick: (e: any) => console.log('Custom action clicked', e)
-    //           }
-    //         }
-    //       ]
-    //     }
-    //   }
-    // ]
+    detailItems: [
+      {
+        type: 'detail',
+        title: 'Notes',
+        inTab: true,
+        formDetailOptions: {
+          operationUrl: "https://localhost:7131/api/invdetail",
+          isEditable: true,
+          parentKeyField: 'inventoryId',
+          columns: [
+            { dataField: 'id', editorOptions: { readOnly: true } },
+            { dataField: 'inventoryId' },
+            { dataField: 'note', validationRules: [{ type: 'required', message: 'Note is required' }] },
+            { dataField: 'mainCategoryId', 
+              calculateDisplayValue: (item: any) => item?.mainCategoryId ? (item?.mainCategoryId + ' - ' + item?.mainCategoryName) :'',
+              lookup: {
+                valueExpr: 'id',
+                displayExpr: (item: any) => item?.id ? item?.id + ' - ' + item?.name : '',
+                
+              },
+              // dsUrl: 'https://localhost:7131/api/InvMainCategory',
+              // dsCascadeChildrens: ['categoryId'],
+              // dsSearchFields: ['id', 'name'],
+            },
+            { dataField: 'categoryId', 
+              calculateDisplayValue: (item: any) => item?.categoryId ? (item?.categoryId + ' - ' + item?.categoryName) :'',
+              lookup: {
+                valueExpr: 'id',
+                displayExpr: (item: any) => item?.id ? item?.id + ' - ' + item?.name : '',
+                
+              },
+              // dsUrl: 'https://localhost:7131/api/InvCategory',
+              // dsCascadeParents: ['mainCategoryId'],
+              // dsSearchFields: ['id', 'name'],
+            },
+          ],
+        }
+      }
+    ]
   }
 
   return (

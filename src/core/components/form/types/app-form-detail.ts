@@ -5,6 +5,6 @@ export interface IFormDetailProps {
   isEditable?:boolean;
   columns?: IDataGridOptions['columns'];
   gridRef?: React.Ref<DataGridRef>
-  parentKeyField: string;
+  parentFields: string[];
   operationUrl: string;
 }

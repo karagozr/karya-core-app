@@ -5,7 +5,9 @@ import React from "react";
 import type { DataGridRef } from "devextreme-react/cjs/data-grid";
 import type { IFormDetailProps } from "./types";
 
-export function AppFormDetail({ operationUrl, toolbarsItems, columns, isEditable, parentKeyField }
+
+
+export function AppFormDetail({ operationUrl, toolbarsItems, columns, isEditable, parentFields }
   : React.PropsWithChildren<IFormDetailProps>) {
 
   const gridRef = React.useRef<DataGridRef>(null);
@@ -14,23 +16,19 @@ export function AppFormDetail({ operationUrl, toolbarsItems, columns, isEditable
 
   const editable = isEditable && parentKey !== null || false;
 
-  const { dataSource } = useAppFormDetailDatasource(operationUrl, 'id', {
-    key: parentKeyField,
-    value: parentKey || ''
-  });
+  const { dataSource } = useAppFormDetailDatasource(operationUrl, 'id', parentFields, [parentKey]);
 
-  const handleInitNewRow = (e: any) => {
-    e.data[parentKeyField] = parentKey;
-  }
+
 
   return (
     <DataGrid
       ref={gridRef}
       columns={columns}
-      dataSource={parentKeyField === null || parentKey === null ? [] : dataSource}
+      dataSource={parentKey === null || parentKey === undefined ? [] : dataSource}
       showBorders={false}
       columnAutoWidth={true}
-      onInitNewRow={handleInitNewRow}
+
+      remoteOperations={true}
       editing={editable ? {
         mode: 'batch',
         allowAdding: true,

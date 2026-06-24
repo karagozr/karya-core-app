@@ -60,7 +60,7 @@ export const InventoryFormPage = () => {
         formDetailOptions: {
           operationUrl: "https://localhost:7131/api/invdetail",
           isEditable: true,
-          parentKeyField: 'inventoryId',
+          parentFields: ["inventoryId"],
           columns: [
             { dataField: 'id', editorOptions: { readOnly: true } },
             { dataField: 'inventoryId' },

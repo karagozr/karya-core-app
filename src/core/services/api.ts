@@ -108,7 +108,6 @@ const apiCoreResponse = (msgBox: IMessageBoxStatus, data: any, title: string, me
 };
 
 const CoreRequest = async ({ method, url, data, params, key, isBlob, msgBox }: ICoreRequest): Promise<IApiResponse> => {
-  console.log("CoreRequest called with:", url);
   const headers = {
     "Access-Control-Allow-Private-Network": true,
     "Access-Control-Allow-Origin": "*",

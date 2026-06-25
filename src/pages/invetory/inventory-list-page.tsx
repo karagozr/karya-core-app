@@ -12,10 +12,11 @@ export function InventoryListPage() {
           editable: true,
           
           columns: [
-            { dataField: 'id'},
-            { dataField: 'name' },
-            { dataField: 'brand' },
+            { dataField: 'id',hidingPriority: 3 },
+            { dataField: 'name', hidingPriority: 4 },
+            { dataField: 'brand', hidingPriority: 2 },
             { dataField: 'mainCategoryId', 
+              hidingPriority: 1,
               calculateDisplayValue: (item: any) => item?.mainCategoryId ? (item?.mainCategoryId + ' - ' + item?.mainCategoryName) :'',
               lookup: {
                 valueExpr: 'id',
@@ -27,6 +28,7 @@ export function InventoryListPage() {
               dsSearchFields: ['id', 'name'],
             },
             { dataField: 'categoryId', 
+              hidingPriority: 0,
               calculateDisplayValue: (item: any) => item?.categoryId ? (item?.categoryId + ' - ' + item?.categoryName) :'',
               lookup: {
                 valueExpr: 'id',

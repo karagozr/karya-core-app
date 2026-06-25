@@ -55,7 +55,7 @@ export const useAppFormDetailDatasource = (url: any, key: any, parentFields: str
           var result = await ApiRequest.Delete(opUrl, key,defaultMessageBoxStatus);
           return result.data
         }
-    })
+    }),
   })
 
   return useMemo(() => ({ dataSource }), [url, key, parentFields, parentValues]);

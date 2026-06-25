@@ -34,7 +34,7 @@ export default function Root() {
   const themeContext = useThemeContext();
 
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ThemeContext.Provider value={themeContext}>
         <AuthProvider>
           <NavigationProvider>

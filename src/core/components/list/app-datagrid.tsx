@@ -222,7 +222,6 @@ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChild
         showPageSizeSelector={true}
         showNavigationButtons={true}
       />
-
     </DataGrid>
   )
 

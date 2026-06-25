@@ -35,7 +35,7 @@ export const InventoryFormPage = () => {
           }
         },
         { dataField: 'brand', colSpan: 1 },
-        
+
       ],
       operationUrl: "https://localhost:7131/api/Inv",
       toolbarsItems: [
@@ -63,29 +63,30 @@ export const InventoryFormPage = () => {
           parentFields: ["inventoryId"],
           columns: [
             { dataField: 'id', editorOptions: { readOnly: true } },
-            { dataField: 'inventoryId' },
             { dataField: 'note', validationRules: [{ type: 'required', message: 'Note is required' }] },
-            { dataField: 'mainCategoryId', 
+            {
+              dataField: 'mainCategoryId',
               calculateDisplayValue: (item: any) => item?.mainCategoryId ? (item?.mainCategoryId + ' - ' + item?.mainCategoryName) :'',
               lookup: {
                 valueExpr: 'id',
                 displayExpr: (item: any) => item?.id ? item?.id + ' - ' + item?.name : '',
-                
+
               },
-              // dsUrl: 'https://localhost:7131/api/InvMainCategory',
-              // dsCascadeChildrens: ['categoryId'],
-              // dsSearchFields: ['id', 'name'],
+              dsUrl: 'https://localhost:7131/api/InvMainCategory',
+              dsCascadeChildrens: ['categoryId'],
+              dsSearchFields: ['id', 'name'],
             },
-            { dataField: 'categoryId', 
-              calculateDisplayValue: (item: any) => item?.categoryId ? (item?.categoryId + ' - ' + item?.categoryName) :'',
+            {
+              dataField: 'categoryId',
+              calculateDisplayValue: (item: any) =>  item?.categoryId ? (item?.categoryId + ' - ' + item?.categoryName) :'',
               lookup: {
                 valueExpr: 'id',
                 displayExpr: (item: any) => item?.id ? item?.id + ' - ' + item?.name : '',
-                
+
               },
-              // dsUrl: 'https://localhost:7131/api/InvCategory',
-              // dsCascadeParents: ['mainCategoryId'],
-              // dsSearchFields: ['id', 'name'],
+              dsUrl: 'https://localhost:7131/api/InvCategory',
+              dsCascadeParents: ['mainCategoryId'],
+              dsSearchFields: ['id', 'name'],
             },
           ],
         }

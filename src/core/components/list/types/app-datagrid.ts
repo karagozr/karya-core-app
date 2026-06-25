@@ -1,6 +1,6 @@
 import type { Column, Summary, ToolbarItem } from "devextreme/ui/data_grid_types";
 
-interface IAppColumn extends Column {
+export interface IAppColumn extends Column {
   dsUrl?: string;
   dsCascadeChildrens?: string[];
   dsCascadeParents?: string[];

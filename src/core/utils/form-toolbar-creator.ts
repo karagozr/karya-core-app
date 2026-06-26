@@ -10,8 +10,18 @@ export const createFormToolbarItems = (onSave: () => void, onNew: () => void,onD
 }) => {
 
   const defaultItems = [
+     formAllowOptions.allowNew == false ? {} : {
+      location: 'before',
+      widget: 'dxButton',
+      options: {
+        text: 'New',
+        type: 'default',
+        icon: 'plus',
+        onClick: onNew
+      }
+    },
     formAllowOptions.allowSave == false ? {} : {
-      location: 'after',
+      location: 'before',
       widget: 'dxButton',
       options: {
         text: 'Save',
@@ -21,7 +31,7 @@ export const createFormToolbarItems = (onSave: () => void, onNew: () => void,onD
       }
     },
     formAllowOptions.allowDelete == false ? {} : {
-      location: 'after',
+      location: 'before',
       widget: 'dxButton',
       options: {
         text: 'Delete',
@@ -29,17 +39,8 @@ export const createFormToolbarItems = (onSave: () => void, onNew: () => void,onD
         icon: 'trash',
         onClick: onDelete
       }
-    },
-    formAllowOptions.allowNew == false ? {} : {
-      location: 'after',
-      widget: 'dxButton',
-      options: {
-        text: 'New',
-        type: 'default',
-        icon: 'plus',
-        onClick: onNew
-      }
     }
+   
   ];
 
   if (toolbarsItems && toolbarsItems.length > 0) {

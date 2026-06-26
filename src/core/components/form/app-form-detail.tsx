@@ -6,6 +6,9 @@ import type { IFormDetailProps } from "./types";
 import { createLookupDsForDt } from "../../utils";
 
 
+const addNewText = 'New Row';
+const saveText = 'Save';
+const revertText = 'Revert';
 
 export function AppFormDetail({ operationUrl, toolbarsItems, columns, isEditable, parentFields }
   : React.PropsWithChildren<IFormDetailProps>) {
@@ -150,7 +153,7 @@ export function AppFormDetail({ operationUrl, toolbarsItems, columns, isEditable
         allowDeleting: false,
         useIcons: false,
       }}
-      toolbar={{ items: createToolbar(editable, toolbarsItems || [], gridRef) }}
+      toolbar={createToolbar(editable, toolbarsItems || [], gridRef) }
     >
       <Paging enabled={true} defaultPageSize={4} />
       <Pager
@@ -165,13 +168,78 @@ export function AppFormDetail({ operationUrl, toolbarsItems, columns, isEditable
   )
 }
 
-const createToolbar = (editable: boolean, toolbarsItems: any[], gridRef: React.RefObject<DataGridRef | any>) =>
-  editable ? ['addRowButton', 'saveButton', 'revertButton', ...(toolbarsItems?.map(item => {
-    if (item.widget === 'dxButton' && item.options && item.options.onClick) {
+const createToolbar = (editable: boolean, toolbarsItems: any[], gridRef: React.RefObject<DataGridRef | any>) =>{
+
+  const addButton: any = editable ? {
+    location: 'before',
+    widget: 'dxButton',
+    name: 'addRowButton',
+    visible: true,
+    showText: 'always',
+    options: {
+      type: 'default',
+      text: addNewText,
+    }
+  } : null;
+  const saveButton: any = editable ? {
+    location: 'before',
+    widget: 'dxButton',
+    name: 'saveButton',
+    visible: true,
+    showText: 'always',
+    options: {
+      type: 'success',
+      text: saveText,
+    }
+  } : null;
+   const revertButton: any = editable ? {
+    location: 'before',
+    widget: 'dxButton',
+    name: 'revertButton',
+    visible: true,
+    showText: 'always',
+    options: {
+      type: 'normal',
+      text: revertText,
+    }
+  } : null;
+
+
+  const externalToolbarItems = toolbarsItems.map(item => {
+    if (item.widget === 'dxButton' && item.options && item.options.onClick) 
+    {
       const originalOnClick = item.options.onClick;
-      item.options.onClick = () => {
+      item.options.onClick = () => 
+      {
         originalOnClick(gridRef?.current?.instance());
-      }
+      }    
     }
     return item;
-  }) || [])] : undefined;
+  });
+
+  return toolbarsItems !== undefined ?
+    {
+      items:
+        [
+          ...(externalToolbarItems || []),
+          ...(addButton ? [addButton] : []),
+          ...(saveButton ? [saveButton] : []),
+          ...(revertButton ? [revertButton] : [])
+        ]
+    } : undefined;
+
+
+}
+  // editable ? ['addRowButton', 'saveButton', 'revertButton', ...(toolbarsItems?.map(item => {
+  //   if (item.widget === 'dxButton' && item.options && item.options.onClick) {
+  //     const originalOnClick = item.options.onClick;
+  //     item.options.onClick = () => {
+  //       originalOnClick(gridRef?.current?.instance());
+  //     }
+  //   }
+  //   return item;
+  // }) || [])] : undefined;
+
+
+
+  

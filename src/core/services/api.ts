@@ -166,7 +166,7 @@ const CoreRequest = async ({ method, url, data, params, key, isBlob, msgBox }: I
     const status = response?.status || 0;
     const data = response?.data;
     const errors = data?.errors;
-    const message = JSON.stringify(errors).replaceAll('"', '').replaceAll('{', '').replaceAll('}', '').replaceAll('[', '').replaceAll(']', '') || data?.message || error?.message || "Sunucu hatası";
+    const message = errors?JSON.stringify(errors).replaceAll('"', '').replaceAll('{', '').replaceAll('}', '').replaceAll('[', '').replaceAll(']', ''):data?.message || "Sunucu hatası";
 
     switch (status) {
       case 400: return apiCoreResponse(msgBox, null, "Bad Request", message, false, status);

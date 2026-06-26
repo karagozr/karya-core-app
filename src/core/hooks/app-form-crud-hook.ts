@@ -59,7 +59,7 @@ export const useAppFormDatasource = (url: any, keyName: string) => {
       if (res.data) {
         appFormContext.newFormContext();
       }
-    }, 5000)
+    }, 1000)
   }, [appFormContext.key, appFormContext.isNew]);
 
   //   React.useEffect( () => {

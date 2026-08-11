@@ -4,5 +4,5 @@ import { AuthContext } from './auth';
 const useAuth = () => useContext(AuthContext);
 
 export {
-  useAuth
-}
+  useAuth,
+};

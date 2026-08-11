@@ -6,13 +6,12 @@ import Form, {
   ButtonItem,
   ButtonOptions,
   RequiredRule,
-  EmailRule,
   type FormTypes,
 } from 'devextreme-react/form';
 import LoadIndicator from 'devextreme-react/load-indicator';
 import Button from 'devextreme-react/button';
 import notify from 'devextreme/ui/notify';
-import { useAuth } from '../../contexts/auth-hooks';
+import { useAuth } from '../../core/contexts/auth-hooks';
 
 import './LoginForm.scss';
 
@@ -20,7 +19,7 @@ export default function LoginForm() {
   const navigate = useNavigate();
   const { signIn } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ username: '', password: '' });
 
   const onFieldDataChanged = useCallback((e: FormTypes.FieldDataChangedEvent) => {
     const { dataField, value } = e;
@@ -35,10 +34,10 @@ export default function LoginForm() {
 
   const onSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { email, password } = formData;
+    const { username, password } = formData;
     setLoading(true);
 
-    const result = await signIn(email, password);
+    const result = await signIn(username, password);
     if (!result.isOk) {
       setLoading(false);
       notify(result.message, 'error', 2000);
@@ -53,12 +52,11 @@ export default function LoginForm() {
     <form className={'login-form'} onSubmit={onSubmit}>
       <Form formData={formData} disabled={loading} onFieldDataChanged={onFieldDataChanged}>
         <Item
-          dataField={'email'}
+          dataField={'username'}
           editorType={'dxTextBox'}
-          editorOptions={emailEditorOptions}
+          editorOptions={usernameEditorOptions}
         >
-          <RequiredRule message="Email is required" />
-          <EmailRule message="Email is invalid" />
+          <RequiredRule message="Username is required" />
           <Label visible={false} />
         </Item>
         <Item
@@ -101,10 +99,13 @@ export default function LoginForm() {
         width={'100%'}
         onClick={onCreateAccountClick}
       />
+      <div className={'link'}>
+        Mock login: admin / 123
+      </div>
     </form>
   );
 }
 
-const emailEditorOptions = { stylingMode: 'filled', placeholder: 'Email', mode: 'email' };
+const usernameEditorOptions = { stylingMode: 'filled', placeholder: 'Username' };
 const passwordEditorOptions = { stylingMode: 'filled', placeholder: 'Password', mode: 'password' };
 const rememberMeEditorOptions = { text: 'Remember me', elementAttr: { class: 'form-text' } };

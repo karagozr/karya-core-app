@@ -12,7 +12,7 @@ import Form, {
 import LoadIndicator from 'devextreme-react/load-indicator';
 import notify from 'devextreme/ui/notify';
 import type { ValidationCallbackData } from 'devextreme-react/common';
-import { changePassword } from '../../api/auth';
+import { changePassword } from '../../core/services/auth';
 
 export default function ChangePasswordForm() {
   const navigate = useNavigate();

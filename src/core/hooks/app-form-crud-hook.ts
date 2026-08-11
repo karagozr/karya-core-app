@@ -31,23 +31,32 @@ export const useAppFormDatasource = (url: any, keyName: string) => {
 
   const insert = React.useCallback(async (data: any) => {
     setIsLoading(true);
-    setTimeout(async () => {
-      await ApiRequest.Post(url, data);
-      setIsLoading(false);
-    }, 1000)
+    var res = await ApiRequest.Post(url, data);
+    setIsLoading(false);
+    if (res.success) {
+      const createdKey = res.data?.[keyName] ?? data?.[keyName];
+      if (createdKey !== undefined && createdKey !== null && createdKey !== '') {
+        appFormContext.updateFormContext(String(createdKey));
+      }
+      return true;
+    }
+
+    return false;
   }, []);
 
   const update = React.useCallback(async (key: string, updateData: any) => {
     setIsLoading(true);
-    await ApiRequest.Put(url, key, updateData);
+    const res = await ApiRequest.Put(url, key, updateData);
     setIsLoading(false);
+
+    return !!res?.success;
   }, [appFormContext.key]);
 
   const save = React.useCallback(async (key: string, data: any) => {
     if (appFormContext.isNew)
-      insert(data);
+      return await insert(data);
     else
-      update(key!, data);
+      return await update(key!, data);
 
   }, [appFormContext.key, appFormContext.isNew]);
 

@@ -12,7 +12,7 @@ import Form, {
 } from 'devextreme-react/form';
 import notify from 'devextreme/ui/notify';
 import LoadIndicator from 'devextreme-react/load-indicator';
-import { createAccount } from '../../api/auth';
+import { createAccount } from '../../core/services/auth';
 import type { ValidationCallbackData } from 'devextreme-react/common';
 import './CreateAccountForm.scss';
 

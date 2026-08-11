@@ -3,6 +3,7 @@ import { ApiRequest, type IMessageBoxStatus } from "../services";
 import { showMessage } from "./message-box";
 import { normalizeApiDataForArray, normalizeApiDataForObject } from "./api-result-normalizer";
 import { prepareLoadOptionsForBackend } from "./datagrid-datasource-helper";
+import { coreI18n } from "../i18n";
 
 
 const MessageBoxStatus: IMessageBoxStatus = {
@@ -43,8 +44,8 @@ export const createLookupDs = (url: string, parentFields: string[] | undefined, 
         if (res.status === 404) {
           showMessage({
             type: 'error',
-            message: `${key} is not found`,
-            title: '404 Key Error',
+            message: coreI18n.lookup.keyNotFound(key),
+            title: coreI18n.lookup.keyNotFoundTitle,
             displayTime: 4000,
           });
         }

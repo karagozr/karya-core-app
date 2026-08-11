@@ -1,5 +1,6 @@
 import axios from "axios";
 import { showMessage } from "../utils/message-box";
+import { coreI18n } from "../i18n";
 
 const BASE_URL = () => {
   try {
@@ -144,19 +145,19 @@ const CoreRequest = async ({ method, url, data, params, key, isBlob, msgBox }: I
 
     const { data: resData, status } = result;
 
-    const message = resData?.message || "Success";
+    const message = resData?.message || coreI18n.api.success;
 
     switch (status) {
-      case 200: return apiCoreResponse(msgBox, resData?.resData ?? resData, "Success", message, true, status);
-      case 201: return apiCoreResponse(msgBox, resData?.resData ?? resData, "Success", message, true, status);
-      case 220: return apiCoreResponse(msgBox, resData?.resData ?? resData, "Success", message, true, status);
-      case 204: return apiCoreResponse(msgBox, null, "Success", "No Content", true, status);
-      case 400: return apiCoreResponse(msgBox, resData, "Bad Request", message, false, status);
-      case 401: return apiCoreResponse(msgBox, resData, "Unauthorized", message, false, status);
-      case 403: return apiCoreResponse(msgBox, resData, "Forbidden", message, false, status);
-      case 404: return apiCoreResponse(msgBox, resData, "Not Found", message, false, status);
+      case 200: return apiCoreResponse(msgBox, resData?.resData ?? resData, coreI18n.api.success, message, true, status);
+      case 201: return apiCoreResponse(msgBox, resData?.resData ?? resData, coreI18n.api.success, message, true, status);
+      case 220: return apiCoreResponse(msgBox, resData?.resData ?? resData, coreI18n.api.success, message, true, status);
+      case 204: return apiCoreResponse(msgBox, null, coreI18n.api.success, coreI18n.api.noContent, true, status);
+      case 400: return apiCoreResponse(msgBox, resData, coreI18n.api.badRequest, message, false, status);
+      case 401: return apiCoreResponse(msgBox, resData, coreI18n.api.unauthorized, message, false, status);
+      case 403: return apiCoreResponse(msgBox, resData, coreI18n.api.forbidden, message, false, status);
+      case 404: return apiCoreResponse(msgBox, resData, coreI18n.api.notFound, message, false, status);
       default:
-        return apiCoreResponse(msgBox, resData, "API Warning", message ?? "API Warning", true, status);
+        return apiCoreResponse(msgBox, resData, coreI18n.api.apiWarning, message ?? coreI18n.api.apiWarning, true, status);
     }
   } catch (error: any) {
 
@@ -166,23 +167,25 @@ const CoreRequest = async ({ method, url, data, params, key, isBlob, msgBox }: I
     const status = response?.status || 0;
     const data = response?.data;
     const errors = data?.errors;
-    const message = errors?JSON.stringify(errors).replaceAll('"', '').replaceAll('{', '').replaceAll('}', '').replaceAll('[', '').replaceAll(']', ''):data?.message || "Sunucu hatası";
+    const message = errors
+      ? JSON.stringify(errors).replaceAll('"', '').replaceAll('{', '').replaceAll('}', '').replaceAll('[', '').replaceAll(']', '')
+      : data?.message || coreI18n.api.defaultServerError;
 
     switch (status) {
-      case 400: return apiCoreResponse(msgBox, null, "Bad Request", message, false, status);
-      case 401: return apiCoreResponse(msgBox, null, "Unauthorized", `${status} - Unauthorized`, false, status);
-      case 403: return apiCoreResponse(msgBox, null, "Forbidden", `${status} - Forbidden`, false, status);
-      case 404: return apiCoreResponse(msgBox, null, "Not Found", `${status} - Not Found`, false, status);
-      case 408: return apiCoreResponse(msgBox, null, "Request Timeout", `${status} - Request Timeout`, false, status);
-      case 500: return apiCoreResponse(msgBox, null, "Internal Server Error", `${status} - Internal Server Error`, false, status);
-      case 502: return apiCoreResponse(msgBox, null, "Bad Gateway", `${status} - Bad Gateway`, false, status);
-      case 503: return apiCoreResponse(msgBox, null, "Service Unavailable", `${status} - Service Unavailable`, false, status);
-      case 504: return apiCoreResponse(msgBox, null, "Gateway Timeout", `${status} - Gateway Timeout`, false, status);
-      case 409: return apiCoreResponse(msgBox, null, "Conflict", `${status} - Conflict`, false, status);
-      case 410: return apiCoreResponse(msgBox, null, "Gone", `${status} - Gone`, false, status);
-      case 422: return apiCoreResponse(msgBox, null, "Unprocessable Entity", `${status} - Unprocessable Entity`, false, status);
-      case 455: return apiCoreResponse(msgBox, null, "IFS Token Invalid", message || `${status} - IFS Token Invalid`, false, status);
-      default: return apiCoreResponse(msgBox, null, "Unknown Error", message || "Bilinmeyen sunucu hatası", false, status);
+      case 400: return apiCoreResponse(msgBox, null, coreI18n.api.badRequest, message, false, status);
+      case 401: return apiCoreResponse(msgBox, null, coreI18n.api.unauthorized, coreI18n.api.withStatus(status, coreI18n.api.unauthorized), false, status);
+      case 403: return apiCoreResponse(msgBox, null, coreI18n.api.forbidden, coreI18n.api.withStatus(status, coreI18n.api.forbidden), false, status);
+      case 404: return apiCoreResponse(msgBox, null, coreI18n.api.notFound, coreI18n.api.withStatus(status, coreI18n.api.notFound), false, status);
+      case 408: return apiCoreResponse(msgBox, null, coreI18n.api.requestTimeout, coreI18n.api.withStatus(status, coreI18n.api.requestTimeout), false, status);
+      case 500: return apiCoreResponse(msgBox, null, coreI18n.api.internalServerError, coreI18n.api.withStatus(status, coreI18n.api.internalServerError), false, status);
+      case 502: return apiCoreResponse(msgBox, null, coreI18n.api.badGateway, coreI18n.api.withStatus(status, coreI18n.api.badGateway), false, status);
+      case 503: return apiCoreResponse(msgBox, null, coreI18n.api.serviceUnavailable, coreI18n.api.withStatus(status, coreI18n.api.serviceUnavailable), false, status);
+      case 504: return apiCoreResponse(msgBox, null, coreI18n.api.gatewayTimeout, coreI18n.api.withStatus(status, coreI18n.api.gatewayTimeout), false, status);
+      case 409: return apiCoreResponse(msgBox, null, coreI18n.api.conflict, coreI18n.api.withStatus(status, coreI18n.api.conflict), false, status);
+      case 410: return apiCoreResponse(msgBox, null, coreI18n.api.gone, coreI18n.api.withStatus(status, coreI18n.api.gone), false, status);
+      case 422: return apiCoreResponse(msgBox, null, coreI18n.api.unprocessableEntity, coreI18n.api.withStatus(status, coreI18n.api.unprocessableEntity), false, status);
+      case 455: return apiCoreResponse(msgBox, null, coreI18n.api.ifsTokenInvalid, message || coreI18n.api.withStatus(status, coreI18n.api.ifsTokenInvalid), false, status);
+      default: return apiCoreResponse(msgBox, null, coreI18n.api.unknownError, message || coreI18n.api.unknownServerError, false, status);
     }
   }
 };

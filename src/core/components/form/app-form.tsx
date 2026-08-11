@@ -7,6 +7,7 @@ import type dxForm from "devextreme/ui/form";
 import { cascadeHandlingOperation, createFormToolbarItems, createLookupDs } from "../../utils";
 import type { AppFormRef, IAppFormProps } from "./types";
 import "../../loaders/form-skeleton.scss";
+import { coreI18n } from "../../i18n";
 
 const colCountByScreen = {
   xs: 1,
@@ -15,8 +16,8 @@ const colCountByScreen = {
   lg: 8
 };
 
-const unsavedChangesMessage = "You have unsaved changes. Are you sure you want to leave?";
-const deleteConfirmMessage = "Are you sure you want to delete this item?";
+const unsavedChangesMessage = coreI18n.form.unsavedChanges;
+const deleteConfirmMessage = coreI18n.form.deleteConfirm;
 
 
 
@@ -38,13 +39,18 @@ export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IApp
     }, [formDatasource.data, formData]);
 
     React.useEffect(() => {
+      setFormData(null);
+      if (!formOptions.operationUrl) {
+        return;
+      }
+
       if (appFormContext.key && !appFormContext.isNew) {
         formDatasource.byKey(appFormContext.key);
       } else {
         formDatasource.createNew();
         setFormData(null);
       }
-    }, [appFormContext.key]);
+    }, [appFormContext.key, formOptions.operationUrl]);
 
     const handleFieldDataChanged = React.useCallback((e: any) => {
       const { dataField, value } = e;
@@ -78,10 +84,23 @@ export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IApp
       }
     }
 
-    const onSave = () => {
+    const onSave = async () => {
       const validate = formRef.current?.instance().validate() || { isValid: true };
       if (validate.isValid) {
-        formDatasource.save(appFormContext.key!, formData);
+        const currentFormData = formRef.current?.instance().option('formData') ?? formDatasource.data ?? null;
+
+        if (formOptions.onCustomSave) {
+          const isSaved = await formOptions.onCustomSave(currentFormData);
+          if (isSaved) {
+            setFormData(null);
+          }
+          return;
+        }
+
+        const isSaved = await formDatasource.save(appFormContext.key!, currentFormData);
+        if (isSaved) {
+          setFormData(null);
+        }
       }
     }
 
@@ -113,7 +132,7 @@ export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IApp
       <div className={`${formDatasource.isLoading ? 'is-loading' : ''} dx-form-loader-container`} >
         <Toolbar className='main-toolbar-content action-button-toolbar' multiline={false} items={toolbarItems} />
         <div className="main-form-content">
-          <Form ref={formRef} labelMode='static' {...finalFormOptions} formData={formDatasource.data}
+          <Form ref={formRef} labelMode='static' {...finalFormOptions} formData={formDatasource.data ?? formOptions.formData}
             onFieldDataChanged={handleFieldDataChanged} colCountByScreen={colCountByScreen} />
         </div>
       </div>

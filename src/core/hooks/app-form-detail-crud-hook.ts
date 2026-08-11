@@ -1,12 +1,9 @@
-import { CustomStore, DataSource, ODataStore } from "devextreme/common/data";
+import { CustomStore } from "devextreme/common/data";
+import DataSource from "devextreme/data/data_source";
 import { ApiRequest } from "../services";
 import { useMemo } from "react";
 import { normalizeApiDataForArray, prepareLoadOptionsForBackend } from "../utils";
-
-interface IAppFormDetailParentValueOptions {
-  key: string|null;
-  value: string|number|null;
-}
+import { coreI18n } from "../i18n";
 
 const defaultMessageBoxStatus = {
   isActiveError: false,
@@ -18,7 +15,7 @@ const defaultMessageBoxStatus = {
 const parentObj = (parentFields: string[], fieldValues: any[]) => {
   
   if (parentFields.length !== fieldValues.length) {
-    throw new Error("Parent fields and field values must have the same length.");
+    throw new Error(coreI18n.formDetail.parentFieldsLengthMismatch);
   }else {
     const obj: any = {};
     parentFields.forEach((field, index) => {
@@ -29,34 +26,62 @@ const parentObj = (parentFields: string[], fieldValues: any[]) => {
 };
 
 export const useAppFormDetailDatasource = (url: any, key: any, parentFields: string[], parentValues: any[]) => {
-  
-  if(parentValues===null || parentValues===undefined){
-    throw new Error("Parent key is required for AppFormDetail datasource.");
+
+  if (parentValues === null || parentValues === undefined) {
+    throw new Error(coreI18n.formDetail.parentKeyRequiredDatasource);
   }
 
-  const opUrl=url+`(${JSON.stringify(parentObj(parentFields, parentValues))})`
+  const parentFieldsSignature = JSON.stringify(parentFields ?? []);
+  const parentValuesSignature = JSON.stringify(parentValues ?? []);
 
-  var dataSource = new DataSource({
-    store: new CustomStore({
-        key: key,
+  const dataSource = useMemo(() => {
+    const hasAllParentValues = (parentValues ?? []).every((value: any) => value !== null && value !== undefined && value !== '');
+    const opUrl = hasAllParentValues
+      ? url + `(${JSON.stringify(parentObj(parentFields, parentValues))})`
+      : null;
+
+    return new DataSource({
+      store: new CustomStore({
+        key,
         load: async (options: any) => {
-          var result = await ApiRequest.Get(opUrl, prepareLoadOptionsForBackend(options),defaultMessageBoxStatus);
+          console.log("parentValues[0]:", parentValues[0]);
+          if(parentValues[0]===null || parentValues[0]===undefined || parentValues[0]===''){
+            return normalizeApiDataForArray({ data: { data: [], totalCount: 0 } });
+          }
+
+          if (!opUrl) {
+            return normalizeApiDataForArray({ data: [], totalCount: 0 });
+          }
+          var result = await ApiRequest.Get(opUrl, prepareLoadOptionsForBackend(options), defaultMessageBoxStatus);
           return normalizeApiDataForArray(result);
         },
-        update: async (key, values) => {
-          var result = await ApiRequest.Put(opUrl, key,values,defaultMessageBoxStatus);
+        update: async (rowKey, values) => {
+          if (!opUrl) {
+            throw new Error(coreI18n.formDetail.parentKeyRequiredUpdate);
+          }
+
+          var result = await ApiRequest.Put(opUrl, rowKey, values, defaultMessageBoxStatus);
           return result.data;
         },
         insert: async (values) => {
-          var result = await ApiRequest.Post(opUrl, values,defaultMessageBoxStatus);
-          return result.data
-        },
-        remove: async (key) => {
-          var result = await ApiRequest.Delete(opUrl, key,defaultMessageBoxStatus);
-          return result.data
-        }
-    }),
-  })
+          if (!opUrl) {
+            throw new Error(coreI18n.formDetail.parentKeyRequiredInsert);
+          }
 
-  return useMemo(() => ({ dataSource }), [url, key, parentFields, parentValues]);
+          var result = await ApiRequest.Post(opUrl, values, defaultMessageBoxStatus);
+          return result.data;
+        },
+        remove: async (rowKey) => {
+          if (!opUrl) {
+            throw new Error(coreI18n.formDetail.parentKeyRequiredDelete);
+          }
+
+          var result = await ApiRequest.Delete(opUrl, rowKey, defaultMessageBoxStatus);
+          return result.data;
+        }
+      }),
+    });
+  }, [url, key, parentFieldsSignature, parentValuesSignature]);
+
+  return { dataSource };
 }

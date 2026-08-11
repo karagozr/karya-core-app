@@ -1,10 +1,26 @@
 export const normalizeApiDataForArray = (payload: any) => {
-    if (payload?.data?.data) return payload.data.data;
-    if (payload?.data) return payload.data;
-    if (payload) return payload;
-    
-    
-    return [];
+    const normalized = payload?.data?.data ?? payload?.data ?? payload;
+
+    if (Array.isArray(normalized)) {
+        return {
+            data: normalized,
+            totalCount: normalized.length,
+        };
+    }
+
+    if (normalized && typeof normalized === 'object' && Array.isArray(normalized.data)) {
+        return {
+            ...normalized,
+            totalCount: typeof normalized.totalCount === 'number'
+                ? normalized.totalCount
+                : normalized.data.length,
+        };
+    }
+
+    return {
+        data: [],
+        totalCount: 0,
+    };
 };
 
 export const normalizeApiDataForObject = (payload: any) => {

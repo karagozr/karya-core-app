@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useCallback, createContext } from 'react';
-import { getUser, signIn as sendSignInRequest } from '../api/auth';
-import type { User, AuthContextType } from '../types';
+import {
+  clearPersistedAuth,
+  getUser,
+  signIn as sendSignInRequest,
+  updateProfile as sendUpdateProfileRequest,
+} from '../services/auth';
+import type { User, AuthContextType, UserUpdatePayload } from '../../types';
 
 const AuthContext = createContext<AuthContextType>({ loading: false } as AuthContextType);
 
@@ -19,8 +24,18 @@ function AuthProvider(props: React.PropsWithChildren<unknown>) {
     })();
   }, []);
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const result = await sendSignInRequest(email, password);
+  const signIn = useCallback(async (username: string, password: string) => {
+    const result = await sendSignInRequest(username, password);
+    if (result.isOk) {
+      setUser(result.data);
+    }
+
+    return result;
+  }, []);
+
+  const updateUserProfile = useCallback(async (payload: UserUpdatePayload) => {
+    const result = await sendUpdateProfileRequest(payload);
+
     if (result.isOk) {
       setUser(result.data);
     }
@@ -29,12 +44,12 @@ function AuthProvider(props: React.PropsWithChildren<unknown>) {
   }, []);
 
   const signOut = useCallback(() => {
+    clearPersistedAuth();
     setUser(undefined);
   }, []);
 
-
   return (
-    <AuthContext.Provider value={{ user, signIn, signOut, loading }} {...props} />
+    <AuthContext.Provider value={{ user, signIn, updateUserProfile, signOut, loading }} {...props} />
   );
 }
 

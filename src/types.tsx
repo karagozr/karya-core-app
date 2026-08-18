@@ -18,14 +18,34 @@ export interface UserPanelProps {
     menuMode: 'context' | 'list';
 }
 
-export interface User {
+export type AppTheme = 'light' | 'dark';
+
+export interface UserProfile {
+    username: string;
+    fullName: string;
     email: string;
     avatarUrl: string;
 }
 
+export interface UserUpdatePayload {
+    profile?: Partial<UserProfile>;
+    pagePermissions?: string[];
+    language?: string;
+    theme?: AppTheme;
+}
+
+export interface User {
+    token: string;
+    profile: UserProfile;
+    pagePermissions: string[];
+    language: string;
+    theme: AppTheme;
+}
+
 export type AuthContextType = {
     user?: User;
-    signIn: (email: string, password: string) => Promise<{isOk: boolean, data?: User, message?: string}>;
+    signIn: (username: string, password: string) => Promise<{isOk: boolean, data?: User, message?: string}>;
+    updateUserProfile: (payload: UserUpdatePayload) => Promise<{isOk: boolean, data?: User, message?: string}>;
     signOut: () => void;
     loading: boolean;
 }

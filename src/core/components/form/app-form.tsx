@@ -102,7 +102,6 @@ export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IApp
           }
           return;
         }
-        
         const isSaved = await formDatasource.save(appFormContext.key!, currentFormData);
         if (isSaved) {
           setFormData(null);

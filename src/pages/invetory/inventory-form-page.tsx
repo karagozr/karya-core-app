@@ -16,7 +16,7 @@ export const InventoryFormPage = () => {
       id: 'form',
       colCount: 8,
       items: [
-        { dataField: 'id', colSpan: 1, editorOptions: { readOnly: true } },
+        { dataField: 'id', colSpan: 1, validationRules: [{ type: 'required', message: 'Name is required' }] },
         { dataField: 'name', colSpan: 3, isRequired: true, validationRules: [{ type: 'required', message: 'Name is required' }] },
         {
           dataField: 'mainCategoryId', colSpan: 1, editorType: 'dxLookup',

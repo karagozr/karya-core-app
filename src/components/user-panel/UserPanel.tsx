@@ -2,12 +2,12 @@ import { useMemo, useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
 import DropDownButton from 'devextreme-react/drop-down-button';
 import List from 'devextreme-react/list';
-import { useAuth } from '../../contexts/auth-hooks';
+import { useAuth } from '../../core/contexts/auth-hooks';
 import './UserPanel.scss';
 import type { UserPanelProps } from '../../types';
 
 export default function UserPanel({ menuMode }: UserPanelProps) {
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
   const navigateToProfile = useCallback(() => {
@@ -40,7 +40,7 @@ export default function UserPanel({ menuMode }: UserPanelProps) {
       {menuMode === 'context' && (
         <DropDownButton
             stylingMode='text'
-            icon='https://js.devexpress.com/Demos/WidgetsGallery/JSDemos/images/employees/06.png'
+          icon={user?.profile.avatarUrl || 'https://js.devexpress.com/Demos/WidgetsGallery/JSDemos/images/employees/06.png'}
             showArrowIcon={false}
             elementAttr={dropDownButtonAttributes}
             dropDownOptions={buttonDropDownOptions}

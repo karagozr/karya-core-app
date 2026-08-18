@@ -4,6 +4,7 @@ import UserPanel from '../user-panel/UserPanel';
 import './Header.scss';
 import { Template } from 'devextreme-react/core/template';
 import { ThemeSwitcher } from '../theme-switcher/ThemeSwitcher';
+import { LanguageSwitcher } from '../language-switcher/LanguageSwitcher';
 import type { HeaderProps } from '../../types';
 
 export default function Header({ menuToggleEnabled, title, toggleMenu }: HeaderProps) {
@@ -24,6 +25,11 @@ export default function Header({ menuToggleEnabled, title, toggleMenu }: HeaderP
           text={title}
           visible={!!title}
         />
+        <Item
+          location={'after'}
+        >
+          <LanguageSwitcher />
+        </Item>
         <Item
           location={'after'}
         >

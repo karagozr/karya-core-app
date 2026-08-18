@@ -1,5 +1,6 @@
 import type { dxToolbarItem } from "devextreme/ui/toolbar";
 import type { AppFormAllowOptions } from "../components";
+import { coreI18n } from "../i18n";
 
 
 export const createFormToolbarItems = (onSave: () => void, onNew: () => void,onDelete: () => void,toolbarsItems: Array<dxToolbarItem> | undefined, formRef: any, formAllowOptions: AppFormAllowOptions ={
@@ -14,7 +15,7 @@ export const createFormToolbarItems = (onSave: () => void, onNew: () => void,onD
       location: 'before',
       widget: 'dxButton',
       options: {
-        text: 'New',
+        text: coreI18n.form.toolbar.new,
         type: 'default',
         icon: 'plus',
         onClick: onNew
@@ -24,7 +25,7 @@ export const createFormToolbarItems = (onSave: () => void, onNew: () => void,onD
       location: 'before',
       widget: 'dxButton',
       options: {
-        text: 'Save',
+        text: coreI18n.form.toolbar.save,
         type: 'success',
         icon: 'save',
         onClick: onSave
@@ -34,7 +35,7 @@ export const createFormToolbarItems = (onSave: () => void, onNew: () => void,onD
       location: 'before',
       widget: 'dxButton',
       options: {
-        text: 'Delete',
+        text: coreI18n.form.toolbar.remove,
         type: 'danger',
         icon: 'trash',
         onClick: onDelete

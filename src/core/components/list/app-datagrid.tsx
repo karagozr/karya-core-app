@@ -5,6 +5,7 @@ import { useAppDatagridDatasouce } from "../../hooks";
 import './app-datagrid.scss';
 import type { IAppListProps } from "./types";
 import { createDatagridToolbar, createLookupDsForDt } from "../../utils";
+import { coreI18n } from "../../i18n";
 
 
 
@@ -218,7 +219,7 @@ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChild
         allowedPageSizes={[4, 8, 12]}
         displayMode="adaptive"
         showInfo={true}
-        infoText="Page {0} of {1} ({2} Total Items)"
+        infoText={coreI18n.datagrid.pagerInfo}
         showPageSizeSelector={true}
         showNavigationButtons={true}
       />

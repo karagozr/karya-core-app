@@ -1,7 +1,8 @@
 import type { ToolbarItem } from "devextreme/ui/data_grid_types";
+import { coreI18n } from "../i18n";
 
-const addNewText = "Yeni Ekle";
-const detailText = "Detay";
+const addNewText = coreI18n.datagrid.toolbar.addNew;
+const detailText = coreI18n.datagrid.toolbar.detail;
 
 export const createDatagridToolbar = (goDetail: () => void, editable: boolean, toolbarsItems: Array<ToolbarItem>, detailPath: string | null,gridRef? :any ) => {
 

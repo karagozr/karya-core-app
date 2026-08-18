@@ -20,5 +20,6 @@ export interface IAppFormProps extends IFormOptions{
   ref?: React.RefObject<any>;
   operationUrl?: string;
   toolbarsItems?: Array<dxToolbarItem>;
+  onCustomSave?: (formData: any) => Promise<boolean> | boolean;
 }
 

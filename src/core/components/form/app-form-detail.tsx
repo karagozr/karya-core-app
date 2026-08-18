@@ -4,22 +4,22 @@ import React from "react";
 import DataGrid, { Pager, Paging, type DataGridRef } from "devextreme-react/data-grid";
 import type { IFormDetailProps } from "./types";
 import { createLookupDsForDt } from "../../utils";
+import { coreI18n } from "../../i18n";
 
+const addNewText = coreI18n.formDetail.toolbar.addNewRow;
+const saveText = coreI18n.formDetail.toolbar.save;
+const revertText = coreI18n.formDetail.toolbar.revert;
 
-const addNewText = 'New Row';
-const saveText = 'Save';
-const revertText = 'Revert';
-
-export function AppFormDetail({ operationUrl, toolbarsItems, columns, isEditable, parentFields }
+function AppFormDetailComp({ operationUrl, toolbarsItems, columns, isEditable, parentFields }
   : React.PropsWithChildren<IFormDetailProps>) {
 
   const gridRef = React.useRef<DataGridRef>(null);
 
   const { key: parentKey } = useAppFormContext();
-
   const editable = isEditable && parentKey !== null || false;
 
-  const { dataSource } = useAppFormDetailDatasource(operationUrl, 'id', parentFields, [parentKey]);
+  const parentValues = React.useMemo(() => [parentKey], [parentKey]);
+  const { dataSource } = useAppFormDetailDatasource(operationUrl, 'id', parentFields, parentValues);
 
   const lookupEditorsRef = React.useRef<Record<string, any>>({});
 
@@ -27,8 +27,6 @@ export function AppFormDetail({ operationUrl, toolbarsItems, columns, isEditable
     if (e.parentType !== 'dataRow' || !e.dataField) {
       return;
     }
-    
-
 
     const lookupConfig = lookupEditorsRef.current[e.dataField];
 
@@ -36,13 +34,12 @@ export function AppFormDetail({ operationUrl, toolbarsItems, columns, isEditable
       return;
     }
 
-
     const rowIndex = e.row?.rowIndex;
     const getCascadeParams = () => {
       const params: Record<string, any> = {};
-      const parentFields: string[] = lookupConfig.dsCascadeParents || [];
+      const cascadeParentFields: string[] = lookupConfig.dsCascadeParents || [];
 
-      parentFields.forEach((parentField) => {
+      cascadeParentFields.forEach((parentField) => {
         const currentValue = rowIndex !== undefined
           ? e.component?.cellValue(rowIndex, parentField)
           : undefined;
@@ -94,8 +91,7 @@ export function AppFormDetail({ operationUrl, toolbarsItems, columns, isEditable
     };
   }, []);
 
-
-  const _columns = React.useMemo(() => {
+  const normalizedColumns = React.useMemo(() => {
     const lookupEditors: Record<string, any> = {};
 
     const mappedColumns = columns?.map((col: any) => {
@@ -108,14 +104,8 @@ export function AppFormDetail({ operationUrl, toolbarsItems, columns, isEditable
           lookup: col.lookup,
         };
 
-        const { dsUrl, dsCascadeChildrens, dsCascadeParents, dsSearchFields, lookup, calculateDisplayValue, ...restCol } = col;
-        return {
-          ...restCol,
-          lookup: {
-            ...lookup,
-            dataSource: createLookupDsForDt(dsUrl, undefined, dsSearchFields),
-          },
-        };
+        const { dsUrl, dsCascadeChildrens, dsCascadeParents, dsSearchFields, lookup, ...restCol } = col;
+        return restCol;
       }
 
       return col;
@@ -125,51 +115,60 @@ export function AppFormDetail({ operationUrl, toolbarsItems, columns, isEditable
     return mappedColumns;
   }, [columns]);
 
+  const editing = React.useMemo(() => {
+    return editable ? {
+      mode: 'batch' as const,
+      allowAdding: true,
+      allowUpdating: true,
+      allowDeleting: true,
+      useIcons: true,
+      confirmDelete: true,
+      texts: {
+        confirmDeleteMessage: coreI18n.formDetail.deleteNoteConfirm,
+      },
+    } : {
+      mode: 'batch' as const,
+      allowAdding: false,
+      allowUpdating: false,
+      allowDeleting: false,
+      useIcons: false,
+    };
+  }, [editable]);
+
+  const toolbar = React.useMemo(
+    () => createToolbar(editable, toolbarsItems || [], gridRef),
+    [editable, toolbarsItems]
+  );
 
   return (
     <DataGrid
       ref={gridRef}
-      columns={_columns}
+      columns={normalizedColumns}
       dataSource={dataSource}
       showBorders={false}
       columnAutoWidth={true}
       remoteOperations={true}
       columnHidingEnabled={true}
       onEditorPreparing={handleEditorPreparing}
-      editing={editable ? {
-        mode: 'batch',
-        allowAdding: true,
-        allowUpdating: true,
-        allowDeleting: true,
-        useIcons: true,
-        confirmDelete: true,
-        texts: true ? {
-          confirmDeleteMessage: 'Are you sure you want to delete this note?',
-        } : undefined
-      } : {
-        mode: 'batch',
-        allowAdding: false,
-        allowUpdating: false,
-        allowDeleting: false,
-        useIcons: false,
-      }}
-      toolbar={createToolbar(editable, toolbarsItems || [], gridRef) }
+      editing={editing}
+      toolbar={toolbar}
     >
       <Paging enabled={true} defaultPageSize={4} />
       <Pager
         allowedPageSizes={[4, 8, 12]}
-        displayMode="adaptive"
+        displayMode='adaptive'
         showInfo={true}
-        infoText="Page {0} of {1} ({2} Total Items)"
+        infoText={coreI18n.formDetail.pagerInfo}
         showPageSizeSelector={true}
         showNavigationButtons={true}
       />
     </DataGrid>
-  )
+  );
 }
 
-const createToolbar = (editable: boolean, toolbarsItems: any[], gridRef: React.RefObject<DataGridRef | any>) =>{
+export const AppFormDetail = React.memo(AppFormDetailComp);
 
+const createToolbar = (editable: boolean, toolbarsItems: any[], gridRef: React.RefObject<DataGridRef | any>) => {
   const addButton: any = editable ? {
     location: 'before',
     widget: 'dxButton',
@@ -181,6 +180,7 @@ const createToolbar = (editable: boolean, toolbarsItems: any[], gridRef: React.R
       text: addNewText,
     }
   } : null;
+
   const saveButton: any = editable ? {
     location: 'before',
     widget: 'dxButton',
@@ -192,7 +192,8 @@ const createToolbar = (editable: boolean, toolbarsItems: any[], gridRef: React.R
       text: saveText,
     }
   } : null;
-   const revertButton: any = editable ? {
+
+  const revertButton: any = editable ? {
     location: 'before',
     widget: 'dxButton',
     name: 'revertButton',
@@ -204,42 +205,33 @@ const createToolbar = (editable: boolean, toolbarsItems: any[], gridRef: React.R
     }
   } : null;
 
-
-  const externalToolbarItems = toolbarsItems.map(item => {
-    if (item.widget === 'dxButton' && item.options && item.options.onClick) 
-    {
+  const externalToolbarItems = toolbarsItems.map((item) => {
+    if (item.widget === 'dxButton' && item.options && item.options.onClick) {
       const originalOnClick = item.options.onClick;
-      item.options.onClick = () => 
-      {
-        originalOnClick(gridRef?.current?.instance());
-      }    
+      return {
+        ...item,
+        options: {
+          ...item.options,
+          onClick: () => {
+            originalOnClick(gridRef?.current?.instance());
+          }
+        }
+      };
     }
     return item;
   });
 
-  return toolbarsItems !== undefined ?
-    {
-      items:
-        [
-          ...(externalToolbarItems || []),
-          ...(addButton ? [addButton] : []),
-          ...(saveButton ? [saveButton] : []),
-          ...(revertButton ? [revertButton] : [])
-        ]
-    } : undefined;
-
-
-}
-  // editable ? ['addRowButton', 'saveButton', 'revertButton', ...(toolbarsItems?.map(item => {
-  //   if (item.widget === 'dxButton' && item.options && item.options.onClick) {
-  //     const originalOnClick = item.options.onClick;
-  //     item.options.onClick = () => {
-  //       originalOnClick(gridRef?.current?.instance());
-  //     }
-  //   }
-  //   return item;
-  // }) || [])] : undefined;
-
+  return toolbarsItems !== undefined
+    ? {
+      items: [
+        ...(externalToolbarItems || []),
+        ...(addButton ? [addButton] : []),
+        ...(saveButton ? [saveButton] : []),
+        ...(revertButton ? [revertButton] : [])
+      ]
+    }
+    : undefined;
+};
 
 
   

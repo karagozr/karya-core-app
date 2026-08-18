@@ -1,4 +1,16 @@
-@use "../../variables.scss" as *;
+
+:root {
+  body {
+    --form-isloading-bg-color: #f0efef;
+    --form-isloading-bg-shading-color: #e9e7e7;
+  }
+  .dx-swatch-dark {
+
+    --form-isloading-bg-color: #151b2269;
+    --form-isloading-bg-shading-color: #26335775;
+  }
+
+}
 
 @keyframes dxDirectShimmer {
   0% { background-position: -200% 0; }

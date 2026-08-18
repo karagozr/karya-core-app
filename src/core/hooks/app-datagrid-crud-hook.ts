@@ -3,6 +3,7 @@ import DataSource from "devextreme/data/data_source";
 import { ApiRequest } from "../services";
 import { useMemo } from "react";
 import { prepareLoadOptionsForBackend, normalizeApiDataForArray } from "../utils";
+import { coreI18n } from "../i18n";
 
 
 export const useAppDatagridDatasouce = (url: string, keyName: string) => {
@@ -23,7 +24,7 @@ export const useAppDatagridDatasouce = (url: string, keyName: string) => {
                                 isActiveInfo: false 
                             } );
                     if (response && response.success === false) {
-                        throw new Error(response.message || "İşlem başarısız.");
+                        throw new Error(response.message || coreI18n.datagrid.operationFailed);
                     }
                     return response;
                 },
@@ -37,7 +38,7 @@ export const useAppDatagridDatasouce = (url: string, keyName: string) => {
                         }
                         );
                         if (response && response.success === false) {
-                            throw new Error(response.message || "İşlem başarısız.");
+                            throw new Error(response.message || coreI18n.datagrid.operationFailed);
                         }
                         return response;
                 },
@@ -50,7 +51,7 @@ export const useAppDatagridDatasouce = (url: string, keyName: string) => {
                             isActiveInfo: false 
                         });
                     if (response && response.success === false) {
-                        throw new Error(response.message || "İşlem başarısız.");
+                        throw new Error(response.message || coreI18n.datagrid.operationFailed);
                     }
                     
                 },

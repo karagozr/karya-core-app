@@ -6,13 +6,34 @@ interface IAppColumn extends Column {
   dsCascadeChildrens?: string[];
   dsCascadeParents?: string[];
   dsSearchFields?: string[];
+  dsDisplayDataField?: string;
 }
 
-export interface IFormDetailProps { 
-  toolbarsItems?:Array<IToolbarItemProps>;
-  isEditable?:boolean;
-  columns?:  Array<IAppColumn | string>;
+
+
+export interface IFormDetailChildItem {
+  caption?: string;
+  toolbarsItems?: Array<IToolbarItemProps>;
+  isEditable?: boolean;
+  columns?: Array<IAppColumn | string>;
   gridRef?: React.Ref<DataGridRef>;
   parentFields: string[];
   operationUrl: string;
+  rowData?: any;
+}
+
+export interface IFormDetailChildProps {
+  detailItems: IFormDetailChildItem[];
+  rowData?: any;
+}
+
+export interface IFormDetailProps {
+  toolbarsItems?: Array<IToolbarItemProps>;
+  isEditable?: boolean;
+  columns?: Array<IAppColumn | string>;
+  gridRef?: React.Ref<DataGridRef>;
+  parentFields: string[];
+  operationUrl: string;
+  masterDetailEnabled: boolean|false;
+  masterDetailProps?: IFormDetailChildProps;
 }

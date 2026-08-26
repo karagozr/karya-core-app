@@ -1,23 +1,30 @@
 import { useAppFormDetailDatasource } from "../../hooks/app-form-detail-crud-hook";
-import { useAppFormContext } from "../../contexts";
 import React from "react";
-import DataGrid, { MasterDetail, Pager, Paging, type DataGridRef } from "devextreme-react/data-grid";
-import type { IFormDetailProps } from "./types";
+import DataGrid, { Pager, Paging, type DataGridRef } from "devextreme-react/data-grid";
+import type { IFormDetailChildItem, IFormDetailChildProps } from "./types";
 import { createLookupDsForDt } from "../../utils";
 import { coreI18n } from "../../i18n";
-import { AppFormDetailChild } from "./app-form-detail-child";
+import TabPanel, { Item as TabPanelItem } from 'devextreme-react/tab-panel';
 import { createDetailDatagridToolbar } from "../../utils/master-detail-datagrid-toolbar-creator";
 
+export const AppFormDetailChild=({detailItems, rowData}:IFormDetailChildProps)=>(
+    <TabPanel>
+      {detailItems?.map((item: IFormDetailChildItem, index: number) => (
+        <TabPanelItem key={index} title={item.caption || `Detail ${index + 1}`}>
+          <AppFormDetailChildItem {...item}  rowData={rowData} />
+        </TabPanelItem>
+      ))}
+    </TabPanel>
+  )
 
-function AppFormDetailComp({ operationUrl, toolbarsItems, columns, isEditable, parentFields,masterDetailProps,masterDetailEnabled }
-  : React.PropsWithChildren<IFormDetailProps>) {
+
+function AppFormDetailChildItemComp({operationUrl, toolbarsItems, columns, isEditable, parentFields, rowData}: IFormDetailChildItem) {
 
   const gridRef = React.useRef<DataGridRef>(null);
 
-  const { key: parentKey } = useAppFormContext();
-  const editable = isEditable && parentKey !== null || false;
+  const editable = isEditable && rowData.id !== null || false;
 
-  const parentValues = React.useMemo(() => [parentKey], [parentKey]);
+  const parentValues = [rowData.id];
   const { dataSource } = useAppFormDetailDatasource(operationUrl, 'id', parentFields, parentValues);
 
   const lookupEditorsRef = React.useRef<Record<string, any>>({});
@@ -95,7 +102,7 @@ function AppFormDetailComp({ operationUrl, toolbarsItems, columns, isEditable, p
 
     const mappedColumns = columns?.map((col: any) => {
       if (col.dsUrl && col.lookup && col.dataField) {
-        col.calculateDisplayValue = (item: any) => item?.[col.dsDisplayDataField]??item?.[col.dataField];
+        col.calculateDisplayValue = (item: any) => item?.[col.dsDisplayDataField] ?? item?.[col.dataField];
 
         lookupEditors[col.dataField] = {
           dsUrl: col.dsUrl,
@@ -143,37 +150,31 @@ function AppFormDetailComp({ operationUrl, toolbarsItems, columns, isEditable, p
 
   return (
     <DataGrid
-      ref={gridRef}
-      columns={normalizedColumns}
-      dataSource={dataSource}
-      showBorders={false}
-      columnAutoWidth={true}
-      remoteOperations={true}
-      columnHidingEnabled={true}
-      onEditorPreparing={handleEditorPreparing}
-      editing={editing}
-      toolbar={toolbar}
-    >
-      <MasterDetail enabled={masterDetailEnabled} 
-                    component={
-                      (e:any)=> <AppFormDetailChild 
-                                    detailItems={masterDetailProps?.detailItems ?? []} 
-                                    rowData={e.data.data} />} 
-                    />
-      <Paging enabled={true} defaultPageSize={4} />
-      <Pager
-        allowedPageSizes={[4, 8, 12]}
-        displayMode='adaptive'
-        showInfo={true}
-        infoText={coreI18n.formDetail.pagerInfo}
-        showPageSizeSelector={true}
-        showNavigationButtons={true}
-      />
-    </DataGrid>
+        ref={gridRef}
+        columns={normalizedColumns}
+        dataSource={dataSource}
+        showBorders={false}
+        columnAutoWidth={true}
+        remoteOperations={true}
+        columnHidingEnabled={true}
+        onEditorPreparing={handleEditorPreparing}
+        editing={editing}
+        toolbar={toolbar}
+      >
+        <Paging enabled={true} defaultPageSize={4} />
+        <Pager
+          allowedPageSizes={[4, 8, 12]}
+          displayMode='adaptive'
+          showInfo={true}
+          infoText={coreI18n.formDetail.pagerInfo}
+          showPageSizeSelector={true}
+          showNavigationButtons={true}
+        />
+      </DataGrid>
   );
 }
 
-export const AppFormDetail = React.memo(AppFormDetailComp);
+const AppFormDetailChildItem = React.memo(AppFormDetailChildItemComp);
 
 
-  
+

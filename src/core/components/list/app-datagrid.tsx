@@ -1,11 +1,12 @@
 import React from "react";
-import DataGrid, { Pager, Paging, type DataGridRef } from "devextreme-react/data-grid";
+import DataGrid, { MasterDetail, Pager, Paging, type DataGridRef } from "devextreme-react/data-grid";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppDatagridDatasouce } from "../../hooks";
 import './app-datagrid.scss';
 import type { IAppListProps } from "./types";
 import { createDatagridToolbar, createLookupDsForDt } from "../../utils";
 import { coreI18n } from "../../i18n";
+import { AppFormDetailChild } from "../form/app-form-detail-child";
 
 
 
@@ -57,9 +58,10 @@ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChild
 
   const columns = React.useMemo(() => {
     const lookupEditors: Record<string, any> = {};
-
+    
     const mappedColumns = metaListOptions.columns?.map((col: any) => {
       if (col.dsUrl && col.lookup && col.dataField) {
+        col.calculateDisplayValue = (item: any) => item?.[col.dsDisplayDataField]??item?.[col.dataField];
         lookupEditors[col.dataField] = {
           dsUrl: col.dsUrl,
           dsCascadeChildrens: col.dsCascadeChildrens,
@@ -195,7 +197,9 @@ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChild
       showBorders={false}
       remoteOperations={true}
       summary={summary}
-      onDataErrorOccurred={() => {}}
+      // onDataErrorOccurred={(e:any) => {
+      //   e.component?.cancelEditData();
+      // }}
       id={key}
       className={'app-list-page-datagrid'}
       onRowDblClick={handleRowDblClick}
@@ -214,6 +218,12 @@ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChild
       }}
       onEditorPreparing={handleEditorPreparing}
     >
+      <MasterDetail enabled={metaListOptions.masterDetailEnabled} 
+                          component={
+                            (e:any)=> <AppFormDetailChild 
+                                          detailItems={metaListOptions.masterDetailProps?.detailItems ?? []} 
+                                          rowData={e.data.data} />} 
+                          />
       <Paging enabled={true} defaultPageSize={4} />
       <Pager
         allowedPageSizes={[4, 8, 12]}

@@ -109,7 +109,7 @@ const apiCoreResponse = (msgBox: IMessageBoxStatus, data: any, title: string, me
 };
 
 const CoreRequest = async ({ method, url, data, params, key, isBlob, msgBox }: ICoreRequest): Promise<IApiResponse> => {
-  const headers = {
+  const headers :any = {
     "Access-Control-Allow-Private-Network": true,
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Credentials": true,

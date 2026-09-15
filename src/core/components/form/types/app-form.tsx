@@ -18,6 +18,7 @@ export type AppFormAllowOptions = {
 }
 
 export interface IAppFormProps extends IFormOptions{ 
+  keyField?: string;
   formAllowOptions?: AppFormAllowOptions  | false;
   ref?: React.RefObject<any>;
   operationUrl?: string;

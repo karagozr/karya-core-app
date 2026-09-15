@@ -26,7 +26,7 @@ export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IApp
 
     const formRef = React.useRef<dxForm>(null);
     const appFormContext = useAppFormContext();
-    const formDatasource = useAppFormDatasource(formOptions.operationUrl, "id");
+    const formDatasource = useAppFormDatasource(formOptions.operationUrl, formOptions.keyField || "id");
     const [formData, setFormData] = React.useState<any | null>(null);
 
     React.useImperativeHandle(ref, () => {

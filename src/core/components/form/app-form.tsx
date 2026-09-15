@@ -35,6 +35,8 @@ export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IApp
         getChangedData: () => formData,
         formData: formData,
         updateData: (field: string, value: any) => formRef.current?.instance().updateData(field, value),
+        formDatasource: formDatasource,
+        formRef: formRef
       };
     }, [formDatasource.data, formData]);
 

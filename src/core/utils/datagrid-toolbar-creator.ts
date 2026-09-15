@@ -4,7 +4,7 @@ import { coreI18n } from "../i18n";
 const addNewText = coreI18n.datagrid.toolbar.addNew;
 const detailText = coreI18n.datagrid.toolbar.detail;
 
-export const createDatagridToolbar = (goDetail: () => void, editable: boolean, toolbarsItems: Array<ToolbarItem>, detailPath: string | null,gridRef? :any ) => {
+export const createDatagridToolbar = (goDetail: () => void,createNewInForm: () => void, editable: boolean, toolbarsItems: Array<ToolbarItem>, detailPath: string | null,gridRef? :any ) => {
 
   const addButton: any = editable ? {
     location: 'before',
@@ -34,6 +34,23 @@ export const createDatagridToolbar = (goDetail: () => void, editable: boolean, t
     }
   } : null;
 
+  const addNewButton: any = detailPath ? {
+    location: 'before',
+    widget: 'dxButton',
+    name: 'createNewButton',
+    visible: true,
+    showText: 'always',
+    options: {
+      text: addNewText,
+      icon: 'plus',
+      onClick: () => {
+        if (detailPath) {
+          createNewInForm();
+        }
+      }
+    }
+  } : null;
+
   const externalToolbarItems = toolbarsItems.map(item => {
     if (item.widget === 'dxButton' && item.options && item.options.onClick) 
     {
@@ -52,7 +69,8 @@ export const createDatagridToolbar = (goDetail: () => void, editable: boolean, t
         [
           ...(externalToolbarItems || []),
           ...(addButton ? [addButton] : []),
-          ...(detailButton ? [detailButton] : [])
+          ...(detailButton ? [detailButton] : []),
+          ...(addNewButton ? [addNewButton] : [])
         ]
     } : undefined;
 }

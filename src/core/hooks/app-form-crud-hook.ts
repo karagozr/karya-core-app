@@ -44,6 +44,17 @@ export const useAppFormDatasource = (url: any, keyName: string) => {
     return false;
   }, []);
 
+  const customPost = React.useCallback(async (metodName: string, data: any) => {
+    setIsLoading(true);
+    var res = await ApiRequest.Post(url+'/'+metodName, data);
+    setIsLoading(false);
+    if (res.success) {
+      return true;
+    }
+
+    return false;
+  }, []);
+
   const update = React.useCallback(async (key: string, updateData: any) => {
     setIsLoading(true);
     const res = await ApiRequest.Put(url, key, updateData);
@@ -77,6 +88,6 @@ export const useAppFormDatasource = (url: any, keyName: string) => {
   //     }
   //   }, [url]);
 
-  return { data, isLoading, byKey, insert, update, remove, createNew, save };
+  return { data, isLoading, byKey, insert, update, remove, createNew, save,customPost };
 
 }

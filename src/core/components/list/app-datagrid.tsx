@@ -34,6 +34,12 @@ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChild
     }
   }, [key, metaListOptions.detailPath, navigate]);
 
+  const createNewInForm = React.useCallback(async (routeKey:number|string|null=null) => {
+    if (metaListOptions.detailPath) {
+      navigate(metaListOptions.detailPath + '?isNew=' + true + '&key=null');
+    }
+  }, [metaListOptions.detailPath, navigate]);
+
   const handleRowDblClick = React.useCallback(async (e: any) => {
     if (metaListOptions.detailPath) {
       if (e.rowType === 'data') {
@@ -47,6 +53,7 @@ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChild
   const toolbar = React.useMemo(() => {
     return createDatagridToolbar(
       goDetail,
+      createNewInForm,
       editable,
       metaListOptions.toolbarsItems || [],
       metaListOptions.detailPath || null,

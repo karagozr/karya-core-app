@@ -6,6 +6,8 @@ export interface AppFormRef {
   getChangedData: () => any | null;
   formData: any | null;
   updateData: (field: string, value: any) => void;
+  formDatasource: any;
+  formRef: React.RefObject<any>;
 }
 
 export type AppFormAllowOptions = {

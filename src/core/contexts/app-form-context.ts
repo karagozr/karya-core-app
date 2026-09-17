@@ -1,26 +1,21 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { createSearchParams, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { createSearchParams, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 
-export const useAppFormContext = () => {
+export const useProvideAppFormContext = () => {
     const [key, setKey] = useState<string | null>();
     const [isNew, setIsNew] = useState<boolean | false>();
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const [formData, setFormData] = useState<any>(null);  
 
     const { pathname } = useLocation();
 
-    React.useEffect(() => {
-        if (searchParams.get('key')) {
-            setKey(searchParams.get('key'));
-            setIsNew(searchParams.get('isNew') === 'true');
-        } else {
-            newFormContext();
-        }
-    }, [searchParams])
-
 
     const setKeyValue = useCallback((data: any) => setKey(data), []);
+
+    const setFormDataValue = useCallback((data: any) => {
+        setFormData(data)}, []);
 
     const newFormContext = useCallback(() => {
 
@@ -35,7 +30,7 @@ export const useAppFormContext = () => {
 
         setKey(null);
         setIsNew(true);
-    }, []);
+    }, [navigate, pathname]);
 
     const updateFormContext = useCallback((keyValue: string) => {
 
@@ -51,10 +46,31 @@ export const useAppFormContext = () => {
 
         setKey(keyValue);
         setIsNew(false);
-    }, []);
+    }, [navigate, pathname]);
 
-    return useMemo(() => ({ key, isNew, setKeyValue, newFormContext, updateFormContext }), [key, isNew]);
+    React.useEffect(() => {
+        if (searchParams.get('key')) {
+            setKey(searchParams.get('key'));
+            setIsNew(searchParams.get('isNew') === 'true');
+        } else {
+            newFormContext();
+        }
+    }, [searchParams, newFormContext])
+
+    return useMemo(() => ({ key, isNew, formData, setFormDataValue, setKeyValue, newFormContext, updateFormContext }), [key, isNew,formData]);
 
 }
 
-export const AppFormContext = React.createContext<ReturnType<typeof useAppFormContext> | null>(null);
+type AppFormContextValue = ReturnType<typeof useProvideAppFormContext>;
+
+export const AppFormContext = React.createContext<AppFormContextValue | null>(null);
+
+export const useAppFormContext = () => {
+    const context = React.useContext(AppFormContext);
+
+    if (!context) {
+        throw new Error('useAppFormContext must be used within AppFormContext.Provider');
+    }
+
+    return context;
+};

@@ -1,6 +1,6 @@
 import React from "react";
 import { AppForm, AppFormDetail } from "../components/form";
-import { AppFormContext, useAppFormContext } from "../contexts";
+import { AppFormContext, useProvideAppFormContext } from "../contexts";
 import { PageFormDetailLayout, PageFormLayout, PageLayout } from "../layouts";
 import TabPanel, { Item as TabPanelItem } from 'devextreme-react/tab-panel';
 import type { IBaseFormPageProps, IFormPageSubItemProps } from "./types";
@@ -8,7 +8,7 @@ import type { IBaseFormPageProps, IFormPageSubItemProps } from "./types";
 export const BaseFormPage =({ detailItems, formOptions, breadcrumb, caption, detailCaption }
   : React.PropsWithChildren<IBaseFormPageProps>) => {
 
-  const appFormContext = useAppFormContext();
+  const appFormContext = useProvideAppFormContext();
 
   return (
     <AppFormContext.Provider value={appFormContext}>
@@ -19,12 +19,12 @@ export const BaseFormPage =({ detailItems, formOptions, breadcrumb, caption, det
             switch (item.type) {
               case 'form':
                 return <PageFormLayout key={index}>
-                  <AppForm key={index} {...item.formOptions} />
-                </PageFormLayout>
+                          <AppForm key={index} {...item.formOptions} />
+                        </PageFormLayout>
               case 'detail':
-                return <PageFormDetailLayout key={index} pageType="form-detail" caption={{ title: item.title }}>
-                  <AppFormDetail {...item.formDetailOptions!} />
-                </PageFormDetailLayout>
+                return  <PageFormDetailLayout key={index} pageType="form-detail" caption={{ title: item.title }}>
+                          <AppFormDetail {...item.formDetailOptions!} />
+                        </PageFormDetailLayout>
               default:
                 return null;
             }

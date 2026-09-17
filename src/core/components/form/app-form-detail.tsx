@@ -9,16 +9,18 @@ import { AppFormDetailChild } from "./app-form-detail-child";
 import { createDetailDatagridToolbar } from "../../utils/master-detail-datagrid-toolbar-creator";
 
 
-function AppFormDetailComp({ operationUrl, toolbarsItems, columns, isEditable, parentFields,masterDetailProps,masterDetailEnabled }
+function AppFormDetailComp({ operationUrl, keyField, toolbarsItems, columns, isEditable, parentFields, masterDetailProps, masterDetailEnabled }
   : React.PropsWithChildren<IFormDetailProps>) {
 
   const gridRef = React.useRef<DataGridRef>(null);
 
-  const { key: parentKey } = useAppFormContext();
+  const { key: parentKey, formData } = useAppFormContext();
+
   const editable = isEditable && parentKey !== null || false;
 
   const parentValues = React.useMemo(() => [parentKey], [parentKey]);
-  const { dataSource } = useAppFormDetailDatasource(operationUrl, 'id', parentFields, parentValues);
+
+  const { dataSource } = useAppFormDetailDatasource(operationUrl, keyField || 'id', parentFields, parentValues);
 
   const lookupEditorsRef = React.useRef<Record<string, any>>({});
 
@@ -39,14 +41,22 @@ function AppFormDetailComp({ operationUrl, toolbarsItems, columns, isEditable, p
       const cascadeParentFields: string[] = lookupConfig.dsCascadeParents || [];
 
       cascadeParentFields.forEach((parentField) => {
-        const currentValue = rowIndex !== undefined
-          ? e.component?.cellValue(rowIndex, parentField)
-          : undefined;
-        const fallbackValue = e.row?.data?.[parentField];
-        const value = currentValue ?? fallbackValue;
+        if (parentField.startsWith('formData.')) {
+          const formDataField = parentField.replace('formData.', '');
+          const value = formData?.[formDataField];
+          if (value !== undefined && value !== null && value !== '') {
+            params[formDataField] = value;
+          }
+        } else {
+          const currentValue = rowIndex !== undefined
+            ? e.component?.cellValue(rowIndex, parentField)
+            : undefined;
+          const fallbackValue = e.row?.data?.[parentField];
+          const value = currentValue ?? fallbackValue;
 
-        if (value !== undefined && value !== null && value !== '') {
-          params[parentField] = value;
+          if (value !== undefined && value !== null && value !== '') {
+            params[parentField] = value;
+          }
         }
       });
 
@@ -95,7 +105,7 @@ function AppFormDetailComp({ operationUrl, toolbarsItems, columns, isEditable, p
 
     const mappedColumns = columns?.map((col: any) => {
       if (col.dsUrl && col.lookup && col.dataField) {
-        col.calculateDisplayValue = (item: any) => item?.[col.dsDisplayDataField]??item?.[col.dataField];
+        col.calculateDisplayValue = (item: any) => item?.[col.dsDisplayDataField] ?? item?.[col.dataField];
 
         lookupEditors[col.dataField] = {
           dsUrl: col.dsUrl,
@@ -154,15 +164,15 @@ function AppFormDetailComp({ operationUrl, toolbarsItems, columns, isEditable, p
       editing={editing}
       toolbar={toolbar}
     >
-      <MasterDetail enabled={masterDetailEnabled} 
-                    component={
-                      (e:any)=> <AppFormDetailChild 
-                                    detailItems={masterDetailProps?.detailItems ?? []} 
-                                    rowData={e.data.data} />} 
-                    />
-      <Paging enabled={true} defaultPageSize={4} />
+      <MasterDetail enabled={masterDetailEnabled}
+        component={
+          (e: any) => <AppFormDetailChild
+            detailItems={masterDetailProps?.detailItems ?? []}
+            rowData={e.data.data} />}
+      />
+      <Paging enabled={true} defaultPageSize={10} />
       <Pager
-        allowedPageSizes={[4, 8, 12]}
+        allowedPageSizes={[10, 20, 50]}
         displayMode='adaptive'
         showInfo={true}
         infoText={coreI18n.formDetail.pagerInfo}
@@ -170,10 +180,10 @@ function AppFormDetailComp({ operationUrl, toolbarsItems, columns, isEditable, p
         showNavigationButtons={true}
       />
     </DataGrid>
+
   );
 }
 
 export const AppFormDetail = React.memo(AppFormDetailComp);
 
 
-  

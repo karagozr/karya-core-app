@@ -21,10 +21,10 @@ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChild
   const { dataSource } = useAppDatagridDatasouce(operationUrl, key);
 
 
-  const goDetail = React.useCallback(async (routeKey:number|string|null=null) => {
+  const goDetail = React.useCallback(async (routeKey: number | string | null = null) => {
     if (metaListOptions.detailPath) {
       navigate(location.pathname, { state: { wentToForm: true }, replace: true });
-      if(routeKey!==null){
+      if (routeKey !== null) {
         navigate(metaListOptions.detailPath + '?key=' + routeKey);
         return;
       }
@@ -65,10 +65,10 @@ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChild
 
   const columns = React.useMemo(() => {
     const lookupEditors: Record<string, any> = {};
-    
+
     const mappedColumns = metaListOptions.columns?.map((col: any) => {
       if (col.dsUrl && col.lookup && col.dataField) {
-        col.calculateDisplayValue = (item: any) => item?.[col.dsDisplayDataField]??item?.[col.dataField];
+        col.calculateDisplayValue = (item: any) => item?.[col.dsDisplayDataField] ?? item?.[col.dataField];
         lookupEditors[col.dataField] = {
           dsUrl: col.dsUrl,
           dsCascadeChildrens: col.dsCascadeChildrens,
@@ -217,23 +217,24 @@ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChild
       columnHidingEnabled={true}
       focusedRowEnabled={true}
       stateStoring={{
-        enabled:true,
-        savingTimeout:100,
-        type:"custom",
-        customLoad:loadGridState,
-        customSave:saveGridState
+        enabled: true,
+        savingTimeout: 100,
+        type: "custom",
+        customLoad: loadGridState,
+        customSave: saveGridState
       }}
       onEditorPreparing={handleEditorPreparing}
+      
     >
-      <MasterDetail enabled={metaListOptions.masterDetailEnabled} 
-                          component={
-                            (e:any)=> <AppFormDetailChild 
-                                          detailItems={metaListOptions.masterDetailProps?.detailItems ?? []} 
-                                          rowData={e.data.data} />} 
-                          />
-      <Paging enabled={true} defaultPageSize={4} />
+      <MasterDetail enabled={metaListOptions.masterDetailEnabled}
+        component={
+          (e: any) => <AppFormDetailChild
+            detailItems={metaListOptions.masterDetailProps?.detailItems ?? []}
+            rowData={e.data.data} />}
+      />
+      <Paging enabled={true} defaultPageSize={10} />
       <Pager
-        allowedPageSizes={[4, 8, 12]}
+        allowedPageSizes={[10, 20, 50]}
         displayMode="adaptive"
         showInfo={true}
         infoText={coreI18n.datagrid.pagerInfo}

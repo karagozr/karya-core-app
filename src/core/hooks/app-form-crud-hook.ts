@@ -20,7 +20,9 @@ export const useAppFormDatasource = (url: any, keyName: string) => {
       setIsLoading(false);
 
       if (res.success) {
-        setDataValue(normalizeApiDataForObject(res));
+        var data = normalizeApiDataForObject(res)
+        appFormContext.setFormDataValue(data);
+        setDataValue(data);
       }
     }, 1000)
   }

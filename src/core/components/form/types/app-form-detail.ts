@@ -15,6 +15,7 @@ export interface IFormDetailChildItem {
   caption?: string;
   toolbarsItems?: Array<IToolbarItemProps>;
   isEditable?: boolean;
+  keyField?: string;
   columns?: Array<IAppColumn | string>;
   gridRef?: React.Ref<DataGridRef>;
   parentFields: string[];
@@ -32,6 +33,7 @@ export interface IFormDetailProps {
   isEditable?: boolean;
   columns?: Array<IAppColumn | string>;
   gridRef?: React.Ref<DataGridRef>;
+  keyField?:string;
   parentFields: string[];
   operationUrl: string;
   masterDetailEnabled: boolean|false;

@@ -18,14 +18,14 @@ export const AppFormDetailChild=({detailItems, rowData}:IFormDetailChildProps)=>
   )
 
 
-function AppFormDetailChildItemComp({operationUrl, toolbarsItems, columns, isEditable, parentFields, rowData}: IFormDetailChildItem) {
+function AppFormDetailChildItemComp({operationUrl, keyField, toolbarsItems, columns, isEditable, parentFields, rowData}: IFormDetailChildItem) {
 
   const gridRef = React.useRef<DataGridRef>(null);
 
   const editable = isEditable && rowData.id !== null || false;
 
   const parentValues = [rowData.id];
-  const { dataSource } = useAppFormDetailDatasource(operationUrl, 'id', parentFields, parentValues);
+  const { dataSource } = useAppFormDetailDatasource(operationUrl, keyField || 'id', parentFields, parentValues);
 
   const lookupEditorsRef = React.useRef<Record<string, any>>({});
 

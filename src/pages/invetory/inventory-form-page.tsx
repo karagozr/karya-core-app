@@ -23,7 +23,7 @@ export const InventoryFormPage = () => {
           editorOptions: {
             displayExpr: 'name', valueExpr: 'id',
             dsUrl: 'https://localhost:7131/api/InvMainCategory',
-            dsCascadeChildrens: ['categoryId']
+            dsCascadeChildrens: ['categoryId'],
           }
         },
         {
@@ -61,6 +61,7 @@ export const InventoryFormPage = () => {
           operationUrl: "https://localhost:7131/api/invdetail",
           isEditable: true,
           parentFields: ["inventoryId"],
+          initialNewRowData: { inventoryId: 0 },
           columns: [
             { dataField: 'id', editorOptions: { readOnly: true } },
             { dataField: 'note', validationRules: [{ type: 'required', message: 'Note is required' }] },

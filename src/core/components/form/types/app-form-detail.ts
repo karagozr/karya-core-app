@@ -38,4 +38,5 @@ export interface IFormDetailProps {
   operationUrl: string;
   masterDetailEnabled: boolean|false;
   masterDetailProps?: IFormDetailChildProps;
+  initialNewRowData?:() => any;
 }

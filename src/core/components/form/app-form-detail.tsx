@@ -9,7 +9,7 @@ import { AppFormDetailChild } from "./app-form-detail-child";
 import { createDetailDatagridToolbar } from "../../utils/master-detail-datagrid-toolbar-creator";
 
 
-function AppFormDetailComp({ operationUrl, keyField, toolbarsItems, columns, isEditable, parentFields, masterDetailProps, masterDetailEnabled }
+function AppFormDetailComp({ operationUrl, keyField, toolbarsItems, columns, isEditable, parentFields, masterDetailProps, masterDetailEnabled,initialNewRowData }
   : React.PropsWithChildren<IFormDetailProps>) {
 
   const gridRef = React.useRef<DataGridRef>(null);
@@ -161,6 +161,7 @@ function AppFormDetailComp({ operationUrl, keyField, toolbarsItems, columns, isE
       remoteOperations={true}
       columnHidingEnabled={true}
       onEditorPreparing={handleEditorPreparing}
+      onInitNewRow={initialNewRowData}
       editing={editing}
       toolbar={toolbar}
     >

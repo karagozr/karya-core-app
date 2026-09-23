@@ -119,7 +119,7 @@ export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IApp
       }
     }
 
-    const toolbarItems = createFormToolbarItems(onSave, onNew, onDelete, formOptions.toolbarsItems, formRef, formOptions.formAllowOptions || undefined);
+    const toolbarItems = React.useCallback(() => createFormToolbarItems(onSave, onNew, onDelete, formOptions.toolbarsItems, formRef, formOptions.formAllowOptions || undefined), [formOptions.toolbarsItems, formData]);
 
     const finalFormOptions = React.useMemo(() => {
       const items = (formOptions.items || []).map((item: any) => {
@@ -138,7 +138,7 @@ export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IApp
 
     return <React.Fragment>
       <div className={`${formDatasource.isLoading ? 'is-loading' : ''} dx-form-loader-container`} >
-        <Toolbar className='main-toolbar-content action-button-toolbar' multiline={false} items={toolbarItems} />
+        <Toolbar className='main-toolbar-content action-button-toolbar' multiline={false} items={toolbarItems()} />
         <div className="main-form-content">
           <Form ref={formRef} labelMode='static' {...finalFormOptions} formData={formDatasource.data ?? formOptions.formData}
             onFieldDataChanged={handleFieldDataChanged} colCountByScreen={colCountByScreen} />

@@ -21,60 +21,64 @@ const deleteConfirmMessage = coreI18n.form.deleteConfirm;
 
 
 
-export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IAppFormProps>>(
+export const AppForm = React.forwardRef<AppFormRef, IAppFormProps>(
   function AppForm(formOptions, ref) {
 
     const formRef = React.useRef<dxForm>(null);
     const appFormContext = useAppFormContext();
     const formDatasource = useAppFormDatasource(formOptions.operationUrl, formOptions.keyField || "id");
-    const [formData, setFormData] = React.useState<any | null>(null);
+    const [currentFormData, setCurrentFormData] = React.useState<any | null>(null);
 
     React.useImperativeHandle(ref, () => {
       return {
-        getFormData: () => formRef.current?.instance().option('formData') ?? formDatasource.data ?? null,
-        getChangedData: () => formData,
-        formData: formData,
+        getFormData: () => formDatasource.data,
+        getChangedData: () => currentFormData,
+        currentFormData: currentFormData,
         updateData: (field: string, value: any) => formRef.current?.instance().updateData(field, value),
+        validate: () => formRef.current?.instance().validate().isValid ?? false,
+        reloadFormData: () => {          
+          if (appFormContext.key && !appFormContext.isNew) {
+            formDatasource.byKey(appFormContext.key);
+          }
+        },
         formDatasource: formDatasource,
         formRef: formRef
       };
-    }, [formDatasource.data, formData]);
+    }, [ currentFormData, formDatasource.data, appFormContext.key, appFormContext.isNew]);
 
     React.useEffect(() => {
-      setFormData(null);
+      setCurrentFormData(null);
       if (!formOptions.operationUrl) {
         return;
       }
-
       if (appFormContext.key && !appFormContext.isNew) {
         formDatasource.byKey(appFormContext.key);
       } else {
         formDatasource.createNew();
-        setFormData(null);
+        setCurrentFormData(null);
       }
     }, [appFormContext.key, formOptions.operationUrl]);
 
     const handleFieldDataChanged = React.useCallback((e: any) => {
       const { dataField, value } = e;
-      setFormData((prevData: any) => ({
+      setCurrentFormData((prevData: any) => ({
         ...prevData,
         [dataField]: value
       }));
-
-      
 
       if (formOptions.onFieldDataChanged) formOptions.onFieldDataChanged(e);
 
       cascadeHandlingOperation(e, dataField, formRef);
       
     }, []);
+    
 
     const openNewForm = () => {
       appFormContext.newFormContext();
     }
 
     const onNew = () => {
-      if (formData !== null && formRef.current) {
+      if (currentFormData !== null && formRef.current) {
         const confirmResult = window.confirm(unsavedChangesMessage);
         if (!confirmResult) {
           return;
@@ -86,12 +90,10 @@ export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IApp
       }
     }
 
-    const onSave = async () => {
+    const onSave = React.useCallback(async () => {
       const validate = formRef.current?.instance().validate() || { isValid: true };
       if (validate.isValid) {
         
-        const currentFormData = appFormContext.isNew ? formRef.current?.instance().option('formData') : formData ?? null ;
-
         if (!currentFormData) {
           console.warn("No form data to save.");
           return;
@@ -100,17 +102,17 @@ export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IApp
         if (formOptions.onCustomSave) {
           const isSaved = await formOptions.onCustomSave(currentFormData);
           if (isSaved) {
-            setFormData(null);
+            setCurrentFormData(null);
           }
           return;
         }
         
         const isSaved = await formDatasource.save(appFormContext.key!, currentFormData);
         if (isSaved) {
-          setFormData(null);
+          setCurrentFormData(null);
         }
       }
-    }
+    }, [currentFormData]);
 
     const onDelete = () => {
       const confirmResult = window.confirm(deleteConfirmMessage);
@@ -119,7 +121,9 @@ export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IApp
       }
     }
 
-    const toolbarItems = React.useCallback(() => createFormToolbarItems(onSave, onNew, onDelete, formOptions.toolbarsItems, formRef, formOptions.formAllowOptions || undefined), [formOptions.toolbarsItems, formData]);
+    const toolbarItems = React.useCallback(() => {
+      return createFormToolbarItems(onSave, onNew, onDelete, formOptions.toolbarItems, formRef,appFormContext.formData, formOptions.formAllowOptions || undefined);
+    }, [ formOptions.toolbarItems, appFormContext.formData, formOptions.formAllowOptions, currentFormData]);
 
     const finalFormOptions = React.useMemo(() => {
       const items = (formOptions.items || []).map((item: any) => {
@@ -135,12 +139,11 @@ export const AppForm = React.forwardRef<AppFormRef, React.PropsWithChildren<IApp
       return { ...formOptions, items };
     }, []);
 
-
     return <React.Fragment>
       <div className={`${formDatasource.isLoading ? 'is-loading' : ''} dx-form-loader-container`} >
         <Toolbar className='main-toolbar-content action-button-toolbar' multiline={false} items={toolbarItems()} />
         <div className="main-form-content">
-          <Form ref={formRef} labelMode='static' {...finalFormOptions} formData={formDatasource.data ?? formOptions.formData}
+          <Form ref={formRef} labelMode='static' {...finalFormOptions} formData={formDatasource.data}
             onFieldDataChanged={handleFieldDataChanged} colCountByScreen={colCountByScreen} />
         </div>
       </div>

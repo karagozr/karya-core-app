@@ -16,13 +16,11 @@ export const useAppFormDatasource = (url: any, keyName: string) => {
     setIsLoading(true);
     setTimeout(async () => {
       var res = await ApiRequest.Get(url + '/' + key, null);
-      
       setIsLoading(false);
-
       if (res.success) {
-        var data = normalizeApiDataForObject(res)
-        appFormContext.setFormDataValue(data);
-        setDataValue(data);
+        var resData = normalizeApiDataForObject(res)
+        appFormContext.setFormDataValue(JSON.stringify(resData));
+        setDataValue(resData);
       }
     }, 1000)
   }
@@ -61,7 +59,9 @@ export const useAppFormDatasource = (url: any, keyName: string) => {
     setIsLoading(true);
     const res = await ApiRequest.Put(url, key, updateData);
     setIsLoading(false);
-
+    if (res.success) {
+      appFormContext.updateFormDataValue(updateData);
+    }
     return !!res?.success;
   }, [appFormContext.key]);
 
@@ -83,12 +83,6 @@ export const useAppFormDatasource = (url: any, keyName: string) => {
       }
     }, 1000)
   }, [appFormContext.key, appFormContext.isNew]);
-
-  //   React.useEffect( () => {
-  //     if (url) {
-  //       byKey();
-  //     }
-  //   }, [url]);
 
   return { data, isLoading, byKey, insert, update, remove, createNew, save,customPost };
 

@@ -28,12 +28,20 @@ export interface IFormDetailChildProps {
   rowData?: any;
 }
 
+export interface AppFormDetailRef {
+  gridRef: React.RefObject<DataGridRef>;
+  test?: string;
+  reloadGridData: () => void;
+  getSelectedRowsData: () => any[];
+  customPost: (metodName: string, data: any) => Promise<any>;
+}
+
 export interface IFormDetailProps {
   toolbarsItems?: Array<IToolbarItemProps>;
   isEditable?: boolean;
   selection?: RowSelection;
   columns?: Array<IAppColumn | string>;
-  gridRef?: React.Ref<DataGridRef>;
+  ref?: any;
   keyField?:string;
   parentFields: string[];
   operationUrl: string;

@@ -14,8 +14,15 @@ export const useProvideAppFormContext = () => {
 
     const setKeyValue = useCallback((data: any) => setKey(data), []);
 
-    const setFormDataValue = useCallback((data: any) => {
-        setFormData(data)}, []);
+    const setFormDataValue = useCallback((jsonFormData: string) => {
+        setFormData(JSON.parse(jsonFormData))}, []);
+
+    const updateFormDataValue = useCallback((updateData: any) => {
+        setFormData((prevData: any) => ({
+            ...prevData,
+            ...updateData
+        }));
+    }, []);
 
     const newFormContext = useCallback(() => {
 
@@ -57,7 +64,7 @@ export const useProvideAppFormContext = () => {
         }
     }, [searchParams, newFormContext])
 
-    return useMemo(() => ({ key, isNew, formData, setFormDataValue, setKeyValue, newFormContext, updateFormContext }), [key, isNew,formData]);
+    return useMemo(() => ({ key, isNew, formData, setFormDataValue,updateFormDataValue, setKeyValue, newFormContext, updateFormContext }), [key, isNew,formData]);
 
 }
 

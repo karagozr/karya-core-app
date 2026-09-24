@@ -24,7 +24,7 @@ export const InventoryDetailModal = ({ modalRef,id }: { id: string, modalRef: Re
         options: {
           icon: 'bell',
           text: 'ÇAL',
-          onClick: () => console.log('Modal context data:', modalContext?.getModalData(id))
+          onClick: () => modalContext?.getModalData(id)
         }
       }
     ]

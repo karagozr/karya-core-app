@@ -146,8 +146,6 @@ export async function updateProfile(payload: UserUpdatePayload) {
 
 export async function createAccount(email: string, password: string) {
   try {
-    console.log(email, password);
-
     return {
       isOk: true
     };
@@ -162,8 +160,6 @@ export async function createAccount(email: string, password: string) {
 
 export async function changePassword(email: string, recoveryCode?: string) {
   try {
-    console.log(email, recoveryCode);
-
     return {
       isOk: true
     };
@@ -178,8 +174,6 @@ export async function changePassword(email: string, recoveryCode?: string) {
 
 export async function resetPassword(email: string) {
   try {
-    console.log(email);
-
     return {
       isOk: true
     };

@@ -142,8 +142,6 @@ const CoreRequest = async ({ method, url, data, params, key, isBlob, msgBox }: I
 
     const result = await axios.request(config);
 
-    console.log('API Response:', result);
-
     const { data: resData, status } = result;
 
     const message = resData?.message || coreI18n.api.success;

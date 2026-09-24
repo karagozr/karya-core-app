@@ -1,18 +1,28 @@
-import { useAppFormDetailDatasource } from "../../hooks/app-form-detail-crud-hook";
 import { useAppFormContext } from "../../contexts";
 import React from "react";
-import DataGrid, { MasterDetail, Pager, Paging, type DataGridRef } from "devextreme-react/data-grid";
-import type { IFormDetailProps } from "./types";
+import DataGrid, { MasterDetail, Pager, Paging } from "devextreme-react/data-grid";
+import type { AppFormDetailRef, IFormDetailProps } from "./types";
 import { createLookupDsForDt } from "../../utils";
 import { coreI18n } from "../../i18n";
 import { AppFormDetailChild } from "./app-form-detail-child";
 import { createDetailDatagridToolbar } from "../../utils/master-detail-datagrid-toolbar-creator";
+import { useAppFormDetailDatasource } from "../../hooks";
 
+const AppFormDetailComp = React.forwardRef<AppFormDetailRef, IFormDetailProps>(
+  function FormDetailComp(detailOptions, ref) {
 
-function AppFormDetailComp({ operationUrl, keyField, toolbarsItems, columns, isEditable, selection,parentFields, masterDetailProps, masterDetailEnabled,initialNewRowData }
-  : React.PropsWithChildren<IFormDetailProps>) {
-
-  const gridRef = React.useRef<DataGridRef>(null);
+  const { toolbarsItems, 
+    isEditable, 
+    columns, 
+    keyField, 
+    parentFields, 
+    operationUrl, 
+    selection, 
+    initialNewRowData,
+    masterDetailEnabled, 
+    masterDetailProps } = detailOptions;
+  
+  const gridRef = React.useRef<any>(null);
 
   const { key: parentKey, formData } = useAppFormContext();
 
@@ -20,7 +30,27 @@ function AppFormDetailComp({ operationUrl, keyField, toolbarsItems, columns, isE
 
   const parentValues = React.useMemo(() => [parentKey], [parentKey]);
 
-  const { dataSource } = useAppFormDetailDatasource(operationUrl, keyField || 'id', parentFields, parentValues);
+  const { dataSource, customPost } = useAppFormDetailDatasource(operationUrl, keyField || 'id', parentFields, parentValues,gridRef);
+
+  React.useImperativeHandle<any,AppFormDetailRef>(ref, () => {
+        return {
+          gridRef: gridRef,
+          reloadGridData: () => {
+            if (gridRef.current) {
+              gridRef.current.instance().refresh();
+            } 
+          },
+          getSelectedRowsData: () => {
+            if (gridRef.current) {
+              return gridRef.current.instance().getSelectedRowsData();
+            } 
+            return [];
+          },
+          customPost: async (metodName: string, data: any) => {
+            return await customPost(metodName, data);
+          }
+        };
+  }, [ formData,parentKey,dataSource,gridRef]);
 
   const lookupEditorsRef = React.useRef<Record<string, any>>({});
 
@@ -41,6 +71,7 @@ function AppFormDetailComp({ operationUrl, keyField, toolbarsItems, columns, isE
       const cascadeParentFields: string[] = lookupConfig.dsCascadeParents || [];
 
       cascadeParentFields.forEach((parentField) => {
+        
         if (parentField.startsWith('formData.')) {
           const formDataField = parentField.replace('formData.', '');
           const value = formData?.[formDataField];
@@ -98,7 +129,8 @@ function AppFormDetailComp({ operationUrl, keyField, toolbarsItems, columns, isE
         });
       },
     };
-  }, []);
+
+  }, [formData]);
 
   const normalizedColumns = React.useMemo(() => {
     const lookupEditors: Record<string, any> = {};
@@ -124,7 +156,7 @@ function AppFormDetailComp({ operationUrl, keyField, toolbarsItems, columns, isE
 
     lookupEditorsRef.current = lookupEditors;
     return mappedColumns;
-  }, [columns]);
+  }, [columns,formData]);
 
   const editing = React.useMemo(() => {
     return editable ? {
@@ -144,13 +176,13 @@ function AppFormDetailComp({ operationUrl, keyField, toolbarsItems, columns, isE
       allowDeleting: false,
       useIcons: false,
     };
-  }, [editable]);
+    }, [editable]
+  );
 
-  const toolbar = React.useMemo(
+  const toolbar = React.useMemo( 
     () => createDetailDatagridToolbar(editable, toolbarsItems || [], gridRef),
     [editable, toolbarsItems]
   );
-
 
 
   return (
@@ -164,6 +196,7 @@ function AppFormDetailComp({ operationUrl, keyField, toolbarsItems, columns, isE
       selection={selection}
       remoteOperations={true}
       columnHidingEnabled={true}
+      allowColumnResizing={true}
       onEditorPreparing={handleEditorPreparing}
       onInitNewRow={initialNewRowData}
       editing={editing}
@@ -187,8 +220,8 @@ function AppFormDetailComp({ operationUrl, keyField, toolbarsItems, columns, isE
     </DataGrid>
 
   );
-}
+})
 
-export const AppFormDetail = React.memo(AppFormDetailComp);
+export const AppFormDetail =  React.memo(AppFormDetailComp);
 
 

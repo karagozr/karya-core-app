@@ -25,77 +25,157 @@ function AppFormDetailChildItemComp({operationUrl, keyField, toolbarsItems, colu
   const editable = isEditable && rowData.id !== null || false;
 
   const parentValues = [rowData.id];
-  const { dataSource } = useAppFormDetailDatasource(operationUrl, keyField || 'id', parentFields, parentValues);
+  const { dataSource } = useAppFormDetailDatasource(operationUrl, keyField || 'id', parentFields, parentValues,gridRef);
 
   const lookupEditorsRef = React.useRef<Record<string, any>>({});
 
+  // const handleEditorPreparing = React.useCallback((e: any) => {
+  //   if (e.parentType !== 'dataRow' || !e.dataField) {
+  //     return;
+  //   }
+
+  //   const lookupConfig = lookupEditorsRef.current[e.dataField];
+
+  //   if (!lookupConfig) {
+  //     return;
+  //   }
+
+  //   const rowIndex = e.row?.rowIndex;
+  //   const getCascadeParams = () => {
+  //     const params: Record<string, any> = {};
+  //     const cascadeParentFields: string[] = lookupConfig.dsCascadeParents || [];
+
+  //     cascadeParentFields.forEach((parentField) => {
+  //       const currentValue = rowIndex !== undefined
+  //         ? e.component?.cellValue(rowIndex, parentField)
+  //         : undefined;
+  //       const fallbackValue = e.row?.data?.[parentField];
+  //       const value = currentValue ?? fallbackValue;
+
+  //       if (value !== undefined && value !== null && value !== '') {
+  //         params[parentField] = value;
+  //       }
+  //     });
+
+  //     return params;
+  //   };
+
+  //   const originalOnValueChanged = e.editorOptions?.onValueChanged;
+
+  //   e.editorName = 'dxSelectBox';
+  //   e.editorOptions = {
+  //     ...e.editorOptions,
+  //     valueExpr: lookupConfig.lookup?.valueExpr ?? 'id',
+  //     displayExpr: lookupConfig.lookup?.displayExpr ?? 'name',
+  //     dataSource: createLookupDsForDt(
+  //       lookupConfig.dsUrl,
+  //       lookupConfig.dsCascadeParents,
+  //       lookupConfig.dsSearchFields,
+  //       getCascadeParams
+  //     ),
+  //     searchEnabled: true,
+  //     showClearButton: true,
+  //     onValueChanged: (args: any) => {
+  //       e.setValue?.(args.value);
+
+  //       if (originalOnValueChanged) {
+  //         originalOnValueChanged(args);
+  //       }
+
+  //       if (!lookupConfig.dsCascadeChildrens || lookupConfig.dsCascadeChildrens.length === 0) {
+  //         return;
+  //       }
+
+  //       if (args.previousValue === args.value || rowIndex === undefined) {
+  //         return;
+  //       }
+
+  //       lookupConfig.dsCascadeChildrens.forEach((childField: string) => {
+  //         e.component?.cellValue(rowIndex, childField, null);
+  //       });
+  //     },
+  //   };
+  // }, []);
+
+  const parentRow=rowData;
+
   const handleEditorPreparing = React.useCallback((e: any) => {
-    if (e.parentType !== 'dataRow' || !e.dataField) {
-      return;
-    }
-
-    const lookupConfig = lookupEditorsRef.current[e.dataField];
-
-    if (!lookupConfig) {
-      return;
-    }
-
-    const rowIndex = e.row?.rowIndex;
-    const getCascadeParams = () => {
-      const params: Record<string, any> = {};
-      const cascadeParentFields: string[] = lookupConfig.dsCascadeParents || [];
-
-      cascadeParentFields.forEach((parentField) => {
-        const currentValue = rowIndex !== undefined
-          ? e.component?.cellValue(rowIndex, parentField)
-          : undefined;
-        const fallbackValue = e.row?.data?.[parentField];
-        const value = currentValue ?? fallbackValue;
-
-        if (value !== undefined && value !== null && value !== '') {
-          params[parentField] = value;
-        }
-      });
-
-      return params;
-    };
-
-    const originalOnValueChanged = e.editorOptions?.onValueChanged;
-
-    e.editorName = 'dxSelectBox';
-    e.editorOptions = {
-      ...e.editorOptions,
-      valueExpr: lookupConfig.lookup?.valueExpr ?? 'id',
-      displayExpr: lookupConfig.lookup?.displayExpr ?? 'name',
-      dataSource: createLookupDsForDt(
-        lookupConfig.dsUrl,
-        lookupConfig.dsCascadeParents,
-        lookupConfig.dsSearchFields,
-        getCascadeParams
-      ),
-      searchEnabled: true,
-      showClearButton: true,
-      onValueChanged: (args: any) => {
-        e.setValue?.(args.value);
-
-        if (originalOnValueChanged) {
-          originalOnValueChanged(args);
-        }
-
-        if (!lookupConfig.dsCascadeChildrens || lookupConfig.dsCascadeChildrens.length === 0) {
-          return;
-        }
-
-        if (args.previousValue === args.value || rowIndex === undefined) {
-          return;
-        }
-
-        lookupConfig.dsCascadeChildrens.forEach((childField: string) => {
-          e.component?.cellValue(rowIndex, childField, null);
+      if (e.parentType !== 'dataRow' || !e.dataField) {
+        return;
+      }
+  
+      const lookupConfig = lookupEditorsRef.current[e.dataField];
+  
+      if (!lookupConfig) {
+        return;
+      }
+  
+      const rowIndex = e.row?.rowIndex;
+      const getCascadeParams = () => {
+        const params: Record<string, any> = {};
+        const cascadeParentFields: string[] = lookupConfig.dsCascadeParents || [];
+  
+        cascadeParentFields.forEach((parentField) => {
+          
+          if (parentField.startsWith('parentRow.')) {
+            const formDataField = parentField.replace('parentRow.', '');
+            const value = parentRow?.[formDataField];
+            if (value !== undefined && value !== null && value !== '') {
+              params[formDataField] = value;
+            }
+          } else {
+            const currentValue = rowIndex !== undefined
+              ? e.component?.cellValue(rowIndex, parentField)
+              : undefined;
+            const fallbackValue = e.row?.data?.[parentField];
+            const value = currentValue ?? fallbackValue;
+  
+            if (value !== undefined && value !== null && value !== '') {
+              params[parentField] = value;
+            }
+          }
         });
-      },
-    };
-  }, []);
+  
+        return params;
+      };
+  
+      const originalOnValueChanged = e.editorOptions?.onValueChanged;
+  
+      e.editorName = 'dxSelectBox';
+      e.editorOptions = {
+        ...e.editorOptions,
+        valueExpr: lookupConfig.lookup?.valueExpr ?? 'id',
+        displayExpr: lookupConfig.lookup?.displayExpr ?? 'name',
+        dataSource: createLookupDsForDt(
+          lookupConfig.dsUrl,
+          lookupConfig.dsCascadeParents,
+          lookupConfig.dsSearchFields,
+          getCascadeParams
+        ),
+        searchEnabled: true,
+        showClearButton: true,
+        onValueChanged: (args: any) => {
+          e.setValue?.(args.value);
+  
+          if (originalOnValueChanged) {
+            originalOnValueChanged(args);
+          }
+  
+          if (!lookupConfig.dsCascadeChildrens || lookupConfig.dsCascadeChildrens.length === 0) {
+            return;
+          }
+  
+          if (args.previousValue === args.value || rowIndex === undefined) {
+            return;
+          }
+  
+          lookupConfig.dsCascadeChildrens.forEach((childField: string) => {
+            e.component?.cellValue(rowIndex, childField, null);
+          });
+        },
+      };
+  
+    }, [rowData]);
 
   const normalizedColumns = React.useMemo(() => {
     const lookupEditors: Record<string, any> = {};

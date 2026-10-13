@@ -8,6 +8,10 @@ import { cascadeHandlingOperation, createFormToolbarItems, createLookupDs } from
 import type { AppFormRef, IAppFormProps } from "./types";
 import "../../loaders/form-skeleton.scss";
 import { coreI18n } from "../../i18n";
+import "devextreme/ui/lookup";
+import "devextreme/ui/select_box";
+import "devextreme/ui/date_box";
+
 
 const colCountByScreen = {
   xs: 1,
@@ -122,8 +126,22 @@ export const AppForm = React.forwardRef<AppFormRef, IAppFormProps>(
     }
 
     const toolbarItems = React.useCallback(() => {
-      return createFormToolbarItems(onSave, onNew, onDelete, formOptions.toolbarItems, formRef,appFormContext.formData, formOptions.formAllowOptions || undefined);
-    }, [ formOptions.toolbarItems, appFormContext.formData, formOptions.formAllowOptions, currentFormData]);
+      // formAllowOptionsExp varsa statüye (formData) göre hesaplanır ve statik formAllowOptions'ın önüne geçer.
+      // visibleExp ile aynı veri kaynağı (appFormContext.formData) kullanılır.
+      const allowOptions = formOptions.formAllowOptionsExp
+        ? formOptions.formAllowOptionsExp(appFormContext.formData ?? {})
+        : (formOptions.formAllowOptions || undefined);
+
+      return createFormToolbarItems(onSave, onNew, onDelete, formOptions.toolbarItems, formRef,appFormContext.formData, allowOptions);
+    }, [ formOptions.toolbarItems, appFormContext.formData, formOptions.formAllowOptions, formOptions.formAllowOptionsExp, currentFormData]);
+
+    // const visibleFormData = React.useMemo(
+    //   () => ({
+    //     ...(formDatasource.data ?? formOptions.formData),
+    //     ...(formData ?? {}),
+    //   }),
+    //   [formDatasource.data, formOptions.formData, formData]
+    // );
 
     const finalFormOptions = React.useMemo(() => {
       const items = (formOptions.items || []).map((item: any) => {
@@ -142,6 +160,7 @@ export const AppForm = React.forwardRef<AppFormRef, IAppFormProps>(
     return <React.Fragment>
       <div className={`${formDatasource.isLoading ? 'is-loading' : ''} dx-form-loader-container`} >
         <Toolbar className='main-toolbar-content action-button-toolbar' multiline={false} items={toolbarItems()} />
+        {/* <Toolbar className='main-toolbar-content action-button-toolbar' multiline items={toolbarItems()} /> */}
         <div className="main-form-content">
           <Form ref={formRef} labelMode='static' {...finalFormOptions} formData={formDatasource.data}
             onFieldDataChanged={handleFieldDataChanged} colCountByScreen={colCountByScreen} />
@@ -150,6 +169,3 @@ export const AppForm = React.forwardRef<AppFormRef, IAppFormProps>(
     </React.Fragment>
 
 });
-
-
-

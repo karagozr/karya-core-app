@@ -13,11 +13,12 @@ const defaultMessageBoxStatus = {
   isActiveInfo: false,
 }
 
+
 const parentObj = (parentFields: string[], fieldValues: any[]) => {
-  
+
   if (parentFields.length !== fieldValues.length) {
     throw new Error(coreI18n.formDetail.parentFieldsLengthMismatch);
-  }else {
+  } else {
     const obj: any = {};
     parentFields.forEach((field, index) => {
       obj[field] = fieldValues[index];
@@ -26,27 +27,26 @@ const parentObj = (parentFields: string[], fieldValues: any[]) => {
   }
 };
 
-export const useAppFormDetailDatasource = (url: any, key: any, parentFields: string[], parentValues: any[], gridRef: React.RefObject<any>) => {
+export const useAppFormDetailDatasource = (url: any, key: any, parentFields: string[], parentValues: any[], gridRef?: React.RefObject<any>) => {
   if (parentValues === null || parentValues === undefined) {
     throw new Error(coreI18n.formDetail.parentKeyRequiredDatasource);
   }
-
   const parentFieldsSignature = JSON.stringify(parentFields ?? []);
   const parentValuesSignature = JSON.stringify(parentValues ?? []);
 
   const hasAllParentValues = (parentValues ?? []).every((value: any) => value !== null && value !== undefined && value !== '');
   const opUrl = hasAllParentValues
-      ? url + `(${JSON.stringify(parentObj(parentFields, parentValues))})`
-      : null;
+    ? url + `(${JSON.stringify(parentObj(parentFields, parentValues))})`
+    : null;
 
   const dataSource = useMemo(() => {
-    
+
 
     return new DataSource({
       store: new CustomStore({
         key,
         load: async (options: any) => {
-          if(parentValues[0]===null || parentValues[0]===undefined || parentValues[0]===''){
+          if (parentValues[0] === null || parentValues[0] === undefined || parentValues[0] === '' || parentValues[0] === 'null') {
             return normalizeApiDataForArray({ data: { data: [], totalCount: 0 } });
           }
 
@@ -85,20 +85,20 @@ export const useAppFormDetailDatasource = (url: any, key: any, parentFields: str
   }, [url, key, parentFieldsSignature, parentValuesSignature]);
 
   const customPost = React.useCallback(async (metodName: string, data: any) => {
-    const grid = gridRef.current?.instance();
+    const grid = gridRef?.current?.instance();
     grid.beginCustomLoading("Please wait...");
-    var result = await ApiRequest.Post(`${opUrl}/$${metodName}`, data, {
+    var result = await ApiRequest.Post(`${opUrl}/${metodName}`, data, {
       isActiveError: true,
       isActiveSuccess: true,
       isActiveWarning: true,
-      isActiveInfo: true 
+      isActiveInfo: true
     });
-    grid.endCustomLoading();
+    grid?.endCustomLoading();
     return result.data;
-    
+
   }, [url, key, parentFieldsSignature, parentValuesSignature]);
 
-  return { dataSource,customPost };
+  return { dataSource, customPost };
 }
 
 

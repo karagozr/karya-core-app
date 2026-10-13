@@ -13,6 +13,7 @@ const AppFormDetailComp = React.forwardRef<AppFormDetailRef, IFormDetailProps>(
 
   const { toolbarsItems, 
     isEditable, 
+    allowOptionsExp,
     columns, 
     keyField, 
     parentFields, 
@@ -26,7 +27,14 @@ const AppFormDetailComp = React.forwardRef<AppFormDetailRef, IFormDetailProps>(
 
   const { key: parentKey, formData } = useAppFormContext();
 
-  const editable = isEditable && parentKey !== null || false;
+  // isEditable ana şalter. allowOptionsExp, formdan (context) gelen veriye göre
+  // flag'leri daraltır (visibleExp ile aynı kalıp); verilmeyen flag = true.
+  const canEdit = !!isEditable && parentKey !== null;
+  const dynamicAllow = canEdit ? allowOptionsExp?.(formData ?? {}) : undefined;
+  const allowAdding = canEdit && (dynamicAllow?.allowAdding ?? true);
+  const allowUpdating = canEdit && (dynamicAllow?.allowUpdating ?? true);
+  const allowDeleting = canEdit && (dynamicAllow?.allowDeleting ?? true);
+  const editable = allowAdding || allowUpdating || allowDeleting;
 
   const parentValues = React.useMemo(() => [parentKey], [parentKey]);
 
@@ -132,38 +140,62 @@ const AppFormDetailComp = React.forwardRef<AppFormDetailRef, IFormDetailProps>(
 
   }, [formData]);
 
-  const normalizedColumns = React.useMemo(() => {
-    const lookupEditors: Record<string, any> = {};
+const normalizedColumns = React.useMemo(() => {
+  const lookupEditors: Record<string, any> = {};
 
-    const mappedColumns = columns?.map((col: any) => {
-      if (col.dsUrl && col.lookup && col.dataField) {
-        col.calculateDisplayValue = (item: any) => item?.[col.dsDisplayDataField] ?? item?.[col.dataField];
-
-        lookupEditors[col.dataField] = {
-          dsUrl: col.dsUrl,
-          dsCascadeChildrens: col.dsCascadeChildrens,
-          dsCascadeParents: col.dsCascadeParents,
-          dsSearchFields: col.dsSearchFields,
-          lookup: col.lookup,
-        };
-
-        const { dsUrl, dsCascadeChildrens, dsCascadeParents, dsSearchFields, lookup, ...restCol } = col;
-        return restCol;
-      }
-
+  const mappedColumns = columns?.map((col: any) => {
+    if (!(col.dsUrl && col.lookup && col.dataField)) {
       return col;
-    });
+    }
 
-    lookupEditorsRef.current = lookupEditors;
-    return mappedColumns;
-  }, [columns,formData]);
+    const {
+      dsUrl,
+      dsCascadeChildrens,
+      dsCascadeParents,
+      dsSearchFields,
+      dsDisplayDataField,
+      dsFilterLookup, // yeni: filter row'da lookup olsun mu?
+      lookup,
+      ...restCol
+    } = col;
+
+    lookupEditors[col.dataField] = {
+      dsUrl,
+      dsCascadeChildrens,
+      dsCascadeParents,
+      dsSearchFields,
+      lookup,
+    };
+
+    const gridCol: any = {
+      ...restCol,
+      calculateDisplayValue: (row: any) =>
+        row?.[dsDisplayDataField] ?? row?.[col.dataField],
+    };
+
+    
+  if (dsFilterLookup) {
+  const lookupDs: any = createLookupDsForDt(dsUrl, dsCascadeParents, dsSearchFields, () => ({}));
+
+  gridCol.lookup = {
+    ...lookup,
+    // DataSource ÖRNEĞİ değil, onun store'u verilmeli
+    dataSource: typeof lookupDs?.store === 'function' ? lookupDs.store() : lookupDs,
+  };
+}
+    return gridCol;
+  });
+
+  lookupEditorsRef.current = lookupEditors;
+  return mappedColumns;
+}, [columns]);
 
   const editing = React.useMemo(() => {
     return editable ? {
       mode: 'batch' as const,
-      allowAdding: true,
-      allowUpdating: true,
-      allowDeleting: true,
+      allowAdding,
+      allowUpdating,
+      allowDeleting,
       useIcons: true,
       confirmDelete: true,
       texts: {
@@ -176,7 +208,7 @@ const AppFormDetailComp = React.forwardRef<AppFormDetailRef, IFormDetailProps>(
       allowDeleting: false,
       useIcons: false,
     };
-    }, [editable]
+    }, [editable, allowAdding, allowUpdating, allowDeleting]
   );
 
   const toolbar = React.useMemo( 

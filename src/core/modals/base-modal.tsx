@@ -7,6 +7,9 @@ interface BaseModalProps {
     children?: React.ReactNode;
     showCloseButton?: boolean;
     id: string;
+    width?: number | string;
+    height?: number | string | 'auto';
+    maxWidth?: number | string;
 }
 
 export interface BaseModalRef {
@@ -16,7 +19,15 @@ export interface BaseModalRef {
 
 export const BaseModal = React.forwardRef<BaseModalRef, BaseModalProps>((props, ref) => {
 
-    const { title, children, showCloseButton = true, id } = props;
+    const {
+        title,
+        children,
+        showCloseButton = true,
+        id,
+        width = 420,
+        height = 'auto',
+        maxWidth = '95vw',
+    } = props;
     const [visible, setVisible] = useState(false);
     const modalContext = useAppModalContext();
 
@@ -34,9 +45,13 @@ export const BaseModal = React.forwardRef<BaseModalRef, BaseModalProps>((props, 
                 visible={visible}
                 onHiding={() => { setVisible(false); }}
                 title={title}
+                width={width}
+                height={height}
+                maxWidth={maxWidth}
                 resizeEnabled={true}
                 showCloseButton={showCloseButton}
-                dragEnabled={true} >
+                dragEnabled={true}
+            >
                 <div className="modal-content">
                     {visible && children}
                 </div>
@@ -44,4 +59,3 @@ export const BaseModal = React.forwardRef<BaseModalRef, BaseModalProps>((props, 
         </React.Fragment>
     );
 });
-

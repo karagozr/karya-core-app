@@ -1,6 +1,5 @@
 export const normalizeApiDataForArray = (payload: any) => {
     const normalized = payload?.data?.data ?? payload?.data ?? payload;
-
     if (Array.isArray(normalized)) {
         return {
             data: normalized,

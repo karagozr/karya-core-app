@@ -26,9 +26,11 @@ export interface FormToolBarItem extends IToolbarItem {
 export interface IAppFormProps extends IFormOptions{ 
   keyField?: string;
   formAllowOptions?: AppFormAllowOptions  | false;
+  formAllowOptionsExp?: (data: any) => AppFormAllowOptions;
   ref?: React.RefObject<any>;
   operationUrl?: string;
   toolbarItems?: Array<FormToolBarItem>;
   onCustomSave?: (formData: any) => Promise<boolean> | boolean;
+  onSaved?: (formData: any) => void;
 }
 

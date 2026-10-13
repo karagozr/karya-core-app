@@ -27,6 +27,7 @@ export const createFormToolbarItems = (onSave: () => void, onNew: () => void,onD
   const defaultItems = [
      formAllowOptions.allowNew == false ? {} : {
       location: 'before',
+      locateInMenu: 'auto',
       widget: 'dxButton',
       options: {
         text: coreI18n.form.toolbar.new,
@@ -37,6 +38,7 @@ export const createFormToolbarItems = (onSave: () => void, onNew: () => void,onD
     },
     formAllowOptions.allowSave == false ? {} : {
       location: 'before',
+      locateInMenu: 'auto',
       widget: 'dxButton',
       options: {
         text: coreI18n.form.toolbar.save,
@@ -47,6 +49,7 @@ export const createFormToolbarItems = (onSave: () => void, onNew: () => void,onD
     },
     formAllowOptions.allowDelete == false ? {} : {
       location: 'before',
+      locateInMenu: 'auto',
       widget: 'dxButton',
       options: {
         text: coreI18n.form.toolbar.remove,
@@ -61,6 +64,7 @@ export const createFormToolbarItems = (onSave: () => void, onNew: () => void,onD
   if (toolbarsItems && toolbarsItems.length > 0) {
     const externalToolbarItems = toolbarsItems.map(item => {
       const toolbarItem: dxToolbarItem = {
+        locateInMenu: 'auto',
         ...item,
         visible: resolveToolbarItemVisibility(item, formData),
         options: item.options ? { ...item.options } : item.options

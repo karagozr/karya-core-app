@@ -1,5 +1,5 @@
 import type { Column, Summary, ToolbarItem } from "devextreme/ui/data_grid_types";
-import type { IFormDetailChildItem, IFormDetailChildProps } from "../..";
+import type { IFormDetailChildProps } from "../..";
 
 export interface IAppColumn extends Column {
   dsUrl?: string;
@@ -18,6 +18,7 @@ export interface IAppDatagridProps{
   summary?: Summary;
   editable?: boolean| false;
   detailPath?: string| null;
+  allowAddNew?: boolean;
   masterDetailEnabled?: boolean| false;
   masterDetailProps?: IFormDetailChildProps;
 }

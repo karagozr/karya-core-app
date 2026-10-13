@@ -7,6 +7,7 @@ interface IAppColumn extends Column {
   dsCascadeParents?: string[];
   dsSearchFields?: string[];
   dsDisplayDataField?: string;
+  dsFilterLookup?: boolean;
 }
 
 
@@ -47,5 +48,12 @@ export interface IFormDetailProps {
   operationUrl: string;
   masterDetailEnabled: boolean|false;
   masterDetailProps?: IFormDetailChildProps;
-  initialNewRowData?:() => any;
+  initialNewRowData?: (e: any) => any;
+  allowOptionsExp?: (formData: any) => AppFormDetailAllowOptions;
+}
+
+export type AppFormDetailAllowOptions = {
+  allowAdding?: boolean;
+  allowUpdating?: boolean;
+  allowDeleting?: boolean;
 }

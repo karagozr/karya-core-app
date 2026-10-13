@@ -34,7 +34,7 @@ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChild
     }
   }, [key, metaListOptions.detailPath, navigate]);
 
-  const createNewInForm = React.useCallback(async (routeKey:number|string|null=null) => {
+  const createNewInForm = React.useCallback(async (_routeKey:number | string|null=null) => {
     if (metaListOptions.detailPath) {
       navigate(metaListOptions.detailPath + '?isNew=' + true + '&key=null');
     }
@@ -57,9 +57,10 @@ function AppDatagridComp({ operationUrl, metaListOptions }: React.PropsWithChild
       editable,
       metaListOptions.toolbarsItems || [],
       metaListOptions.detailPath || null,
-      gridRef
+      gridRef,
+      metaListOptions.allowAddNew !== false
     );
-  }, [goDetail, editable, metaListOptions.toolbarsItems, metaListOptions.detailPath]);
+  }, [goDetail, editable, metaListOptions.toolbarsItems, metaListOptions.detailPath, metaListOptions.allowAddNew]);
 
   const lookupEditorsRef = React.useRef<Record<string, any>>({});
 

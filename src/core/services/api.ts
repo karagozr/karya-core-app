@@ -2,22 +2,42 @@ import axios from "axios";
 import { showMessage } from "../utils/message-box";
 import { coreI18n } from "../i18n";
 
-const BASE_URL = () => {
+export const apiUrl = import.meta.env.VITE_API_URL;
+
+export const getAccessToken = (): string => {
   try {
-    const mode = (import.meta as any).env?.MODE || 'production';
-    return mode === 'development' ? "http://localhost:5000/api" : "https://production.api.com";
+    const userData = localStorage.getItem("access-token");
+    if (!userData || userData === "null" || userData === "undefined") {
+      if (userData === "null" || userData === "undefined") {
+        localStorage.removeItem("access-token");
+      }
+      return "";
+    }
+    const tokenData = JSON.parse(userData);
+    const token = typeof tokenData?.access_token === "string" ? tokenData.access_token.trim() : "";
+    if (!token) {
+      localStorage.removeItem("access-token");
+      return "";
+    }
+    return token;
   } catch {
-    return "https://production.api.com";
+    localStorage.removeItem("access-token");
+    return "";
   }
 };
 
-const getToken = () => {
-  var userData = localStorage.getItem("access-token");
-  if (userData === null) return "";
-  var user = JSON.parse(userData);
-
-  return user.token;
+export const getIfsAccessToken = (): string => {
+  try {
+    const raw = localStorage.getItem("ifs-token");
+    if (!raw || raw === "null" || raw === "undefined") return "";
+    const tokenData = JSON.parse(raw);
+    return typeof tokenData?.access_token === "string" ? tokenData.access_token.trim() : "";
+  } catch {
+    return "";
+  }
 };
+
+const getToken = () => getAccessToken();
 
 
 export interface IMessageBoxStatus {
@@ -34,6 +54,7 @@ export interface ICoreRequest {
   params?: any;
   key?: any;
   isBlob?: boolean;
+  headers?: Record<string, string>;
   msgBox: IMessageBoxStatus;
 }
 
@@ -47,6 +68,7 @@ export interface IAppRequestGet extends IAppBaseRequest {
 }
 export interface IAppRequestPost extends IAppBaseRequest {
   data?: any;
+  headers?: Record<string, string>;
 }
 export interface IAppRequestPut extends IAppBaseRequest {
   key?: any;
@@ -94,7 +116,7 @@ const apiCoreResponse = (msgBox: IMessageBoxStatus, data: any, title: string, me
     });
   } else if (msgBox.isActiveInfo) {
     showMessage({
-      type: 'info', 
+      type: 'info',
       message: `${message}`,
       title: title,
       displayTime: 4000,
@@ -108,26 +130,21 @@ const apiCoreResponse = (msgBox: IMessageBoxStatus, data: any, title: string, me
   };
 };
 
-const CoreRequest = async ({ method, url, data, params, key, isBlob, msgBox }: ICoreRequest): Promise<IApiResponse> => {
-  const headers :any = {
-    "Access-Control-Allow-Private-Network": true,
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Credentials": true,
-    "Access-Control-Allow-Headers": "origin, content-type, accept, authorization",
+const CoreRequest = async ({ method, url, data, params, headers: extraHeaders, msgBox }: ICoreRequest): Promise<IApiResponse> => {
+  const headers = {
     "Content-Type": "application/json; charset=utf-8",
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS,DELETE,PUT",
     Authorization: `Bearer ${getToken()}`,
+    ...extraHeaders,
   };
 
-  var config: Partial<ICoreRequest> = {
-    url: url,
-    method: method
+  let config: any = {
+    url,
+    method,
+    headers,
   };
 
 
   try {
-
-
     if (method === 'GET' || method === 'DELETE') {
       config = {
         ...config,
@@ -142,9 +159,11 @@ const CoreRequest = async ({ method, url, data, params, key, isBlob, msgBox }: I
 
     const result = await axios.request(config);
 
+    // console.log('API Response:', result);
+
     const { data: resData, status } = result;
 
-    const message = resData?.message || coreI18n.api.success;
+    const message = resData?.error_description || resData?.message || coreI18n.api.success;
 
     switch (status) {
       case 200: return apiCoreResponse(msgBox, resData?.resData ?? resData, coreI18n.api.success, message, true, status);
@@ -159,8 +178,8 @@ const CoreRequest = async ({ method, url, data, params, key, isBlob, msgBox }: I
         return apiCoreResponse(msgBox, resData, coreI18n.api.apiWarning, message ?? coreI18n.api.apiWarning, true, status);
     }
   } catch (error: any) {
+    console.error('API Error:', error);
 
-    
 
     const response = error?.response;
     const status = response?.status || 0;
@@ -168,12 +187,12 @@ const CoreRequest = async ({ method, url, data, params, key, isBlob, msgBox }: I
     const errors = data?.errors;
     const message = errors
       ? JSON.stringify(errors).replaceAll('"', '').replaceAll('{', '').replaceAll('}', '').replaceAll('[', '').replaceAll(']', '')
-      : data?.message || coreI18n.api.defaultServerError;
+      : data?.error_description || data?.message || coreI18n.api.defaultServerError;
 
     switch (status) {
-      case 400: return apiCoreResponse(msgBox, null, coreI18n.api.badRequest, message, false, status);
-      case 401: return apiCoreResponse(msgBox, null, coreI18n.api.unauthorized, coreI18n.api.withStatus(status, coreI18n.api.unauthorized), false, status);
-      case 403: return apiCoreResponse(msgBox, null, coreI18n.api.forbidden, coreI18n.api.withStatus(status, coreI18n.api.forbidden), false, status);
+      case 400: return apiCoreResponse(msgBox, data ?? null, coreI18n.api.badRequest, message, false, status);
+      case 401: return apiCoreResponse(msgBox, null, coreI18n.api.unauthorized, message || coreI18n.api.withStatus(status, coreI18n.api.unauthorized), false, status);
+      case 403: return apiCoreResponse(msgBox, data ?? null, coreI18n.api.forbidden, message || coreI18n.api.withStatus(status, coreI18n.api.forbidden), false, status);
       case 404: return apiCoreResponse(msgBox, null, coreI18n.api.notFound, coreI18n.api.withStatus(status, coreI18n.api.notFound), false, status);
       case 408: return apiCoreResponse(msgBox, null, coreI18n.api.requestTimeout, coreI18n.api.withStatus(status, coreI18n.api.requestTimeout), false, status);
       case 500: return apiCoreResponse(msgBox, null, coreI18n.api.internalServerError, coreI18n.api.withStatus(status, coreI18n.api.internalServerError), false, status);
@@ -190,11 +209,11 @@ const CoreRequest = async ({ method, url, data, params, key, isBlob, msgBox }: I
 };
 
 
-const AppRequestGet = ({ url, params,msgBox }: IAppRequestGet) => CoreRequest({ method: "GET", url, params, msgBox });
-const AppRequestPost = ({ url, data,msgBox }: IAppRequestPost) => CoreRequest({ method: "POST", url, data, msgBox });
-const AppRequestPut = ({ url, data, key,msgBox }: IAppRequestPut) => CoreRequest({ method: "PUT", url: url + '/' + key, data, msgBox });
-const AppRequestPatch = ({ url, data, key,msgBox }: IAppRequestPatch) => CoreRequest({ method: "PATCH", url: url + '/' + key, data, msgBox });
-const AppRequestDelete = ({ url, params,msgBox }: IAppRequestDelete) => CoreRequest({ method: "DELETE", url, params, msgBox });
+const AppRequestGet = ({ url, params, msgBox }: IAppRequestGet) => CoreRequest({ method: "GET", url, params, msgBox });
+const AppRequestPost = ({ url, data, msgBox, headers }: IAppRequestPost) => CoreRequest({ method: "POST", url, data, msgBox, headers });
+const AppRequestPut = ({ url, data, key, msgBox }: IAppRequestPut) => CoreRequest({ method: "PUT", url: url + '/' + key, data, msgBox });
+const AppRequestPatch = ({ url, data, key, msgBox }: IAppRequestPatch) => CoreRequest({ method: "PATCH", url: url + '/' + key, data, msgBox });
+const AppRequestDelete = ({ url, params, msgBox }: IAppRequestDelete) => CoreRequest({ method: "DELETE", url, params, msgBox });
 
 const MessageBoxInitialStatus: IMessageBoxStatus = {
   isActiveError: true,
@@ -205,15 +224,14 @@ const MessageBoxInitialStatus: IMessageBoxStatus = {
 
 export const ApiRequest = {
 
-  Get: async (url: string, params: any,msgBox: IMessageBoxStatus=MessageBoxInitialStatus) => AppRequestGet({ url: url, params: params, msgBox: msgBox }),
-  Post: async (url: string, data: any,msgBox: IMessageBoxStatus=MessageBoxInitialStatus) => AppRequestPost({ url: url, data: data, msgBox: msgBox }),
-  Put: async (url: string, key: any, data: any,msgBox: IMessageBoxStatus=MessageBoxInitialStatus) => AppRequestPut({ url: url, key: key, data: data, msgBox: msgBox }),
-  Delete: async (url: string, key: any,msgBox: IMessageBoxStatus=MessageBoxInitialStatus) => AppRequestDelete({ url: url + '/' + key, params: null, msgBox: msgBox }),
-  Patch: async (url: string, key: any, data: any,msgBox: IMessageBoxStatus=MessageBoxInitialStatus) => AppRequestPatch({ url: url, key: key, data: data, msgBox: msgBox }),
-  // Get : async (url:string, params:any) =>AppRequestGet({url:BASE_URL + url, params:params}),
-  // Post : async (url:string, data:any) =>AppRequestPost({url:BASE_URL + url, data:data}),
-  // Put : async (url:string, key:any, data:any) =>AppRequestPut({url:BASE_URL + url, key:key, data:data}),
-  // Delete : async (url:string, params:any) =>AppRequestDelete({url:BASE_URL + url, params:params}),
-  // Patch : async (url:string, data:any) =>AppRequestPatch({url:BASE_URL + url, data:data}),
+  Get: async (url: string, params: any, msgBox: IMessageBoxStatus = MessageBoxInitialStatus) => AppRequestGet({ url: url, params: params, msgBox: msgBox }),
+  Post: async (
+    url: string,
+    data: any,
+    msgBox: IMessageBoxStatus = MessageBoxInitialStatus,
+    headers?: Record<string, string>,
+  ) => AppRequestPost({ url: url, data: data, msgBox: msgBox, headers }),
+  Put: async (url: string, key: any, data: any, msgBox: IMessageBoxStatus = MessageBoxInitialStatus) => AppRequestPut({ url: url, key: key, data: data, msgBox: msgBox }),
+  Delete: async (url: string, key: any, msgBox: IMessageBoxStatus = MessageBoxInitialStatus) => AppRequestDelete({ url: url + '/' + key, params: null, msgBox: msgBox }),
+  Patch: async (url: string, key: any, data: any, msgBox: IMessageBoxStatus = MessageBoxInitialStatus) => AppRequestPatch({ url: url, key: key, data: data, msgBox: msgBox }),
 };
-

@@ -4,7 +4,7 @@ import { coreI18n } from "../i18n";
 const addNewText = coreI18n.datagrid.toolbar.addNew;
 const detailText = coreI18n.datagrid.toolbar.detail;
 
-export const createDatagridToolbar = (goDetail: () => void,createNewInForm: () => void, editable: boolean, toolbarsItems: Array<ToolbarItem>, detailPath: string | null,gridRef? :any ) => {
+export const createDatagridToolbar = (goDetail: () => void,createNewInForm: () => void, editable: boolean, toolbarsItems: Array<ToolbarItem>, detailPath: string | null,gridRef? :any, allowAddNew: boolean = true ) => {
 
   const addButton: any = editable ? {
     location: 'before',
@@ -34,7 +34,7 @@ export const createDatagridToolbar = (goDetail: () => void,createNewInForm: () =
     }
   } : null;
 
-  const addNewButton: any = detailPath ? {
+  const addNewButton: any = detailPath && allowAddNew ? {
     location: 'before',
     widget: 'dxButton',
     name: 'createNewButton',
@@ -63,14 +63,22 @@ export const createDatagridToolbar = (goDetail: () => void,createNewInForm: () =
     return item;
   });
 
+  const beforeExternal = (externalToolbarItems || []).filter(
+    (item: any) => (item.location ?? "before") === "before"
+  );
+  const afterExternal = (externalToolbarItems || []).filter(
+    (item: any) => item.location === "after"
+  );
+
   return toolbarsItems !== undefined ?
     {
       items:
         [
-          ...(externalToolbarItems || []),
           ...(addButton ? [addButton] : []),
           ...(detailButton ? [detailButton] : []),
-          ...(addNewButton ? [addNewButton] : [])
+          ...(addNewButton ? [addNewButton] : []),
+          ...beforeExternal,
+          ...afterExternal
         ]
     } : undefined;
 }

@@ -56,8 +56,9 @@ export const useProvideAppFormContext = () => {
     }, [navigate, pathname]);
 
     React.useEffect(() => {
-        if (searchParams.get('key')) {
-            setKey(searchParams.get('key'));
+        const rawKey = searchParams.get('key');
+        if (rawKey && rawKey !== 'null') {
+            setKey(rawKey);
             setIsNew(searchParams.get('isNew') === 'true');
         } else {
             newFormContext();

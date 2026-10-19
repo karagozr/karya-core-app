@@ -3,7 +3,26 @@ import { ApiRequest } from "../services";
 import { useAppFormContext } from "../contexts";
 import { normalizeApiDataForObject } from "../utils";
 
-export const useAppFormDatasource = (url: any, keyName: string) => {
+export interface IAppFormDatasource {
+  data: any | null;
+  isLoading: boolean;
+  byKey: (key: string) => Promise<void>;
+  insert: (data: any) => Promise<boolean>;
+  update: (key: string, updateData: Partial<any>) => Promise<boolean>;
+  remove: (key: string) => Promise<void>;
+  createNew: () => void;
+  save: (key: string, data: any) => Promise<boolean>;
+  customPost: (metodName: string, data: any) => Promise<CustomApiResult>;
+  customGet: (metodName: string, params: any) => Promise<CustomApiResult>;
+  customPut: (key: string, metodName: string, params: any) => Promise<CustomApiResult>;
+}
+
+export interface CustomApiResult {
+  success: boolean;
+  data: any | null;
+}
+
+export const useAppFormDatasource = (url: any, keyName: string) : IAppFormDatasource => {
   const [data, setData] = React.useState<any | null>(null);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const appFormContext = useAppFormContext();
@@ -44,15 +63,55 @@ export const useAppFormDatasource = (url: any, keyName: string) => {
     return false;
   }, []);
 
-  const customPost = React.useCallback(async (metodName: string, data: any) => {
+  const customPost = React.useCallback(async (metodName: string, data: any): Promise<CustomApiResult> => {
     setIsLoading(true);
     var res = await ApiRequest.Post(url+'/'+metodName, data);
     setIsLoading(false);
     if (res.success) {
-      return true;
+      return {
+        success: true,
+        data: res.data
+      };
     }
 
-    return false;
+    return {
+      success: false,
+      data: null
+    };
+  }, []);
+
+  const customGet = React.useCallback(async (metodName: string, params: any): Promise<CustomApiResult> => {
+    setIsLoading(true);
+    var res = await ApiRequest.Get(url+'/'+metodName, params);
+    setIsLoading(false);
+    if (res.success) {
+      return {
+        success: true,
+        data: res.data
+      };
+    }
+
+    return {
+      success: false,
+      data: null
+    };
+  }, []);
+
+  const customPut = React.useCallback(async (key: string, metodName: string, params: any): Promise<CustomApiResult> => {
+    setIsLoading(true);
+    var res = await ApiRequest.Put(url+'/'+metodName, key, params);
+    setIsLoading(false);
+    if (res.success) {
+      return {
+        success: true,
+        data: res.data
+      };
+    }
+
+    return {
+      success: false,
+      data: null
+    };
   }, []);
 
   const update = React.useCallback(async (key: string, updateData: any) => {
@@ -84,6 +143,6 @@ export const useAppFormDatasource = (url: any, keyName: string) => {
     }, 1000)
   }, [appFormContext.key, appFormContext.isNew]);
 
-  return { data, isLoading, byKey, insert, update, remove, createNew, save,customPost };
+  return { data, isLoading, byKey, insert, update, remove, createNew, save, customPost, customGet, customPut };
 
 }

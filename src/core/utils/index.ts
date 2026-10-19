@@ -10,3 +10,4 @@ export * from './api-result-normalizer';
 export * from "./datagrid-status-column";
 export * from "./form-status-item";
 export * from "./toolbar-status-badge-item";
+export * from "./form-item";

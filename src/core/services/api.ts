@@ -3,25 +3,20 @@ import { showMessage } from "../utils/message-box";
 import { coreI18n } from "../i18n";
 
 export const apiUrl = import.meta.env.VITE_API_URL;
+export const accessTokenKey = "access-token";
 
 export const getAccessToken = (): string => {
   try {
-    const userData = localStorage.getItem("access-token");
-    if (!userData || userData === "null" || userData === "undefined") {
-      if (userData === "null" || userData === "undefined") {
-        localStorage.removeItem("access-token");
+    const accessToken = localStorage.getItem(accessTokenKey);
+    if (!accessToken || accessToken === "null" || accessToken === "undefined") {
+      if (accessToken === "null" || accessToken === "undefined") {
+        localStorage.removeItem(accessTokenKey);
       }
       return "";
     }
-    const tokenData = JSON.parse(userData);
-    const token = typeof tokenData?.access_token === "string" ? tokenData.access_token.trim() : "";
-    if (!token) {
-      localStorage.removeItem("access-token");
-      return "";
-    }
-    return token;
+    return accessToken;
   } catch {
-    localStorage.removeItem("access-token");
+    localStorage.removeItem(accessTokenKey);
     return "";
   }
 };
@@ -36,8 +31,6 @@ export const getIfsAccessToken = (): string => {
     return "";
   }
 };
-
-const getToken = () => getAccessToken();
 
 
 export interface IMessageBoxStatus {
@@ -84,8 +77,8 @@ export interface IAppRequestDelete extends IAppBaseRequest {
 
 
 
-export interface IApiResponse {
-  data: any | null;
+export interface IApiResponse<TData = any> {
+  data: TData;
   message: any;
   success: boolean;
   status: number;
@@ -133,7 +126,7 @@ const apiCoreResponse = (msgBox: IMessageBoxStatus, data: any, title: string, me
 const CoreRequest = async ({ method, url, data, params, headers: extraHeaders, msgBox }: ICoreRequest): Promise<IApiResponse> => {
   const headers = {
     "Content-Type": "application/json; charset=utf-8",
-    Authorization: `Bearer ${getToken()}`,
+    Authorization: `Bearer ${getAccessToken()}`,
     ...extraHeaders,
   };
 

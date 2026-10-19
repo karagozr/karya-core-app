@@ -1,5 +1,6 @@
 import type { TreeViewTypes } from 'devextreme-react/tree-view';
 import type { ButtonTypes } from 'devextreme-react/button';
+import type { IApiResponse } from './core';
 
 export interface HeaderProps {
     menuToggleEnabled: boolean;
@@ -18,34 +19,15 @@ export interface UserPanelProps {
     menuMode: 'context' | 'list';
 }
 
-export type AppTheme = 'light' | 'dark';
-
-export interface UserProfile {
-    username: string;
-    fullName: string;
-    email: string;
-    avatarUrl: string;
-}
-
-export interface UserUpdatePayload {
-    profile?: Partial<UserProfile>;
-    pagePermissions?: string[];
-    language?: string;
-    theme?: AppTheme;
-}
-
 export interface User {
-    token: string;
-    profile: UserProfile;
-    pagePermissions: string[];
-    language: string;
-    theme: AppTheme;
+    tenantId: string;
+    username: string;
+    avatarUrl: string;
 }
 
 export type AuthContextType = {
     user?: User;
-    signIn: (username: string, password: string) => Promise<{isOk: boolean, data?: User, message?: string}>;
-    updateUserProfile: (payload: UserUpdatePayload) => Promise<{isOk: boolean, data?: User, message?: string}>;
+    signIn: (tenantId: string, username: string, password: string, rememberMe: boolean)=> Promise<IApiResponse<User>>;
     signOut: () => void;
     loading: boolean;
 }

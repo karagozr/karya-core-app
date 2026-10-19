@@ -3,7 +3,8 @@ import type { Item as IToolbarItem } from "devextreme/ui/toolbar";
 
 export interface AppFormRef {
   getFormData: () => any | null;
-  getChangedData: () => any | null;
+  openModal: (key: string) => void;
+  changedFormData: () => any | null;
   currentFormData: any | null;
   updateData: (field: string, value: any) => void;
   formDatasource: any;
@@ -19,12 +20,29 @@ export type AppFormAllowOptions = {
   allowEdit: boolean;
 }
 
+export interface AppCustomApiRequestOptions{
+  actionType: "post" | "put" | "get";
+  actionName: string;
+  data?: any;
+} 
+
 export interface FormToolBarItem extends IToolbarItem {
   visibleExp?: (data: any) => boolean;
 }
 
+export interface IFormDatasourceOptions{
+  disableByKey?: boolean | true;
+  disableCreateNew?: boolean | true;
+  disableUpdate?: boolean | true;
+  disableDelete?: boolean | true;
+  customFormData?: any;
+}
+
+
 export interface IAppFormProps extends IFormOptions{ 
   keyField?: string;
+  datasourceOptions?: IFormDatasourceOptions;
+  modalKey?: string| null;
   formAllowOptions?: AppFormAllowOptions  | false;
   formAllowOptionsExp?: (data: any) => AppFormAllowOptions;
   ref?: React.RefObject<any>;

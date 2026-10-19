@@ -7,16 +7,14 @@ import { HashRouter as Router } from 'react-router-dom';
 import './dx-styles.scss';
 import LoadPanel from 'devextreme-react/load-panel';
 import { NavigationProvider } from './contexts/navigation';
-import { AuthProvider } from './core/contexts/auth';
-import { useAuth } from './core/contexts/auth-hooks';
 import { useScreenSizeClass } from './utils/media-query';
 import Content from './Content';
 import UnauthenticatedContent from './UnauthenticatedContent';
 import { ThemeContext, useThemeContext} from "./theme";
-import { AppModalProvider } from './core';
+import { AuthContext, useAuthContext,useProvideAuthContext } from './core';
 
 function App() {
-  const { user, loading } = useAuth();
+  const { user, loading } = useAuthContext();
 
   if (loading) {
     return <LoadPanel visible={true} />;
@@ -36,15 +34,13 @@ export default function Root() {
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ThemeContext.Provider value={themeContext}>
-        <AuthProvider>
+        <AuthContext.Provider value={useProvideAuthContext()}>
           <NavigationProvider>
-             <AppModalProvider>
             <div className={`app ${screenSizeClass}`}>
               <App />
             </div>
-            </AppModalProvider>
           </NavigationProvider>
-        </AuthProvider>
+        </AuthContext.Provider>
       </ThemeContext.Provider>
     </Router>
   );

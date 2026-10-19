@@ -3,7 +3,6 @@ import { withNavigationWatcher } from './contexts/navigation-hooks';
 import { InventoryFormPage } from './pages/invetory/inventory-form-page';
 import { InventoryListPage } from './pages/invetory/inventory-list-page';
 import { InventoryReportPage } from './pages/invetory/inventory-report';
-import { UserProfilPage } from './core/pages/user-profil-page';
 import { InventoryCategoryListPage } from './pages/inventory-category/inventory-category-list-page';
 import { InventoryMainCategoryListPage } from './pages/inventory-main-category/inventory-main-category-list-page';
 
@@ -11,10 +10,6 @@ const routeData = [
     {
         path: '/tasks/list',
         element: TasksPage
-    },
-    {
-        path: '/profile',
-        element: UserProfilPage
     },
     {
         path: '/home',

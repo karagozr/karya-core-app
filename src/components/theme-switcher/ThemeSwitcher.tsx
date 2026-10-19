@@ -1,12 +1,12 @@
 import { useCallback, useContext } from 'react';
 import Button from 'devextreme-react/button';
 import notify from 'devextreme/ui/notify';
-import { useAuth } from '../../core/contexts/auth-hooks';
 import { ThemeContext } from '../../theme';
+import { useAuthContext } from '../../core';
 
 export const ThemeSwitcher = () => {
   const themeContext = useContext(ThemeContext);
-  const { updateUserProfile } = useAuth();
+  const { updateUserProfile } = useAuthContext();
 
   const onButtonClick = useCallback(async () => {
     const nextTheme = themeContext?.switchTheme();
@@ -15,10 +15,10 @@ export const ThemeSwitcher = () => {
       return;
     }
 
-    const result = await updateUserProfile({ theme: nextTheme as 'light' | 'dark' });
-    if (!result.isOk) {
-      notify(result.message || 'Tema guncellenemedi.', 'error', 2000);
-    }
+    // const result = await updateUserProfile({ theme: nextTheme as 'light' | 'dark' });
+    // if (!result.isOk) {
+    //   notify(result.message || 'Tema guncellenemedi.', 'error', 2000);
+    // }
   }, [themeContext, updateUserProfile]);
 
   return <div>

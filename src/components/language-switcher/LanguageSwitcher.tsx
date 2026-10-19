@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import SelectBox from 'devextreme-react/select-box';
 import notify from 'devextreme/ui/notify';
-import { useAuth } from '../../core/contexts/auth-hooks';
+import { useAuthContext } from '../../core';
 
 const languageOptions = [
   { id: 'tr-TR', text: 'TR' },
@@ -10,21 +10,21 @@ const languageOptions = [
 ];
 
 export const LanguageSwitcher = () => {
-  const { user, updateUserProfile } = useAuth();
+  const { user } = useAuthContext();
 
-  const handleValueChanged = useCallback(async (e: any) => {
-    const selectedLanguage = e.value as string;
+  // const handleValueChanged = useCallback(async (e: any) => {
+  //   const selectedLanguage = e.value as string;
 
-    if (!selectedLanguage || selectedLanguage === user?.language) {
-      return;
-    }
+  //   if (!selectedLanguage || selectedLanguage === user?.language) {
+  //     return;
+  //   }
 
-    const result = await updateUserProfile({ language: selectedLanguage });
+  //   const result = await updateUserProfile({ language: selectedLanguage });
 
-    if (!result.isOk) {
-      notify(result.message || 'Dil guncellenemedi.', 'error', 2000);
-    }
-  }, [updateUserProfile, user?.language]);
+  //   if (!result.isOk) {
+  //     notify(result.message || 'Dil guncellenemedi.', 'error', 2000);
+  //   }
+  // }, [updateUserProfile, user?.language]);
 
   return (
     <SelectBox
@@ -32,8 +32,8 @@ export const LanguageSwitcher = () => {
       valueExpr={'id'}
       displayExpr={'text'}
       dataSource={languageOptions}
-      value={user?.language || 'tr-TR'}
-      onValueChanged={handleValueChanged}
+      value={ 'tr-TR'}
+      // onValueChanged={handleValueChanged}
       stylingMode={'outlined'}
       inputAttr={{ 'aria-label': 'Language' }}
     />

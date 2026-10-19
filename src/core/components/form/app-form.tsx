@@ -1,46 +1,40 @@
-import { Form, Toolbar } from "devextreme-react";
 import React from "react";
-import { useAppFormContext } from "../../contexts";
+import { Form, Toolbar } from "devextreme-react";
+import { useAppFormContext, useAppModalContext } from "../../contexts";
 import { useAppFormDatasource } from "../../hooks";
-import './app-form.scss';
-import type dxForm from "devextreme/ui/form";
-import { cascadeHandlingOperation, createFormToolbarItems, createLookupDs } from "../../utils";
-import type { AppFormRef, IAppFormProps } from "./types";
-import "../../loaders/form-skeleton.scss";
+import { cascadeHandlingOperation, createFormToolbar, createLookupDs } from "../../utils";
 import { coreI18n } from "../../i18n";
-import "devextreme/ui/lookup";
-import "devextreme/ui/select_box";
-import "devextreme/ui/date_box";
-
-
-const colCountByScreen = {
-  xs: 1,
-  sm: 2,
-  md: 4,
-  lg: 8
-};
+import type dxForm from "devextreme/ui/form";
+import type { AppFormRef, IAppFormProps} from "./types";
+import "../../loaders/form-skeleton.scss";
+import './app-form.scss';
 
 const unsavedChangesMessage = coreI18n.form.unsavedChanges;
 const deleteConfirmMessage = coreI18n.form.deleteConfirm;
-
-
 
 export const AppForm = React.forwardRef<AppFormRef, IAppFormProps>(
   function AppForm(formOptions, ref) {
 
     const formRef = React.useRef<dxForm>(null);
+    const changedFormDataRef = React.useRef<any | null>(null);
     const appFormContext = useAppFormContext();
+    const appModalContext = useAppModalContext();
+    const {datasourceOptions,modalKey} = formOptions;
+    const modalIsActive = modalKey ? appModalContext?.isActive(modalKey) : null;
     const formDatasource = useAppFormDatasource(formOptions.operationUrl, formOptions.keyField || "id");
-    const [currentFormData, setCurrentFormData] = React.useState<any | null>(null);
 
+    const setChangedFormDataRef = (data: any) => { changedFormDataRef.current = data; };
+    
     React.useImperativeHandle(ref, () => {
       return {
-        getFormData: () => formDatasource.data,
-        getChangedData: () => currentFormData,
-        currentFormData: currentFormData,
+        getFormData: () => datasourceOptions?.disableByKey===true ? datasourceOptions?.customFormData : formDatasource.data,
+        changedFormData: () => changedFormDataRef.current,
+        openModal: (key: string) => appModalContext?.openModal(key, changedFormDataRef.current),
+        currentFormData: formRef.current?.instance().option('formData'),
         updateData: (field: string, value: any) => formRef.current?.instance().updateData(field, value),
         validate: () => formRef.current?.instance().validate().isValid ?? false,
-        reloadFormData: () => {          
+        reloadFormData: () => {
+          if(datasourceOptions?.disableByKey===true) return;
           if (appFormContext.key && !appFormContext.isNew) {
             formDatasource.byKey(appFormContext.key);
           }
@@ -48,10 +42,13 @@ export const AppForm = React.forwardRef<AppFormRef, IAppFormProps>(
         formDatasource: formDatasource,
         formRef: formRef
       };
-    }, [ currentFormData, formDatasource.data, appFormContext.key, appFormContext.isNew]);
+    }, [formDatasource.data, appFormContext.key, appFormContext.isNew, datasourceOptions]);
 
     React.useEffect(() => {
-      setCurrentFormData(null);
+      if(modalKey && !modalIsActive) return;
+      if(modalKey && datasourceOptions?.disableByKey===true) return;
+
+      setChangedFormDataRef(null);
       if (!formOptions.operationUrl) {
         return;
       }
@@ -59,16 +56,16 @@ export const AppForm = React.forwardRef<AppFormRef, IAppFormProps>(
         formDatasource.byKey(appFormContext.key);
       } else {
         formDatasource.createNew();
-        setCurrentFormData(null);
+        setChangedFormDataRef(null);
       }
-    }, [appFormContext.key, formOptions.operationUrl]);
+    }, [appFormContext.key, formOptions.operationUrl,modalIsActive]);
 
     const handleFieldDataChanged = React.useCallback((e: any) => {
       const { dataField, value } = e;
-      setCurrentFormData((prevData: any) => ({
-        ...prevData,
+      setChangedFormDataRef({
+        ...changedFormDataRef.current,
         [dataField]: value
-      }));
+      });
 
       if (formOptions.onFieldDataChanged) formOptions.onFieldDataChanged(e);
 
@@ -76,13 +73,10 @@ export const AppForm = React.forwardRef<AppFormRef, IAppFormProps>(
       
     }, []);
     
-
-    const openNewForm = () => {
-      appFormContext.newFormContext();
-    }
+    const openNewForm = () => appFormContext.newFormContext();
 
     const onNew = () => {
-      if (currentFormData !== null && formRef.current) {
+      if (changedFormDataRef.current !== null && formRef.current) {
         const confirmResult = window.confirm(unsavedChangesMessage);
         if (!confirmResult) {
           return;
@@ -94,54 +88,48 @@ export const AppForm = React.forwardRef<AppFormRef, IAppFormProps>(
       }
     }
 
-    const onSave = React.useCallback(async () => {
+    const onSave = async () => {
       const validate = formRef.current?.instance().validate() || { isValid: true };
       if (validate.isValid) {
-        
-        if (!currentFormData) {
-          console.warn("No form data to save.");
+        if (!changedFormDataRef.current) {
           return;
         }
 
         if (formOptions.onCustomSave) {
-          const isSaved = await formOptions.onCustomSave(currentFormData);
+          const isSaved = await formOptions.onCustomSave(changedFormDataRef.current);
           if (isSaved) {
-            setCurrentFormData(null);
+            setChangedFormDataRef(null);
           }
           return;
         }
-        
-        const isSaved = await formDatasource.save(appFormContext.key!, currentFormData);
+          
+        const isSaved = await formDatasource.save(appFormContext.key!, changedFormDataRef.current);
         if (isSaved) {
-          setCurrentFormData(null);
+          setChangedFormDataRef(null);
         }
       }
-    }, [currentFormData]);
+    }
 
-    const onDelete = () => {
+    const onDelete = async () => {
       const confirmResult = window.confirm(deleteConfirmMessage);
       if (confirmResult) {
-        formDatasource.remove(appFormContext.key!);
+        await formDatasource.remove(appFormContext.key!);
       }
     }
 
     const toolbarItems = React.useCallback(() => {
-      // formAllowOptionsExp varsa statüye (formData) göre hesaplanır ve statik formAllowOptions'ın önüne geçer.
-      // visibleExp ile aynı veri kaynağı (appFormContext.formData) kullanılır.
-      const allowOptions = formOptions.formAllowOptionsExp
-        ? formOptions.formAllowOptionsExp(appFormContext.formData ?? {})
-        : (formOptions.formAllowOptions || undefined);
-
-      return createFormToolbarItems(onSave, onNew, onDelete, formOptions.toolbarItems, formRef,appFormContext.formData, allowOptions);
-    }, [ formOptions.toolbarItems, appFormContext.formData, formOptions.formAllowOptions, formOptions.formAllowOptionsExp, currentFormData]);
-
-    // const visibleFormData = React.useMemo(
-    //   () => ({
-    //     ...(formDatasource.data ?? formOptions.formData),
-    //     ...(formData ?? {}),
-    //   }),
-    //   [formDatasource.data, formOptions.formData, formData]
-    // );
+      return createFormToolbar({ 
+        onSave, 
+        onNew, 
+        onDelete, 
+        toolbarsItems: formOptions.toolbarItems || [], 
+        formRef, 
+        formData: appFormContext.formData, 
+        formAllowOptions: formOptions.formAllowOptions || undefined, 
+        formDatasource: formDatasource,
+        changedFormData: changedFormDataRef.current,
+      });
+    }, [ formOptions.toolbarItems, appFormContext.formData, formOptions.formAllowOptions]);
 
     const finalFormOptions = React.useMemo(() => {
       const items = (formOptions.items || []).map((item: any) => {
@@ -152,20 +140,25 @@ export const AppForm = React.forwardRef<AppFormRef, IAppFormProps>(
             editorOptions: { ...item.editorOptions, dataSource: ds }
           };
         }
+        if (item.itemType === "button" && item.buttonOptions?.onClick) {
+          return {
+            ...item,
+            buttonOptions: { ...item.buttonOptions,onClick: (e: any) => item.buttonOptions?.onClick({ currentForm: formRef?.current, datasource: formDatasource }) }
+          };
+        }
         return item;
       });
       return { ...formOptions, items };
     }, []);
 
-    return <React.Fragment>
+    return <React.Fragment>     
       <div className={`${formDatasource.isLoading ? 'is-loading' : ''} dx-form-loader-container`} >
-        <Toolbar className='main-toolbar-content action-button-toolbar' multiline={false} items={toolbarItems()} />
-        {/* <Toolbar className='main-toolbar-content action-button-toolbar' multiline items={toolbarItems()} /> */}
+        <Toolbar className='main-toolbar-content action-button-toolbar' multiline={false} items={toolbarItems()}  />
         <div className="main-form-content">
-          <Form ref={formRef} labelMode='static' {...finalFormOptions} formData={formDatasource.data}
-            onFieldDataChanged={handleFieldDataChanged} colCountByScreen={colCountByScreen} />
+          <Form ref={formRef} labelMode='static' {...finalFormOptions} 
+          formData={ datasourceOptions?.disableByKey===true ? datasourceOptions?.customFormData : formDatasource.data} 
+          onFieldDataChanged={handleFieldDataChanged}  />
         </div>
       </div>
     </React.Fragment>
-
 });

@@ -1,22 +1,26 @@
 import React from "react";
-import { AppForm, AppFormDetail } from "../components/form";
-import { AppFormContext, useProvideAppFormContext } from "../contexts";
+import { AppForm, AppFormDetail, type AppFormAllowOptions } from "../components/form";
+import { AppFormContext, AppModalContext, useProvideAppModalContext, useProvideAppFormContext } from "../contexts";
 import { PageFormDetailLayout, PageFormLayout, PageLayout } from "../layouts";
 import TabPanel, { Item as TabPanelItem } from 'devextreme-react/tab-panel';
 import type { IBaseFormPageProps, IFormPageSubItemProps } from "./types";
+import { AppFormModal } from "../modals";
 
-export const BaseFormPage =({ detailItems, formOptions, breadcrumb, caption, detailCaption }
-  : React.PropsWithChildren<IBaseFormPageProps>) => {
+const defaultFormAllowOptionsForModal :AppFormAllowOptions = { allowNew: false, allowDelete: false, allowEdit: false,allowSave: false };
+
+export const BaseFormPage =({ detailItems, formOptions, breadcrumb, caption, detailCaption } : React.PropsWithChildren<IBaseFormPageProps>) => {
 
   const appFormContext = useProvideAppFormContext();
+  const appModalContext = useProvideAppModalContext();
   const { ref: pageFormRef, ...pageFormOptions } = formOptions || {};
 
   return (
     <AppFormContext.Provider value={appFormContext}>
+      <AppModalContext.Provider value={appModalContext}>
       <PageLayout breadcrumb={breadcrumb} title={{ title: caption }}>
         {formOptions && <PageFormLayout key={0}><AppForm key={0} ref={pageFormRef} {...pageFormOptions} /></PageFormLayout>}
         {
-          detailItems?.filter((item: IFormPageSubItemProps) => !item.inTab).map((item: IFormPageSubItemProps, index: number) => {
+          detailItems?.filter((item: IFormPageSubItemProps) => !item.inTab && !item.modal).map((item: IFormPageSubItemProps, index: number) => {
             switch (item.type) {
               case 'form': {
                 const { ref: itemFormRef, ...itemFormOptions } = item.formOptions || {};
@@ -29,6 +33,29 @@ export const BaseFormPage =({ detailItems, formOptions, breadcrumb, caption, det
                 return  <PageFormDetailLayout key={index} pageType="form-detail" caption={{ title: item.title }}>
                           <AppFormDetail ref={itemDetailRef} {...itemDetailOptions} />
                         </PageFormDetailLayout>
+              }
+              default:
+                return null;
+            }
+          })
+        }
+        {
+          detailItems?.filter((item: IFormPageSubItemProps) => !item.inTab && item.modal).map((item: IFormPageSubItemProps, index: number) => {
+            switch (item.type) {
+              case 'form': {
+                const { ref: itemFormRef, ...itemFormOptions } = item.formOptions || {};
+                if(!item.modal)  return null;
+                
+                return <AppFormModal key={index} {...item.modal} title={item.title} modalKey={item.modal.modalKey}>
+                          <AppForm modalKey={item.modal.modalKey} key={index} ref={itemFormRef} {...itemFormOptions} formAllowOptions={itemFormOptions.formAllowOptions ?? defaultFormAllowOptionsForModal} />
+                        </AppFormModal>
+              }
+              case 'detail': {
+                const { ref: itemDetailRef, ...itemDetailOptions } = item.formDetailOptions!;
+                if(!item.modal)  return null;
+                return  <AppFormModal key={index} title={item.title} modalKey={item.modal.modalKey}>
+                          <AppFormDetail ref={itemDetailRef} {...itemDetailOptions} />
+                        </AppFormModal>
               }
               default:
                 return null;
@@ -60,6 +87,7 @@ export const BaseFormPage =({ detailItems, formOptions, breadcrumb, caption, det
           )
         }
       </PageLayout>
+      </AppModalContext.Provider>
     </AppFormContext.Provider>
   );
 }

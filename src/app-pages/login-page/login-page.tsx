@@ -9,17 +9,18 @@ import Form, {
   type FormTypes,
 } from 'devextreme-react/form';
 import LoadIndicator from 'devextreme-react/load-indicator';
-import Button from 'devextreme-react/button';
-import notify from 'devextreme/ui/notify';
-import { useAuth } from '../../core/contexts/auth-hooks';
+import './login-page.scss';
+import { coreI18n } from "../../core/i18n";
+import { SingleCard } from '../../layouts';
+import { useAuthContext } from '../../core';
 
-import './LoginForm.scss';
 
-export default function LoginForm() {
-  const navigate = useNavigate();
-  const { signIn } = useAuth();
+export default function AppLoginPage() {
+  const auth = useAuthContext();
+  console.log('auth', auth);
+  const { signIn } = auth;
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [formData, setFormData] = useState({ tenantId: '', username: '', password: '', rememberMe: false });
 
   const onFieldDataChanged = useCallback((e: FormTypes.FieldDataChangedEvent) => {
     const { dataField, value } = e;
@@ -34,29 +35,31 @@ export default function LoginForm() {
 
   const onSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { username, password } = formData;
+    const { tenantId, username, password, rememberMe } = formData;
     setLoading(true);
-
-    const result = await signIn(username, password);
-    if (!result.isOk) {
-      setLoading(false);
-      notify(result.message, 'error', 2000);
-    }
+    var res = await signIn(tenantId, username, password, rememberMe);
+    console.log('signIn result', res);
+    setLoading(false);
   }, [signIn, formData]);
 
-  const onCreateAccountClick = useCallback(() => {
-    navigate('/create-account');
-  }, [navigate]);
-
   return (
-    <form className={'login-form'} onSubmit={onSubmit}>
+    <SingleCard title={coreI18n.login.title} description={coreI18n.login.description}>
+        <form className={'login-form'} onSubmit={onSubmit}>
       <Form formData={formData} disabled={loading} onFieldDataChanged={onFieldDataChanged}>
+        <Item
+          dataField={'tenantId'}
+          editorType={'dxTextBox'}
+          editorOptions={tenantIdEditorOptions}
+        >
+          <RequiredRule message={coreI18n.login.tenantIdRequired} />
+          <Label visible={false} />
+        </Item>
         <Item
           dataField={'username'}
           editorType={'dxTextBox'}
           editorOptions={usernameEditorOptions}
         >
-          <RequiredRule message="Username is required" />
+          <RequiredRule message={coreI18n.login.usernameRequired} />
           <Label visible={false} />
         </Item>
         <Item
@@ -64,7 +67,7 @@ export default function LoginForm() {
           editorType={'dxTextBox'}
           editorOptions={passwordEditorOptions}
         >
-          <RequiredRule message="Password is required" />
+          <RequiredRule message={coreI18n.login.passwordRequired} />
           <Label visible={false} />
         </Item>
         <Item
@@ -84,28 +87,22 @@ export default function LoginForm() {
               {
                 loading
                   ? <LoadIndicator width={'24px'} height={'24px'} visible={true} />
-                  : 'Sign In'
+                  : coreI18n.login.signIn
               }
             </span>
           </ButtonOptions>
         </ButtonItem>
       </Form>
       <div className={'link'}>
-        <Link to={'/reset-password'}>Forgot password?</Link>
-      </div>
-      <Button
-        text={'Create an account'}
-        stylingMode={ 'outlined' }
-        width={'100%'}
-        onClick={onCreateAccountClick}
-      />
-      <div className={'link'}>
-        Mock login: admin / 123
+        <Link to={'/reset-password'}>{coreI18n.login.forgotPassword}</Link>
       </div>
     </form>
+    </SingleCard>
+    
   );
 }
 
-const usernameEditorOptions = { stylingMode: 'filled', placeholder: 'Username' };
-const passwordEditorOptions = { stylingMode: 'filled', placeholder: 'Password', mode: 'password' };
-const rememberMeEditorOptions = { text: 'Remember me', elementAttr: { class: 'form-text' } };
+const tenantIdEditorOptions = { stylingMode: 'filled', placeholder: coreI18n.login.tenantId, mode: 'text' };
+const usernameEditorOptions = { stylingMode: 'filled', placeholder: coreI18n.login.username, mode: 'text' };
+const passwordEditorOptions = { stylingMode: 'filled', placeholder: coreI18n.login.password, mode: 'password' };
+const rememberMeEditorOptions = { text: coreI18n.login.rememberMe, elementAttr: { class: 'form-text' } };

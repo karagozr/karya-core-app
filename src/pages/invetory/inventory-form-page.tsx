@@ -1,17 +1,16 @@
 import React from 'react';
-import { BaseFormPage, type BaseModalRef } from '../../core';
+import { BaseFormPage, useAppModalContext, useProvideAppModalContext, type AppFormRef, type BaseModalRef, type IAppFormProps } from '../../core';
 import { InventoryDetailModal } from './inventory-detail-modal';
 import type { IBaseFormPageProps } from '../../core/pages/types/form-page';
 
 
 export const InventoryFormPage = () => {
-
-  const modalRef = React.useRef<BaseModalRef>(null);
-
+  const formRef = React.useRef<AppFormRef>(null);
   const meta: IBaseFormPageProps = {
     caption: 'Inventory Form',
     breadcrumb: { path: '/inventory/form' },
     formOptions: {
+      ref: formRef,
       id: 'form',
       colCount: 8,
       items: [
@@ -45,7 +44,7 @@ export const InventoryFormPage = () => {
           options: {
             icon: 'bell',
             text: 'Öttür',
-            onClick: (e: any) => modalRef.current?.open(e)
+            onClick: (e: any) => formRef.current?.openModal('inventoryDetailModal')
           }
         }
       ]
@@ -53,14 +52,21 @@ export const InventoryFormPage = () => {
     detailCaption: 'Inventory Details',
     detailItems: [
       {
+        modal: {
+          modalKey: 'inventoryDetailModal',
+          title: 'Inventory Detail Modal',
+          width: 800,
+          height: 600,
+          showCloseButton: true,
+        },
         type: 'detail',
         title: 'Notes',
-        inTab: true,
+        inTab: false,
         formDetailOptions: {
+          masterDetailEnabled: false,
           operationUrl: "https://localhost:7131/api/invdetail",
           isEditable: true,
           parentFields: ["inventoryId"],
-          initialNewRowData: { inventoryId: 0 },
           columns: [
             { dataField: 'id', editorOptions: { readOnly: true } },
             { dataField: 'note', validationRules: [{ type: 'required', message: 'Note is required' }] },
@@ -95,9 +101,7 @@ export const InventoryFormPage = () => {
   }
 
   return (
-    <BaseFormPage key='1' {...meta}>
-      <InventoryDetailModal id='zzzzzz' modalRef={modalRef} />
-    </BaseFormPage>
+    <BaseFormPage key='1' {...meta}/>
   );
 
 }

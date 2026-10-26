@@ -53,7 +53,7 @@ export const BaseFormPage =({ detailItems, formOptions, breadcrumb, caption, det
               case 'detail': {
                 const { ref: itemDetailRef, ...itemDetailOptions } = item.formDetailOptions!;
                 if(!item.modal)  return null;
-                return  <AppFormModal key={index} title={item.title} modalKey={item.modal.modalKey}>
+                return  <AppFormModal key={index} {...item.modal} title={item.title} modalKey={item.modal.modalKey}>
                           <AppFormDetail ref={itemDetailRef} {...itemDetailOptions} />
                         </AppFormModal>
               }

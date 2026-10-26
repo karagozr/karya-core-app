@@ -19,7 +19,7 @@ import { resetPassword } from '../../core/services/auth';
 export default function ResetPasswordFormPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({ email: ''});
+  const [formData, setFormData] = useState({ email: '' });
 
   const onFieldDataChanged = useCallback((e: FormTypes.FieldDataChangedEvent) => {
     const { dataField, value } = e;
@@ -43,42 +43,42 @@ export default function ResetPasswordFormPage() {
     if (result.success) {
       notify(coreI18n.resetPassword.notificationText, 'success', 2500);
       navigate('/login');
-    } 
+    }
   }, [navigate, formData]);
 
   return (
     <SingleCard title={coreI18n.resetPassword.title} description={coreI18n.resetPassword.description}>
-    <form className={'reset-password-form'} onSubmit={onSubmit}>
-      <Form formData={formData} disabled={loading} onFieldDataChanged={onFieldDataChanged}>
-        <Item
-          dataField={'email'}
-          editorType={'dxTextBox'}
-          editorOptions={emailEditorOptions}
-        >
-          <RequiredRule message={coreI18n.resetPassword.emailRequired} />
-          <EmailRule message={coreI18n.resetPassword.emailInvalid} />
-          <Label visible={false} />
-        </Item>
-        <ButtonItem>
-          <ButtonOptions
-            elementAttr={submitButtonAttributes}
-            width={'100%'}
-            type={'default'}
-            useSubmitBehavior={true}
+      <form className={'reset-password-form'} onSubmit={onSubmit}>
+        <Form formData={formData} disabled={loading} onFieldDataChanged={onFieldDataChanged}>
+          <Item
+            dataField={'email'}
+            editorType={'dxTextBox'}
+            editorOptions={emailEditorOptions}
           >
-            <span className="dx-button-text">
-              {
-                loading ? <LoadIndicator width={'24px'} height={'24px'} visible={true} /> 
-                : coreI18n.resetPassword.resetMyPassword
-              }
-            </span>
-          </ButtonOptions>
-        </ButtonItem>
-      </Form>
-      <div className={'login-link'}>
-        {coreI18n.resetPassword.returnTo} <Link to={'/login'}>{coreI18n.resetPassword.signIn}</Link>
-      </div>
-    </form>
+            <RequiredRule message={coreI18n.resetPassword.emailRequired} />
+            <EmailRule message={coreI18n.resetPassword.emailInvalid} />
+            <Label visible={false} />
+          </Item>
+          <ButtonItem>
+            <ButtonOptions
+              elementAttr={submitButtonAttributes}
+              width={'100%'}
+              type={'default'}
+              useSubmitBehavior={true}
+            >
+              <span className="dx-button-text">
+                {
+                  loading ? <LoadIndicator width={'24px'} height={'24px'} visible={true} />
+                    : coreI18n.resetPassword.resetMyPassword
+                }
+              </span>
+            </ButtonOptions>
+          </ButtonItem>
+        </Form>
+        <div className={'login-link'}>
+          {coreI18n.resetPassword.returnTo} <Link to={'/login'}>{coreI18n.resetPassword.signIn}</Link>
+        </div>
+      </form>
     </SingleCard>
   );
 }

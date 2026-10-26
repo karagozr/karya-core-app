@@ -138,10 +138,10 @@ test('remember me selects storage; switching storage removes the previous sessio
 test('invalid users are rejected before replacing a valid stored session', () => {
   const { session } = setup();
   session.saveAuthSession(tokens, user, false);
-  const version = session.authSessionVersion;
+  const version = session.authSessionRevision;
   for (const invalid of [null, {}, { ...user, username: 42 }, { ...user, avatarUrl: undefined }]) {
     assert.throws(() => session.saveAuthSession(tokens, invalid, true), /Invalid authentication user/);
-    assert.equal(session.authSessionVersion, version);
+    assert.equal(session.authSessionRevision, version);
     assert.equal(session.readAuthSession().user.username, user.username);
   }
 });
@@ -370,7 +370,7 @@ test('getProfile uses ApiRequest GET with the current token and leaves session s
     isAxiosError: () => false,
   });
   context.session.saveAuthSession(tokens, user, false);
-  const version = context.session.authSessionVersion;
+  const version = context.session.authSessionRevision;
   const result = await context.session.getProfile();
   assert.equal(request.url, 'https://localhost:7131/api/auth/profile');
   assert.equal(request.method, 'GET');
@@ -379,7 +379,7 @@ test('getProfile uses ApiRequest GET with the current token and leaves session s
   assert.equal(result.status, 200);
   assert.equal(result.success, true);
   assert.deepEqual(result.data, profile);
-  assert.equal(context.session.authSessionVersion, version);
+  assert.equal(context.session.authSessionRevision, version);
 });
 
 test('getProfile refreshes an expired token before sending the GET request', async () => {
@@ -579,7 +579,7 @@ test('all refresh failures clear the session and notify, including server and ne
   }
 });
 
-test('unresponsive refresh times out in three seconds and clears the UI session without retrying', async () => {
+test('unresponsive refresh times out in three seconds and clears the session without retrying', async () => {
   const http = require('node:http');
   const axios = require('axios');
   const server = http.createServer(() => {});
@@ -593,44 +593,13 @@ test('unresponsive refresh times out in three seconds and clears the UI session 
         proxy: false,
       });
     });
-    const saved = context.session.saveAuthSession(tokens, user, false);
-    const effects = [];
-    const timers = [];
-    const state = [];
-    let cursor = 0;
-    const react = {
-      ...React,
-      useState(initial) {
-        const index = cursor++;
-        state[index] = typeof initial === 'function' ? initial() : initial;
-        return [state[index], value => { state[index] = value; }];
-      },
-      useEffect: callback => effects.push(callback),
-      useCallback: callback => callback,
-    };
-    const { useProvideAuthContext } = load('src\\core\\contexts\\auth-context.ts', {
-      react, '../services': { ApiRequest: {} }, '../services/auth': context.session,
-      '../i18n': { coreI18n: { auth: {} } }, '../utils/message-box': { showMessage() {} },
-    }, {
-      Date: class extends Date { static now() { return saved.expiresAt; } },
-      setTimeout: callback => { timers.push(callback); return timers.length; },
-      clearTimeout() {},
-    });
-    useProvideAuthContext();
-    const unsubscribe = effects[0]();
-    const cleanup = effects[1]();
+    context.session.saveAuthSession(tokens, user, false);
     const started = performance.now();
-    await timers[0]();
+    await assert.rejects(context.refresh.refreshAccessToken());
     const duration = performance.now() - started;
     assert.ok(duration >= 2800 && duration < 4000, `Refresh took ${duration}ms`);
     assert.equal(context.session.readAuthSession(), null);
-    assert.equal(state[0], null);
-    assert.equal(state[1], undefined);
-    assert.equal(state[2], false);
-    assert.equal(timers.length, 1);
     assert.equal(context.notifications.at(-1).type, 'warning');
-    cleanup();
-    unsubscribe();
   } finally {
     server.closeAllConnections();
     await new Promise(resolve => server.close(resolve));
@@ -739,7 +708,7 @@ test('malformed refresh response or missing refresh token cannot create a succes
   assert.equal(context.session.readAuthSession(), null);
 });
 
-test('context expiry timer renews the session and subscribers receive the new expiry', async () => {
+test('context does not auto-refresh expired sessions', async () => {
   let refreshCalls = 0;
   const context = refreshSetup(async () => {
     refreshCalls++;
@@ -773,14 +742,12 @@ test('context expiry timer renews the session and subscribers receive the new ex
   });
   useProvideAuthContext();
   const unsubscribe = effects[0]();
-  const cleanup = effects[1]();
-  assert.ok(timers[0].delay > 0);
+  assert.equal(effects.length, 1);
+  assert.equal(timers.length, 0);
   now = initial.expiresAt;
-  await timers[0].callback();
-  assert.equal(refreshCalls, 1);
-  assert.equal(state[0].access_token, 'timer-refreshed');
+  assert.equal(refreshCalls, 0);
+  assert.equal(state[0].access_token, initial.access_token);
   assert.equal(state[1].username, user.username);
   assert.equal(state[2], false);
-  cleanup();
   unsubscribe();
 });

@@ -10,6 +10,8 @@ import { useAppFormDetailDatasource } from "../../hooks";
 
 const AppFormDetailComp = React.forwardRef<AppFormDetailRef, IFormDetailProps>(
   function FormDetailComp(detailOptions, ref) {
+  
+    console.log( "AppFormDetailComp render", { detailOptions });
 
   const { toolbarsItems, 
     isEditable, 

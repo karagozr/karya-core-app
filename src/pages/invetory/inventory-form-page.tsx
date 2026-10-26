@@ -8,7 +8,6 @@ export const InventoryFormPage = () => {
 
   const modalRef = React.useRef<BaseModalRef>(null);
 
-
   const meta: IBaseFormPageProps = {
     caption: 'Inventory Form',
     breadcrumb: { path: '/inventory/form' },
@@ -38,7 +37,7 @@ export const InventoryFormPage = () => {
 
       ],
       operationUrl: "https://localhost:7131/api/Inv",
-      toolbarsItems: [
+      toolbarItems: [
         {
           location: 'after',
           widget: 'dxButton',
@@ -96,15 +95,12 @@ export const InventoryFormPage = () => {
   }
 
   return (
-    <React.Fragment>
+    <BaseFormPage key='1' {...meta}>
       <InventoryDetailModal id='zzzzzz' modalRef={modalRef} />
-      <BaseFormPage key='1' {...meta} />
-    </React.Fragment>
+    </BaseFormPage>
   );
 
 }
-
-
 
 
 

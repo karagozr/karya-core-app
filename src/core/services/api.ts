@@ -1,25 +1,9 @@
 import axios from "axios";
 import { showMessage } from "../utils/message-box";
 import { coreI18n } from "../i18n";
+import { authTokenEndpoint, authSessionGeneration, clearAuthSession, getSessionAccessToken, ensureAccessToken, refreshAccessToken } from "./auth";
 
 export const apiUrl = import.meta.env.VITE_API_URL;
-export const accessTokenKey = "access-token";
-
-export const getAccessToken = (): string => {
-  try {
-    const accessToken = localStorage.getItem(accessTokenKey);
-    if (!accessToken || accessToken === "null" || accessToken === "undefined") {
-      if (accessToken === "null" || accessToken === "undefined") {
-        localStorage.removeItem(accessTokenKey);
-      }
-      return "";
-    }
-    return accessToken;
-  } catch {
-    localStorage.removeItem(accessTokenKey);
-    return "";
-  }
-};
 
 export const getIfsAccessToken = (): string => {
   try {
@@ -31,6 +15,8 @@ export const getIfsAccessToken = (): string => {
     return "";
   }
 };
+
+
 
 
 export interface IMessageBoxStatus {
@@ -126,7 +112,6 @@ const apiCoreResponse = (msgBox: IMessageBoxStatus, data: any, title: string, me
 const CoreRequest = async ({ method, url, data, params, headers: extraHeaders, msgBox }: ICoreRequest): Promise<IApiResponse> => {
   const headers = {
     "Content-Type": "application/json; charset=utf-8",
-    Authorization: `Bearer ${getAccessToken()}`,
     ...extraHeaders,
   };
 
@@ -138,6 +123,15 @@ const CoreRequest = async ({ method, url, data, params, headers: extraHeaders, m
 
 
   try {
+    const isLoginRequest = url === authTokenEndpoint;
+    const generation = authSessionGeneration;
+    const token = isLoginRequest ? '' : await ensureAccessToken();
+
+    if (!isLoginRequest && generation !== authSessionGeneration)
+      throw new Error('Authentication session changed before request');
+    delete config.headers.Authorization;
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+
     if (method === 'GET' || method === 'DELETE') {
       config = {
         ...config,
@@ -150,7 +144,27 @@ const CoreRequest = async ({ method, url, data, params, headers: extraHeaders, m
       };
     }
 
-    const result = await axios.request(config);
+    let result;
+    try {
+      result = await axios.request(config);
+    } catch (error) {
+      if (isLoginRequest || !token || !axios.isAxiosError(error) || error.response?.status !== 401) throw error;
+      if (generation !== authSessionGeneration) throw error;
+      const currentToken = getSessionAccessToken();
+      const renewedToken = currentToken && currentToken !== token ? currentToken : await refreshAccessToken();
+      if (generation !== authSessionGeneration) throw new Error('Authentication session changed before retry');
+      try {
+        result = await axios.request({
+          ...config,
+          headers: { ...config.headers, Authorization: `Bearer ${renewedToken}` },
+        });
+      } catch (retryError) {
+        if (generation === authSessionGeneration && axios.isAxiosError(retryError) && retryError.response?.status === 401) {
+          clearAuthSession();
+        }
+        throw retryError;
+      }
+    }
 
     // console.log('API Response:', result);
 
@@ -171,8 +185,6 @@ const CoreRequest = async ({ method, url, data, params, headers: extraHeaders, m
         return apiCoreResponse(msgBox, resData, coreI18n.api.apiWarning, message ?? coreI18n.api.apiWarning, true, status);
     }
   } catch (error: any) {
-    console.error('API Error:', error);
-
 
     const response = error?.response;
     const status = response?.status || 0;
@@ -196,17 +208,17 @@ const CoreRequest = async ({ method, url, data, params, headers: extraHeaders, m
       case 410: return apiCoreResponse(msgBox, null, coreI18n.api.gone, coreI18n.api.withStatus(status, coreI18n.api.gone), false, status);
       case 422: return apiCoreResponse(msgBox, null, coreI18n.api.unprocessableEntity, coreI18n.api.withStatus(status, coreI18n.api.unprocessableEntity), false, status);
       case 455: return apiCoreResponse(msgBox, null, coreI18n.api.ifsTokenInvalid, message || coreI18n.api.withStatus(status, coreI18n.api.ifsTokenInvalid), false, status);
-      default: return apiCoreResponse(msgBox, null, coreI18n.api.unknownError, message || coreI18n.api.unknownServerError, false, status);
+      default:  return apiCoreResponse(msgBox, null, coreI18n.api.unknownError, message || coreI18n.api.unknownServerError, false, status);
     }
   }
 };
 
 
-const AppRequestGet = ({ url, params, msgBox }: IAppRequestGet) => CoreRequest({ method: "GET", url, params, msgBox });
-const AppRequestPost = ({ url, data, msgBox, headers }: IAppRequestPost) => CoreRequest({ method: "POST", url, data, msgBox, headers });
-const AppRequestPut = ({ url, data, key, msgBox }: IAppRequestPut) => CoreRequest({ method: "PUT", url: url + '/' + key, data, msgBox });
-const AppRequestPatch = ({ url, data, key, msgBox }: IAppRequestPatch) => CoreRequest({ method: "PATCH", url: url + '/' + key, data, msgBox });
-const AppRequestDelete = ({ url, params, msgBox }: IAppRequestDelete) => CoreRequest({ method: "DELETE", url, params, msgBox });
+const AppRequestGet     = ({ url, params, msgBox }: IAppRequestGet) => CoreRequest({ method: "GET", url, params, msgBox });
+const AppRequestPost    = ({ url, data, msgBox, headers }: IAppRequestPost) => CoreRequest({ method: "POST", url, data, msgBox, headers });
+const AppRequestPut     = ({ url, data, key, msgBox }: IAppRequestPut) => CoreRequest({ method: "PUT", url: url + '/' + key, data, msgBox });
+const AppRequestPatch   = ({ url, data, key, msgBox }: IAppRequestPatch) => CoreRequest({ method: "PATCH", url: url + '/' + key, data, msgBox });
+const AppRequestDelete  = ({ url, params, msgBox }: IAppRequestDelete) => CoreRequest({ method: "DELETE", url, params, msgBox });
 
 const MessageBoxInitialStatus: IMessageBoxStatus = {
   isActiveError: true,

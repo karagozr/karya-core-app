@@ -14,7 +14,7 @@ import notify from 'devextreme/ui/notify';
 import './reset-password-form-page.scss';
 import { SingleCard } from '../../layouts';
 import { coreI18n } from '../../core/i18n';
-import { ApiRequest } from '../../core';
+import { resetPassword } from '../../core/services/auth';
 
 export default function ResetPasswordFormPage() {
   const navigate = useNavigate();
@@ -37,12 +37,7 @@ export default function ResetPasswordFormPage() {
     const { email } = formData;
     setLoading(true);
 
-    const result = await ApiRequest.Post('email', { email },{
-      isActiveError: true,
-      isActiveInfo:true,
-      isActiveSuccess: true,
-      isActiveWarning: true
-    });
+    const result = await resetPassword(email);
     setLoading(false);
 
     if (result.success) {

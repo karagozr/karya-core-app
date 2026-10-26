@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Form, {
   Item,
   Label,
@@ -17,7 +17,6 @@ import { useAuthContext } from '../../core';
 
 export default function AppLoginPage() {
   const auth = useAuthContext();
-  console.log('auth', auth);
   const { signIn } = auth;
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ tenantId: '', username: '', password: '', rememberMe: false });
@@ -37,9 +36,11 @@ export default function AppLoginPage() {
     e.preventDefault();
     const { tenantId, username, password, rememberMe } = formData;
     setLoading(true);
-    var res = await signIn(tenantId, username, password, rememberMe);
-    console.log('signIn result', res);
-    setLoading(false);
+    try {
+      await signIn(tenantId, username, password, rememberMe);
+    } finally {
+      setLoading(false);
+    }
   }, [signIn, formData]);
 
   return (

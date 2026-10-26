@@ -12,7 +12,6 @@ import Form, {
 } from 'devextreme-react/form';
 import notify from 'devextreme/ui/notify';
 import LoadIndicator from 'devextreme-react/load-indicator';
-import { createAccount } from '../../core/services/auth';
 import type { ValidationCallbackData } from 'devextreme-react/common';
 import './CreateAccountForm.scss';
 
@@ -32,20 +31,20 @@ export default function CreateAccountForm() {
     }
   }, []);
 
-  const onSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const { email, password } = formData;
-    setLoading(true);
+  // const onSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   const { email, password } = formData;
+  //   setLoading(true);
 
-    const result = await createAccount(email, password);
-    setLoading(false);
+  //   const result = await createAccount(email, password);
+  //   setLoading(false);
 
-    if (result.isOk) {
-      navigate('/login');
-    } else {
-      notify(result.message, 'error', 2000);
-    }
-  }, [navigate, formData]);
+  //   if (result.isOk) {
+  //     navigate('/login');
+  //   } else {
+  //     notify(result.message, 'error', 2000);
+  //   }
+  // }, [navigate, formData]);
 
   const confirmPassword = useCallback(
     ({ value }: ValidationCallbackData) => value === formData.password,
@@ -53,7 +52,7 @@ export default function CreateAccountForm() {
   );
 
   return (
-    <form className={'create-account-form'} onSubmit={onSubmit}>
+    <form className={'create-account-form'} /*onSubmit={onSubmit}*/>
       <Form formData={formData} disabled={loading} onFieldDataChanged={onFieldDataChanged}>
         <Item
           dataField={'email'}

@@ -49,6 +49,9 @@ export const coreI18n = {
   auth: {
     invalidCredentials: 'Kullanici adi veya sifre hatali.',
     authenticationFailed: 'Authentication failed',
+    invalidTokenResponse: 'The server returned an invalid authentication token response.',
+    sessionExpired: 'Your session has expired. Please sign in again.',
+    refreshFailed: 'Unable to renew your session. Please check your connection and try again.',
     noActiveSession: 'No active session',
     profileUpdateFailed: 'Profile update failed',
     createAccountFailed: 'Failed to create account',

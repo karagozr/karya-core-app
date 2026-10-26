@@ -16,7 +16,7 @@ export const InventoryDetailModal = ({ modalRef,id }: { id: string, modalRef: Re
       { dataField: 'brand', colSpan: 1 }
     ],
     operationUrl: "https://6a0efaf31736097c360af529.mockapi.io/api/inventory",
-    toolbarsItems: [
+    toolbarItems: [
       {
         location: 'after',
         widget: 'dxButton',

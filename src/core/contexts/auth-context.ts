@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { accessTokenKey, ApiRequest, type IApiResponse } from '../services';
+import { ApiRequest, connectToken, saveToken, type IApiResponse } from '../services';
+import { clearAuthSession, readAuthSession,
+  subscribeAuthSession, refreshAccessToken, type AuthUser } from '../services/auth';
+import { coreI18n } from '../i18n';
+import { showMessage } from '../utils/message-box';
 
-export interface User {
-    tenantId: string;
-    username: string;
-    avatarUrl: string;
-}
+export type User = AuthUser;
 
 export type AuthContextType = {
+    session?: ReturnType<typeof readAuthSession>;
     user?: User;
-    signIn: (tenantId: string, username: string, password: string, rememberMe: boolean)=> Promise<IApiResponse<User>>;
+    signIn: (tenantId: string, username: string, password: string, rememberMe: boolean)=> Promise<IApiResponse<User | null>>;
     signOut: () => void;
     loading: boolean;
     updateUserProfile: (profileData: Partial<User>) => Promise<IApiResponse<User>>;
@@ -23,29 +24,58 @@ const messageBoxDefaults = {
 };
 
 export const useProvideAuthContext = ():AuthContextType => {
-  const [user, setUser] = useState<User>();
-  const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState(readAuthSession);
+  const [user, setUser] = useState<User | undefined>(session?.user);
+  const [loading, setLoading] = useState(() => Boolean(session && session.expiresAt <= Date.now()));
 
   useEffect(() => {
-    (async function () {
-      const result = await ApiRequest.Get( '/auth/profile', user,messageBoxDefaults );
-      if (result.success) {
-        setUser(result.data);
-      }
+    return subscribeAuthSession(() => {
+      const current = readAuthSession();
+      setSession(current);
+      setUser(current?.user);
       setLoading(false);
-    })();
+    });
   }, []);
 
+  useEffect(() => {
+    if (!session) return;
+    let disposed = false;
+    let timeout: ReturnType<typeof setTimeout>;
+    const checkExpiration = async () => {
+      const remaining = session.expiresAt - Date.now();
+      if (remaining > 0) {
+        timeout = setTimeout(checkExpiration, Math.min(remaining, 2147483647));
+        return;
+      }
+      try {
+        await refreshAccessToken();
+      } catch {
+        // The auth service clears the failed session and notifies subscribers.
+      } finally {
+        if (!disposed) setLoading(false);
+      }
+    };
+    timeout = setTimeout(checkExpiration, Math.max(0, Math.min(session.expiresAt - Date.now(), 2147483647)));
+    return () => { disposed = true; clearTimeout(timeout); };
+  }, [session]);
+
   const signIn = useCallback(async (tenantId: string, username: string, password: string, rememberMe: boolean) => {
-    const result = await ApiRequest.Post('https://localhost:7131/api/auth/login', { tenantId, userName: username, password }, messageBoxDefaults);
-    console.log('signIn result:', result);
-    if (result.success) {
-      localStorage.setItem(accessTokenKey , result.data.access_token);
+    const result = await connectToken({ tenantId, username, password, grantType: 'password' });
+    if (!result.success || !result.data) return { ...result, success: false, data: null };
+    const signedInUser: User = result.data.user ?? { tenantId, username, avatarUrl: '' };
+    try {
+      saveToken({ ...result.data, user: signedInUser }, rememberMe);
+      setUser(signedInUser);
+      return { ...result, data: signedInUser };
+    } catch {
+      console.error('Unable to persist authentication session');
+      showMessage({ type: 'error', message: coreI18n.auth.authenticationFailed });
+      return { ...result, success: false, data: null, message: coreI18n.auth.authenticationFailed };
     }
-    return result;
   }, []);
 
   const signOut = useCallback(() => {
+    clearAuthSession();
     setUser(undefined);
   }, []);
 
@@ -63,6 +93,7 @@ export const useProvideAuthContext = ():AuthContextType => {
 
 
   return ({
+    session,
     user,
     signIn,
     signOut,
@@ -84,4 +115,3 @@ export const useAuthContext = () => {
 
     return context;
 };
-

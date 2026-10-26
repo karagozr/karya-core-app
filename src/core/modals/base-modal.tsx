@@ -33,7 +33,7 @@ export const BaseModal = React.forwardRef<BaseModalRef, BaseModalProps>((props, 
 
     React.useImperativeHandle(ref, () => ({
         open: ( data: any) => {
-            modalContext?.setModalData({ key: id, data });
+            modalContext.openModal(id, data);
             setVisible(true);
         },
         close: () => setVisible(false)

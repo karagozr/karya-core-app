@@ -8,7 +8,7 @@ import { AppFormModal } from "../modals";
 
 const defaultFormAllowOptionsForModal :AppFormAllowOptions = { allowNew: false, allowDelete: false, allowEdit: false,allowSave: false };
 
-export const BaseFormPage =({ detailItems, formOptions, breadcrumb, caption, detailCaption } : React.PropsWithChildren<IBaseFormPageProps>) => {
+export const BaseFormPage =({ detailItems, formOptions, breadcrumb, caption, detailCaption, children } : React.PropsWithChildren<IBaseFormPageProps>) => {
 
   const appFormContext = useProvideAppFormContext();
   const appModalContext = useProvideAppModalContext();
@@ -87,6 +87,7 @@ export const BaseFormPage =({ detailItems, formOptions, breadcrumb, caption, det
           )
         }
       </PageLayout>
+      {children}
       </AppModalContext.Provider>
     </AppFormContext.Provider>
   );

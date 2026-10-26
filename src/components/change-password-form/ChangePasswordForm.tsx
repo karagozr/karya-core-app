@@ -12,7 +12,7 @@ import Form, {
 import LoadIndicator from 'devextreme-react/load-indicator';
 import notify from 'devextreme/ui/notify';
 import type { ValidationCallbackData } from 'devextreme-react/common';
-import { changePassword } from '../../core/services/auth';
+// import { changePassword } from '../../core/services/auth';
 
 export default function ChangePasswordForm() {
   const navigate = useNavigate();
@@ -31,20 +31,20 @@ export default function ChangePasswordForm() {
     }
   }, []);
 
-  const onSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const { password } = formData;
-    setLoading(true);
+  // const onSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   const { password } = formData;
+  //   setLoading(true);
 
-    const result = await changePassword(password, recoveryCode);
-    setLoading(false);
+  //   const result = await changePassword(password, recoveryCode);
+  //   setLoading(false);
 
-    if (result.isOk) {
-      navigate('/login');
-    } else {
-      notify(result.message, 'error', 2000);
-    }
-  }, [navigate, recoveryCode, formData]);
+  //   if (result.isOk) {
+  //     navigate('/login');
+  //   } else {
+  //     notify(result.message, 'error', 2000);
+  //   }
+  // }, [navigate, recoveryCode, formData]);
 
   const confirmPassword = useCallback(
     ({ value }: ValidationCallbackData) => value === formData.password,
@@ -52,7 +52,7 @@ export default function ChangePasswordForm() {
   );
 
   return (
-    <form onSubmit={onSubmit}>
+    <form /*onSubmit={onSubmit}*/>
       <Form formData={formData} disabled={loading} onFieldDataChanged={onFieldDataChanged}>
         <Item
           dataField={'password'}

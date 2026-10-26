@@ -40,11 +40,9 @@ export default function ResetPasswordForm() {
     const result = await resetPassword(email);
     setLoading(false);
 
-    if (result.isOk) {
+    if (result.success) {
       navigate('/login');
       notify(notificationText, 'success', 2500);
-    } else {
-      notify(result.message, 'error', 2000);
     }
   }, [navigate, formData]);
 

@@ -2,6 +2,7 @@ import axios from "axios";
 import { showMessage } from "../utils/message-box";
 import { coreI18n } from "../i18n";
 import { getAccessToken } from "./auth";
+import { normalizeApiDataForObject } from "../utils";
 
 export const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -128,19 +129,21 @@ const CoreRequest = async ({ method, url, data, params, headers: extraHeaders, m
 
     const { data: resData, status } = result;
 
+    var normalizedData = normalizeApiDataForObject(resData);
+
     const message = resData?.error_description || resData?.message || coreI18n.api.success;
 
     switch (status) {
-      case 200: return apiCoreResponse(msgBox, resData?.resData ?? resData, coreI18n.api.success, message, true, status);
-      case 201: return apiCoreResponse(msgBox, resData?.resData ?? resData, coreI18n.api.success, message, true, status);
-      case 220: return apiCoreResponse(msgBox, resData?.resData ?? resData, coreI18n.api.success, message, true, status);
+      case 200: return apiCoreResponse(msgBox, normalizedData, coreI18n.api.success, message, true, status);
+      case 201: return apiCoreResponse(msgBox, normalizedData, coreI18n.api.success, message, true, status);
+      case 220: return apiCoreResponse(msgBox, normalizedData, coreI18n.api.success, message, true, status);
       case 204: return apiCoreResponse(msgBox, null, coreI18n.api.success, coreI18n.api.noContent, true, status);
-      case 400: return apiCoreResponse(msgBox, resData, coreI18n.api.badRequest, message, false, status);
-      case 401: return apiCoreResponse(msgBox, resData, coreI18n.api.unauthorized, message, false, status);
-      case 403: return apiCoreResponse(msgBox, resData, coreI18n.api.forbidden, message, false, status);
-      case 404: return apiCoreResponse(msgBox, resData, coreI18n.api.notFound, message, false, status);
+      case 400: return apiCoreResponse(msgBox, normalizedData, coreI18n.api.badRequest, message, false, status);
+      case 401: return apiCoreResponse(msgBox, normalizedData, coreI18n.api.unauthorized, message, false, status);
+      case 403: return apiCoreResponse(msgBox, normalizedData, coreI18n.api.forbidden, message, false, status);
+      case 404: return apiCoreResponse(msgBox, normalizedData, coreI18n.api.notFound, message, false, status);
       default:
-        return apiCoreResponse(msgBox, resData, coreI18n.api.apiWarning, message ?? coreI18n.api.apiWarning, true, status);
+        return apiCoreResponse(msgBox, normalizedData, coreI18n.api.apiWarning, message ?? coreI18n.api.apiWarning, true, status);
     }
   } catch (error: any) {
 

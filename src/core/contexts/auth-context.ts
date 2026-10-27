@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ApiRequest, connectToken, type IApiResponse } from '../services';
 import { clearAuthSession, readAuthSession,
-  subscribeAuthSession, type AuthUser } from '../services/auth';
+  subscribeAuthSession, type AuthUser, saveUserProfile, 
+  readUserProfile} from '../services/auth';
 import { coreI18n } from '../i18n';
 import { showMessage } from '../utils/message-box';
 
 export type User = AuthUser;
 
 export type AuthContextType = {
-    session?: ReturnType<typeof readAuthSession>;
+  loading: boolean;
     user?: User;
     signIn: (tenantId: string, username: string, password: string, rememberMe: boolean)=> Promise<IApiResponse<User | null>>;
     signOut: () => void;
-    loading: boolean;
     updateUserProfile: (profileData: Partial<User>) => Promise<IApiResponse<User>>;
 }
 
@@ -23,20 +23,46 @@ const messageBoxDefaults = {
   isActiveInfo: true
 };
 
+export const getUserProfile: (url: string) => Promise<User | undefined> = async (url: string) => {
+  if (!readAuthSession()) return undefined;
+
+  var result = await ApiRequest.Get(url,null,messageBoxDefaults);
+  console.log("API request result:", result);
+  return {
+    ...result.data
+  };
+};
+
+
 export const useProvideAuthContext = ():AuthContextType => {
-  const [session, setSession] = useState(readAuthSession);
-  const [user, setUser] = useState<User | undefined>(session?.user);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [user, setUser] = useState<User | undefined>(readUserProfile() ?? undefined);
+
+  const setUserProfile = (profile: User|undefined) => {
+    if (!profile) {
+      clearAuthSession();
+    }
+    saveUserProfile(profile);
+    setUser(profile);
+  };
 
   useEffect(() => {
-    return subscribeAuthSession(() => {
-      const current = readAuthSession();
-      
-      setSession(current);
-      setUser(current?.user);
-      setLoading(false);
-    });
+    const fetchUserProfile = async () => {
+      try {
+        const profile = await getUserProfile('https://localhost:7131/api/AppProfile');
+        console.log("Fetched user profile:", profile);
+        if (profile) console.log("Fetched user profile successfully");
+        setUserProfile(profile);
+      } catch {
+        console.log("Failed to fetch user profile");
+        setUserProfile(undefined);
+      }
+    };
+    fetchUserProfile();
   }, []);
+
+
+  
 
   const signIn = useCallback(async (tenantId: string, username: string, password: string, rememberMe: boolean) => {
     const result = await connectToken({ tenantId, username, password, grantType: 'password', rememberMe });
@@ -71,11 +97,10 @@ export const useProvideAuthContext = ():AuthContextType => {
 
 
   return ({
-    session,
+    loading,
     user,
     signIn,
     signOut,
-    loading,
     updateUserProfile
   });
 }

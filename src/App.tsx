@@ -1,7 +1,4 @@
 
-import 'devexpress-dashboard/dist/css/dx-dashboard.light.compact.css';
-
-
 import 'devextreme/dist/css/dx.common.css';
 import './themes/generated/theme.base.dark.css';
 import './themes/generated/theme.base.css';
@@ -18,13 +15,13 @@ import { ThemeContext, useThemeContext} from "./theme";
 import { AuthContext, useAuthContext,useProvideAuthContext } from './core';
 
 function App() {
-  const { session, loading } = useAuthContext();
+  const { user, loading } = useAuthContext();
 
   if (loading) {
     return <LoadPanel visible={true} />;
   }
 
-  if (session) {
+  if (user) {
     return <Content />;
   }
 

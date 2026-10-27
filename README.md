@@ -1,5 +1,61 @@
 # React + TypeScript + Vite
 
+## Dashboard appearance
+
+### Backend authentication
+
+Set `VITE_DASHBOARD_API_URL` in `.env.local` to your own Dashboard backend
+endpoint and restart Vite. Leave it empty to use the public demo without
+application credentials. Never configure a third-party endpoint for authenticated
+Dashboard requests. Vite environment values are public configuration, not secrets.
+
+With a backend configured, `fetchRemoteService.beforeSend` reads the current
+unexpired session token for each request and adds `Authorization: Bearer ...`.
+This also applies to the Fetch transport's export downloads. Tokens are not
+stored in component props or captured once at mount. Missing/expired sessions
+show a warning and block the request. This synchronous hook does not wait for
+refresh or retry a 401; session renewal remains the responsibility of the auth
+context. Cross-origin backends must allow the application origin and the
+`Authorization` header in CORS, validate the token, and enforce authorization.
+No authenticated backend integration has been verified yet.
+
+The application, navigation and dashboard use Material Blue Compact in both
+light and dark modes. ThemeBuilder metadata under `src/themes` defines the
+application themes; run `npm run build-themes` after changing that metadata.
+The dashboard loads Analytics common/query-builder styles and matching Material
+Blue Compact light/dark Analytics, Dashboard and DevExtreme styles in
+`src/core/pages/dash-page.scss`. Dashboard widget styles are scoped to its area.
+Dashboard and Analytics theme styles follow the existing root theme swatch.
+Keep these packages on matching versions when upgrading.
+DevExtreme, Dashboard, Analytics and ThemeBuilder are pinned to 26.1.6.
+The public demo service returns color-style objects; the older 25.2.7 client
+expects numeric ARGB colors and renders those objects as transparent series.
+Use a backend compatible with the pinned client version. Do not normalize
+server responses or override chart colors to conceal a version mismatch.
+
+The dashboard follows `ThemeContext` without recreating the control. A memoized
+dashboard view keeps its instance and data while CSS follows the root swatch.
+On theme changes, `currentTheme` and `refreshTheme` update existing DevExtreme
+visualizations locally without reloading dashboard data. These public APIs also
+update other DevExtreme charts on the page. Filters, selections and the
+full-height layout are retained without serializing dashboard state.
+The dashboard page wraps `BaseMainPage` in a flex column. Its content block and
+dashboard host share the remaining height below the page heading; the control
+fills the host without relying on percentage heights through auto-sized parents.
+
+The dashboard's outer layout padding is disabled using `DockingLayoutSettings`
+so its own sizing calculations also account for the removed space. This is an
+internal, application-wide Dashboard setting in the pinned package version;
+verify this integration when upgrading DevExpress. CSS-only padding overrides
+leave unused space because Dashboard subtracts the padding from item sizes.
+While a Dashboard fullscreen overlay is open, its scoped CSS lowers the
+application header below the overlay so the mobile Back toolbar remains
+visible and interactive. Closing fullscreen restores the normal header layer.
+
+Run `node --test tests/dashboard.test.cjs` to check version alignment and compile
+both scoped dashboard themes. After upgrading, also verify actual chart series
+and theme switching against the configured dashboard backend in the browser.
+
 ## Authentication
 
 Login accepts an OAuth-style response containing `access_token`, `token_type`

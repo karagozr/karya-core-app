@@ -1,6 +1,6 @@
 {
   "items": [],
-  "baseTheme": "fluent.saas.dark.compact",
+  "baseTheme": "material.blue.dark.compact",
   "assetsBasePath": "../../../node_modules/devextreme/dist/css/",
   "outputColorScheme": "dark",
   "base": true,

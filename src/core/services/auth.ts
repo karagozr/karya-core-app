@@ -14,6 +14,7 @@ export const authStorageKeys = {
   scope: 'scope',
   user: 'user',
   rememberMe: 'remember_me',
+  claims: 'claims'
 };
 
 const listeners = new Set<() => void>();
@@ -124,6 +125,24 @@ const restorePathAfterLogin = () => {
   if (!redirectPath || !redirectPath.startsWith('/')) return;
   sessionStorage.removeItem(authRedirectPathKey);
   window.location.replace(`${window.location.pathname}${window.location.search}#${redirectPath}`);
+};
+
+export const saveUserProfile = (user: any,claims: Array<any>) => {
+  localStorage.setItem(authStorageKeys.user, JSON.stringify(user));
+  localStorage.setItem(authStorageKeys.claims, JSON.stringify(claims));
+  notifySubscribers();
+};
+
+
+
+export const readUserProfile = (): any | null => {
+  try {
+    const userValue = localStorage.getItem(authStorageKeys.user);
+    if (!userValue) return null;
+    return JSON.parse(userValue);
+  } catch {
+    return null;
+  }
 };
 
 const saveSessionData = (sessionData: AuthSession) => {

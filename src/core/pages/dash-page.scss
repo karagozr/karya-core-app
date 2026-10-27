@@ -1,0 +1,64 @@
+@use "sass:meta";
+
+body:has(.dx-dashboard-fullscreen-item-popup:not(.dx-state-invisible)) {
+  .side-nav-outer-toolbar .header-component {
+    z-index: 1;
+  }
+}
+
+.dx-viewport .content:has(> .dashboard-page) {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+
+  > .content-block {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+  }
+
+  .dashboard-host {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+
+    > #web-dashboard {
+      position: absolute;
+      inset: 0;
+    }
+  }
+}
+@include meta.load-css("../../../node_modules/@devexpress/analytics-core/dist/css/dx-analytics.common.css");
+@include meta.load-css("../../../node_modules/@devexpress/analytics-core/dist/css/dx-querybuilder.css");
+
+@each $theme in light, dark {
+  .dx-swatch-#{$theme} {
+    @include meta.load-css("../../../node_modules/@devexpress/analytics-core/dist/css/dx-analytics.material.blue.#{$theme}.compact.css");
+    @include meta.load-css("../../../node_modules/devexpress-dashboard/dist/css/dx-dashboard.material.blue.#{$theme}.compact.css");
+
+    .dashboard-page {
+      @include meta.load-css("../../../node_modules/devextreme/dist/css/dx.material.blue.#{$theme}.compact.css");
+    }
+  }
+}
+
+.dashboard-page {
+  .dx-dashboard-caption-toolbar,
+  .dx-dashboard-title-toolbar {
+    > .dx-toolbar-items-container {
+      margin-inline: 12px;
+      width: calc(100% - 24px);
+    }
+  }
+}

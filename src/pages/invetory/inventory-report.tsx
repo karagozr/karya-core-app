@@ -1,15 +1,12 @@
-import { BaseCustomPage, type IBasePageMetaItem } from '../../core';
+import { DashPage } from "../../core/pages";
 
 
-export const InventoryReportPage = () => <BaseCustomPage key='1' {...meta} >
-  <h1>Inventory Report</h1>
-  <p>This is the inventory report page. You can add your report components here.</p>
-</BaseCustomPage>
+export const InventoryReportPage = () => <DashPage key='1' 
+breadcrumb={{path:"Deneme Rapor"}}
+caption="Test Dash"
+></DashPage>
 
-const meta: IBasePageMetaItem = {
-  caption: 'Inventory Report',
-  breadcrumb: { path: '/inventory/report' }
-};
+
 
 
 

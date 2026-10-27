@@ -1,3 +1,7 @@
+
+import 'devexpress-dashboard/dist/css/dx-dashboard.light.compact.css';
+
+
 import 'devextreme/dist/css/dx.common.css';
 import './themes/generated/theme.base.dark.css';
 import './themes/generated/theme.base.css';

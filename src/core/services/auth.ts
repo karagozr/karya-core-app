@@ -264,8 +264,6 @@ export const connectToken = async (request: IConnectTokenRequest): Promise<IApiR
   }
 };
 
-
-
 export const refreshSession = async (): Promise<string> => {
   const session = readAuthSession();
   if (!session?.refreshToken) {

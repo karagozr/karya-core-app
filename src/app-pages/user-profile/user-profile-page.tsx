@@ -18,9 +18,6 @@ export const UserProfilePage = () => {
                 toolbarItems: [{ location: "before", widget: "dxButton", options: { text: "Change Password" ,
                     icon: "key",
                     onClick: (data:any) => {
-                            if (document.activeElement instanceof HTMLElement) {
-                                document.activeElement.blur();
-                            }
                         formRef.current?.openModal("change-password-modal");
                 } } }],
                 formAllowOptions: { allowDelete: false, allowEdit: true, allowNew: false, allowSave: true },
@@ -94,15 +91,15 @@ export const UserProfilePage = () => {
                             newPassword: null,
                             confirmNewPassword: null
                         } },
-                        toolbarItems: [{ location: "before", widget: "dxButton", options: { text: "Change Password", icon: "save", 
-                                onClick: (e:any) => {
-                                    console.log("Form is Valid",    e.currentForm?.instance().validate().isValid);
-                                    console.log("Form Data",        e.currentForm?.instance().option("formData"));
-                                    console.log("Form Datasource",  e.datasource);
-                                    console.log("Main Form Data",   formRef.current?.getFormData());
-                                }
-                            }
-                        }],               
+                        // toolbarItems: [{ location: "before", widget: "dxButton", options: { text: "Change Password", icon: "save", 
+                        //         onClick: (e:any) => {
+                        //             console.log("Form is Valid",    e.currentForm?.instance().validate().isValid);
+                        //             console.log("Form Data",        e.currentForm?.instance().option("formData"));
+                        //             console.log("Form Datasource",  e.datasource);
+                        //             console.log("Main Form Data",   formRef.current?.getFormData());
+                        //         }
+                        //     }
+                        // }],               
                         operationUrl: "https://localhost:7142/api/user",
                         colCount: 1,
                         items: [

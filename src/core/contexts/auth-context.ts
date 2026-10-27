@@ -31,6 +31,7 @@ export const useProvideAuthContext = ():AuthContextType => {
   useEffect(() => {
     return subscribeAuthSession(() => {
       const current = readAuthSession();
+      
       setSession(current);
       setUser(current?.user);
       setLoading(false);

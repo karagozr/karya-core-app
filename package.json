@@ -12,7 +12,10 @@
     "postinstall": "npm run build-themes"
   },
   "dependencies": {
+    "@devexpress/analytics-core": "^25.2.7",
     "axios": "^1.16.1",
+    "devexpress-dashboard": "^25.2.7",
+    "devexpress-dashboard-react": "^25.2.7",
     "devextreme": "25.2.7",
     "devextreme-react": "25.2.7",
     "react": "^19.2.0",

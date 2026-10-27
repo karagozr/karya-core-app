@@ -5,6 +5,7 @@ import { InventoryListPage } from './pages/invetory/inventory-list-page';
 import { InventoryReportPage } from './pages/invetory/inventory-report';
 import { InventoryCategoryListPage } from './pages/inventory-category/inventory-category-list-page';
 import { InventoryMainCategoryListPage } from './pages/inventory-main-category/inventory-main-category-list-page';
+import { UserProfilePage } from './app-pages';
 
 const routeData = [
     {
@@ -14,6 +15,10 @@ const routeData = [
     {
         path: '/home',
         element: HomePage
+    },
+    {
+        path: '/profile/form',
+        element: UserProfilePage
     },
     {
         path: '/inventory/list',

@@ -13,7 +13,7 @@ export const UserProfilePage = () => {
             caption="My Profile"
             
             formOptions={{
-                operationUrl:"https://localhost:7142/api/user",
+                operationUrl:"https://localhost:7131/api/AppProfile",
                 ref: formRef,
                 toolbarItems: [{ location: "before", widget: "dxButton", options: { text: "Change Password" ,
                     icon: "key",

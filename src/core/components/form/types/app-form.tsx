@@ -4,6 +4,7 @@ import type { Item as IToolbarItem } from "devextreme/ui/toolbar";
 export interface AppFormRef {
   getFormData: () => any | null;
   openModal: (key: string) => void;
+  closeModal: (key:string) => void;
   changedFormData: () => any | null;
   currentFormData: any | null;
   updateData: (field: string, value: any) => void;

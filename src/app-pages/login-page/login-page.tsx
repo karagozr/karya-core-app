@@ -12,7 +12,7 @@ import LoadIndicator from 'devextreme-react/load-indicator';
 import './login-page.scss';
 import { coreI18n } from "../../core/i18n";
 import { SingleCard } from '../../layouts';
-import { authStorageKeys, useAuthContext } from '../../core';
+import { APP_STORAGE_KEYS, useAuthContext } from '../../core';
 
 type LoginFormData = {
   tenantId: string;
@@ -24,7 +24,10 @@ type LoginFormData = {
 
 function readRememberedLogin(): LoginFormData {
   try {
-    const rememberMe = localStorage.getItem(authStorageKeys.rememberMe) === 'true';
+
+    console.log("", localStorage.getItem(APP_STORAGE_KEYS.authRememberMe));
+
+    const rememberMe = localStorage.getItem(APP_STORAGE_KEYS.authRememberMe) === 'true';
     if (!rememberMe) return {
       tenantId: '',
       username: '',
@@ -32,7 +35,8 @@ function readRememberedLogin(): LoginFormData {
       rememberMe: false,
     };
     return {
-      ...JSON.parse(localStorage.getItem(authStorageKeys.user) ?? '{}'),
+      username: localStorage.getItem(APP_STORAGE_KEYS.authUsername) || '',
+      tenantId: localStorage.getItem(APP_STORAGE_KEYS.authTenantId) || '',
       password: '',
       rememberMe,
     };

@@ -15,13 +15,13 @@ import { ThemeContext, useThemeContext} from "./theme";
 import { AuthContext, useAuthContext,useProvideAuthContext } from './core';
 
 function App() {
-  const { user, loading } = useAuthContext();
+  const { session, loading } = useAuthContext();
 
   if (loading) {
     return <LoadPanel visible={true} />;
   }
 
-  if (user) {
+  if (session) {
     return <Content />;
   }
 

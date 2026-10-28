@@ -2,23 +2,11 @@ import axios from 'axios';
 import { coreI18n } from '../i18n';
 import { showMessage } from '../utils/message-box';
 import { ApiRequest, type IApiResponse } from './api';
+import { APP_STORAGE_KEYS } from '../constants';
 
 export const authTokenEndpoint = 'https://localhost:7131/api/auth/login';
 
-export const authStorageKeys = {
-  accessToken: 'access_token',
-  refreshToken: 'refresh_token',
-  tokenType: 'token_type',
-  expiresIn: 'expires_in',
-  expiresAt: 'expires_at',
-  scope: 'scope',
-  user: 'user',
-  rememberMe: 'remember_me',
-  claims: 'claims'
-};
-
 const listeners = new Set<() => void>();
-const authRedirectPathKey = 'auth-redirect-path';
 
 export interface AuthUser {
   tenantId: string;
@@ -58,69 +46,12 @@ export const subscribeAuthSession = (listener: () => void) => {
   return () => { listeners.delete(listener); };
 };
 
-export const isTokenResponse = (value: any): boolean => {
-
-  if (typeof value !== 'object' || value === null) return false;
-
-  var accessToken = value[authStorageKeys.accessToken];
-  var tokenType = value[authStorageKeys.tokenType];
-  var expiresIn = value[authStorageKeys.expiresIn];
-  var refreshToken = value[authStorageKeys.refreshToken];
-  var scope = value[authStorageKeys.scope];
-
-  var res = typeof accessToken === 'string' && accessToken.length > 0
-    && typeof tokenType === 'string' && tokenType.length > 0
-    && typeof expiresIn === 'number' && Number.isFinite(expiresIn) && expiresIn > 0
-    && (refreshToken === undefined || (typeof refreshToken === 'string' && refreshToken.length > 0))
-    && (scope === undefined || (typeof scope === 'string' && scope.length > 0));
-
-  return res;
-}
-
-const notifySubscribers = () => {
-  listeners.forEach(listener => listener());
-};
-
-const clearSessionData = () => {
-  for (const storage of [localStorage, sessionStorage]) {
-    var deleteItem =Object.values(authStorageKeys).filter(key => key!==authStorageKeys.rememberMe && key!==authStorageKeys.user);
-    deleteItem.forEach(key => storage.removeItem(key));
-  }
-};
-
-const getCurrentPath = (): string => {
-  if (typeof window === 'undefined') return '/';
-  const hash = window.location.hash || '#/';
-  const path = hash.startsWith('#') ? hash.slice(1) : hash;
-  return path.startsWith('/') ? path : `/${path}`;
-};
-
-const isAuthPage = (path: string): boolean => path === '/login' || path.startsWith('/login?') || path === '/reset-password' || path.startsWith('/reset-password?');
-
-const redirectToLoginPreservingPath = () => {
-  if (typeof window === 'undefined') return;
-  const path = getCurrentPath();
-  if (!isAuthPage(path)) {
-    sessionStorage.setItem(authRedirectPathKey, path);
-  }
-  const loginHash = '#/login';
-  if (window.location.hash !== loginHash) {
-    window.location.reload();
-  }
-};
-
-const restorePathAfterLogin = () => {
-  if (typeof window === 'undefined') return;
-  const currentPath = getCurrentPath();
-  if (!currentPath.startsWith('/login')) return;
-  const redirectPath = sessionStorage.getItem(authRedirectPathKey);
-  if (!redirectPath || !redirectPath.startsWith('/')) return;
-  sessionStorage.removeItem(authRedirectPathKey);
-  window.location.replace(`${window.location.pathname}${window.location.search}#${redirectPath}`);
-};
-
 export const saveLocalStorage = (key: string, value: any) => {
-  localStorage.setItem(key, JSON.stringify(value));
+  localStorage.setItem(key, value);
+};
+
+export const deleteLocalStorage = (key: string) => {
+  localStorage.removeItem(key);
 };
 
 export const readLocalStorage = (key:string): any | null => {
@@ -133,51 +64,56 @@ export const readLocalStorage = (key:string): any | null => {
   }
 };
 
-const saveSessionData = (sessionData: AuthSession) => {
-  
-  clearSessionData();
-  
-  localStorage.setItem(authStorageKeys.accessToken,  sessionData.accessToken);
-  localStorage.setItem(authStorageKeys.tokenType,    sessionData.tokenType);
-  localStorage.setItem(authStorageKeys.expiresIn,    String(sessionData.expiresIn));
-  localStorage.setItem(authStorageKeys.expiresAt,    String(sessionData.expiresAt));
+export const isTokenResponse = (value: any): boolean => {
 
-  if (sessionData.refreshToken) localStorage.setItem(authStorageKeys.refreshToken, sessionData.refreshToken);
-  if (sessionData.scope) localStorage.setItem(authStorageKeys.scope, sessionData.scope);
+  if (typeof value !== 'object' || value === null) return false;
 
-  notifySubscribers();
-  restorePathAfterLogin();
-  
-};
+  var accessToken = value[APP_STORAGE_KEYS.accessToken];
+  var tokenType = value[APP_STORAGE_KEYS.tokenType];
+  var expiresIn = value[APP_STORAGE_KEYS.expiresIn];
+  var refreshToken = value[APP_STORAGE_KEYS.refreshToken];
+  var scope = value[APP_STORAGE_KEYS.scope];
+  var res = typeof accessToken === 'string' && accessToken.length > 0
+    && typeof tokenType === 'string' && tokenType.length > 0
+    && typeof expiresIn === 'number' && Number.isFinite(expiresIn) && expiresIn > 0
+    && (refreshToken === undefined || (typeof refreshToken === 'string' && refreshToken.length > 0))
+    && (scope === undefined || (typeof scope === 'string' && scope.length > 0));
+
+  return res;
+}
 
 export const clearAuthSession = () => {
-  clearSessionData();
+  deleteLocalStorage(APP_STORAGE_KEYS.accessToken);
+  deleteLocalStorage(APP_STORAGE_KEYS.refreshToken);
+  deleteLocalStorage(APP_STORAGE_KEYS.tokenType);
+  deleteLocalStorage(APP_STORAGE_KEYS.expiresIn);
+  deleteLocalStorage(APP_STORAGE_KEYS.expiresAt);
+  deleteLocalStorage(APP_STORAGE_KEYS.scope);
   notifySubscribers();
 };
 
 export const readAuthSession = (): AuthSession | null => {
   try {
-    const storage = localStorage.getItem(authStorageKeys.accessToken) !== null ? localStorage : null;
+    const storage = readLocalStorage(APP_STORAGE_KEYS.accessToken) !== null ? localStorage : null;
     if (!storage) return null;
 
-    const accessToken_ = storage.getItem(authStorageKeys.accessToken);
-    const tokenType_ = storage.getItem(authStorageKeys.tokenType);
-    const expiresIn_ = Number(storage.getItem(authStorageKeys.expiresIn));
-    const expiresAt_ = Number(storage.getItem(authStorageKeys.expiresAt));
-    const refreshToken_ = storage.getItem(authStorageKeys.refreshToken) ?? undefined;
-    const scope_ = storage.getItem(authStorageKeys.scope) ?? undefined;
+    const accessToken_ = readLocalStorage(APP_STORAGE_KEYS.accessToken);
+    const tokenType_ = readLocalStorage(APP_STORAGE_KEYS.tokenType);
+    const expiresIn_ = Number(readLocalStorage(APP_STORAGE_KEYS.expiresIn));
+    const expiresAt_ = Number(readLocalStorage(APP_STORAGE_KEYS.expiresAt));
+    const refreshToken_ = readLocalStorage(APP_STORAGE_KEYS.refreshToken) ?? undefined;
+    const scope_ = readLocalStorage(APP_STORAGE_KEYS.scope) ?? undefined;
 
-    const tokenData = { 
-      [authStorageKeys.accessToken]: accessToken_ ?? '',
-      [authStorageKeys.tokenType]: tokenType_ ?? '',
-      [authStorageKeys.expiresIn]: expiresIn_ ?? 0,
-      [authStorageKeys.expiresAt]: expiresAt_ ?? 0,
-      [authStorageKeys.refreshToken]: refreshToken_,
-      [authStorageKeys.scope]: scope_
-    };
+    var _isTokenResponse = isTokenResponse({ 
+      [APP_STORAGE_KEYS.accessToken]: accessToken_ ?? '',
+      [APP_STORAGE_KEYS.tokenType]: tokenType_ ?? '',
+      [APP_STORAGE_KEYS.expiresIn]: expiresIn_ ?? 0,
+      [APP_STORAGE_KEYS.expiresAt]: expiresAt_ ?? 0,
+      [APP_STORAGE_KEYS.refreshToken]: refreshToken_,
+      [APP_STORAGE_KEYS.scope]: scope_
+    })
 
-
-    if (!isTokenResponse(tokenData) || !Number.isFinite(expiresAt_) || expiresAt_ <= 0 ) {
+    if ( !_isTokenResponse || !Number.isFinite(expiresAt_) || expiresAt_ <= 0 ) {
       clearAuthSession();
       return null;
     }
@@ -196,18 +132,6 @@ export const readAuthSession = (): AuthSession | null => {
   }
 };
 
-const requestToken = (request: IConnectTokenRequest) => axios.request<unknown>({
-  method: 'POST',
-  url: authTokenEndpoint,
-  headers: request.grantType === 'refresh_token'
-    ? { 'Content-Type': 'application/x-www-form-urlencoded' }
-    : { 'Content-Type': 'application/json; charset=utf-8', grant_type: request.grantType },
-  data: request.grantType === 'refresh_token'
-    ? new URLSearchParams({ grant_type: request.grantType, refresh_token: request.refreshToken }).toString()
-    : { tenantId: request.tenantId, username: request.username, password: request.password },
-  timeout: request.grantType === 'refresh_token' ? 3000 : 10000,
-});
-
 export const connectToken = async (request: IConnectTokenRequest): Promise<IApiResponse> => {
   let status = 0;
   try {
@@ -218,17 +142,17 @@ export const connectToken = async (request: IConnectTokenRequest): Promise<IApiR
     
     if (typeof tokenData !== 'object' || tokenData === null) throw new Error(coreI18n.auth.invalidTokenResponse);
 
-    const expiresAt = Date.now() + tokenData[authStorageKeys.expiresIn] * 1000;
+    const expiresAt = Date.now() + tokenData[APP_STORAGE_KEYS.expiresIn] * 1000;
 
     if (!Number.isFinite(expiresAt)) throw new Error(coreI18n.auth.invalidTokenResponse);
 
     var sessionData ={
-        accessToken: tokenData[authStorageKeys.accessToken],
-        refreshToken: tokenData[authStorageKeys.refreshToken],
+        accessToken: tokenData[APP_STORAGE_KEYS.accessToken],
+        refreshToken: tokenData[APP_STORAGE_KEYS.refreshToken],
         expiresAt,
-        expiresIn: tokenData[authStorageKeys.expiresIn],
-        scope: tokenData[authStorageKeys.scope],
-        tokenType: tokenData[authStorageKeys.tokenType],
+        expiresIn: tokenData[APP_STORAGE_KEYS.expiresIn],
+        scope: tokenData[APP_STORAGE_KEYS.scope],
+        tokenType: tokenData[APP_STORAGE_KEYS.tokenType],
     };
 
     saveSessionData(sessionData);
@@ -289,14 +213,73 @@ export const getAccessToken = async (): Promise<string | null> => {
   }
 };
 
-export const getSessionAccessToken = (): string => {
-  const session = readAuthSession();
-  return session && session.expiresAt > Date.now() ? session.accessToken : '';
-};
-
 export const resetPassword = (email: string): Promise<IApiResponse> => {
   const url = new URL('forgot-password', authTokenEndpoint);
   url.searchParams.set('email', email);
   return ApiRequest.Post(url.href, null);
 };
+
+const notifySubscribers = () => {
+  listeners.forEach(listener => listener());
+};
+
+const getCurrentPath = (): string => {
+  if (typeof window === 'undefined') return '/';
+  const hash = window.location.hash || '#/';
+  const path = hash.startsWith('#') ? hash.slice(1) : hash;
+  return path.startsWith('/') ? path : `/${path}`;
+};
+
+const isAuthPage = (path: string): boolean => path === '/login' || path.startsWith('/login?') || path === '/reset-password' || path.startsWith('/reset-password?');
+
+const redirectToLoginPreservingPath = () => {
+  if (typeof window === 'undefined') return;
+  const path = getCurrentPath();
+  if (!isAuthPage(path)) {
+    sessionStorage.setItem(APP_STORAGE_KEYS.authRedirectPathKey, path);
+  }
+  const loginHash = '#/login';
+  if (window.location.hash !== loginHash) {
+    window.location.reload();
+  }
+};
+
+const restorePathAfterLogin = () => {
+  if (typeof window === 'undefined') return;
+  const currentPath = getCurrentPath();
+  if (!currentPath.startsWith('/login')) return;
+  const redirectPath = sessionStorage.getItem(APP_STORAGE_KEYS.authRedirectPathKey);
+  if (!redirectPath || !redirectPath.startsWith('/')) return;
+  sessionStorage.removeItem(APP_STORAGE_KEYS.authRedirectPathKey);
+  window.location.replace(`${window.location.pathname}${window.location.search}#${redirectPath}`);
+};
+
+const saveSessionData = (sessionData: AuthSession) => {
+  
+  clearAuthSession();
+  
+  saveLocalStorage(APP_STORAGE_KEYS.accessToken,  sessionData.accessToken);
+  saveLocalStorage(APP_STORAGE_KEYS.tokenType,    sessionData.tokenType);
+  saveLocalStorage(APP_STORAGE_KEYS.expiresIn,    sessionData.expiresIn);
+  saveLocalStorage(APP_STORAGE_KEYS.expiresAt,    sessionData.expiresAt);
+
+  if (sessionData.refreshToken) saveLocalStorage(APP_STORAGE_KEYS.refreshToken, sessionData.refreshToken);
+  if (sessionData.scope) saveLocalStorage(APP_STORAGE_KEYS.scope, sessionData.scope);
+
+  notifySubscribers();
+  restorePathAfterLogin();
+  
+};
+
+const requestToken = (request: IConnectTokenRequest) => axios.request<unknown>({
+  method: 'POST',
+  url: authTokenEndpoint,
+  headers: request.grantType === 'refresh_token'
+    ? { 'Content-Type': 'application/x-www-form-urlencoded' }
+    : { 'Content-Type': 'application/json; charset=utf-8', grant_type: request.grantType },
+  data: request.grantType === 'refresh_token'
+    ? new URLSearchParams({ grant_type: request.grantType, refresh_token: request.refreshToken }).toString()
+    : { tenantId: request.tenantId, username: request.username, password: request.password },
+  timeout: request.grantType === 'refresh_token' ? 3000 : 10000,
+});
 

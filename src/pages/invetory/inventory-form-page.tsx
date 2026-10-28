@@ -3,7 +3,6 @@ import { BaseFormPage, useAppModalContext, useProvideAppModalContext, type AppFo
 import { InventoryDetailModal } from './inventory-detail-modal';
 import type { IBaseFormPageProps } from '../../core/pages/types/form-page';
 
-
 export const InventoryFormPage = () => {
   const formRef = React.useRef<AppFormRef>(null);
   const meta: IBaseFormPageProps = {

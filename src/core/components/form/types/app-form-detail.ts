@@ -1,5 +1,5 @@
 import type { DataGridRef, IToolbarItemProps } from "devextreme-react/cjs/data-grid";
-import type { Column, Selection as RowSelection } from "devextreme/ui/data_grid";
+import type { Column, Selection as RowSelection, Summary } from "devextreme/ui/data_grid";
 
 interface IAppColumn extends Column {
   dsUrl?: string;
@@ -42,6 +42,7 @@ export interface IFormDetailProps {
   isEditable?: boolean;
   selection?: RowSelection;
   columns?: Array<IAppColumn | string>;
+  summary?: Summary<any, any>;
   ref?: any;
   keyField?:string;
   parentFields: string[];

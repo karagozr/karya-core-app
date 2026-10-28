@@ -37,8 +37,6 @@ export interface TokenResponse {
 
 export interface AuthSession extends TokenResponse {
   expiresAt: number;
-  user: AuthUser;
-  rememberMe: boolean;
 }
 
 export interface IAuthData {
@@ -78,12 +76,6 @@ export const isTokenResponse = (value: any): boolean => {
 
   return res;
 }
-
-const isAuthUser = (value: unknown): value is AuthUser =>
-  typeof value === 'object' && value !== null
-  && 'tenantId' in value && typeof value.tenantId === 'string'
-  && 'username' in value && typeof value.username === 'string'
-  && 'avatarUrl' in value && typeof value.avatarUrl === 'string';
 
 const notifySubscribers = () => {
   listeners.forEach(listener => listener());
@@ -127,19 +119,15 @@ const restorePathAfterLogin = () => {
   window.location.replace(`${window.location.pathname}${window.location.search}#${redirectPath}`);
 };
 
-export const saveUserProfile = (user: any,claims: Array<any>) => {
-  localStorage.setItem(authStorageKeys.user, JSON.stringify(user));
-  localStorage.setItem(authStorageKeys.claims, JSON.stringify(claims));
-  notifySubscribers();
+export const saveLocalStorage = (key: string, value: any) => {
+  localStorage.setItem(key, JSON.stringify(value));
 };
 
-
-
-export const readUserProfile = (): any | null => {
+export const readLocalStorage = (key:string): any | null => {
   try {
-    const userValue = localStorage.getItem(authStorageKeys.user);
-    if (!userValue) return null;
-    return JSON.parse(userValue);
+    const value = localStorage.getItem(key);
+    if (!value) return null;
+    return value;
   } catch {
     return null;
   }
@@ -153,8 +141,6 @@ const saveSessionData = (sessionData: AuthSession) => {
   localStorage.setItem(authStorageKeys.tokenType,    sessionData.tokenType);
   localStorage.setItem(authStorageKeys.expiresIn,    String(sessionData.expiresIn));
   localStorage.setItem(authStorageKeys.expiresAt,    String(sessionData.expiresAt));
-  localStorage.setItem(authStorageKeys.user,         JSON.stringify(sessionData.user));
-  localStorage.setItem(authStorageKeys.rememberMe, String(sessionData.rememberMe));
 
   if (sessionData.refreshToken) localStorage.setItem(authStorageKeys.refreshToken, sessionData.refreshToken);
   if (sessionData.scope) localStorage.setItem(authStorageKeys.scope, sessionData.scope);
@@ -180,7 +166,6 @@ export const readAuthSession = (): AuthSession | null => {
     const expiresAt_ = Number(storage.getItem(authStorageKeys.expiresAt));
     const refreshToken_ = storage.getItem(authStorageKeys.refreshToken) ?? undefined;
     const scope_ = storage.getItem(authStorageKeys.scope) ?? undefined;
-    const userValue_: unknown = JSON.parse(storage.getItem(authStorageKeys.user) ?? 'null');
 
     const tokenData = { 
       [authStorageKeys.accessToken]: accessToken_ ?? '',
@@ -192,7 +177,7 @@ export const readAuthSession = (): AuthSession | null => {
     };
 
 
-    if (!isTokenResponse(tokenData) || !Number.isFinite(expiresAt_) || expiresAt_ <= 0 || !isAuthUser(userValue_)) {
+    if (!isTokenResponse(tokenData) || !Number.isFinite(expiresAt_) || expiresAt_ <= 0 ) {
       clearAuthSession();
       return null;
     }
@@ -204,8 +189,6 @@ export const readAuthSession = (): AuthSession | null => {
       refreshToken: refreshToken_,
       scope: scope_,
       expiresAt: expiresAt_,
-      user: userValue_,
-      rememberMe: false,
     };
   } catch {
     clearAuthSession();
@@ -233,12 +216,6 @@ export const connectToken = async (request: IConnectTokenRequest): Promise<IApiR
     const tokenData: any = response.data;
     if (!isTokenResponse(tokenData)) throw new Error(coreI18n.auth.invalidTokenResponse);
     
-    let user: AuthUser ={
-      tenantId: request.grantType === 'password' ? request.tenantId : readAuthSession()?.user?.tenantId ?? '',
-      username: request.grantType === 'password' ? request.username : readAuthSession()?.user?.username ?? '',
-      avatarUrl: ''
-    }
-
     if (typeof tokenData !== 'object' || tokenData === null) throw new Error(coreI18n.auth.invalidTokenResponse);
 
     const expiresAt = Date.now() + tokenData[authStorageKeys.expiresIn] * 1000;
@@ -252,13 +229,9 @@ export const connectToken = async (request: IConnectTokenRequest): Promise<IApiR
         expiresIn: tokenData[authStorageKeys.expiresIn],
         scope: tokenData[authStorageKeys.scope],
         tokenType: tokenData[authStorageKeys.tokenType],
-        user,
     };
 
-    saveSessionData({
-      ...sessionData,
-      rememberMe: request.grantType === 'password' ? request.rememberMe : localStorage.getItem('rememberMe')==='true',
-    });
+    saveSessionData(sessionData);
     
     return {
       success: true,

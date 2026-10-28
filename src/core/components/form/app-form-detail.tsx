@@ -11,8 +11,6 @@ import { useAppFormDetailDatasource } from "../../hooks";
 const AppFormDetailComp = React.forwardRef<AppFormDetailRef, IFormDetailProps>(
   function FormDetailComp(detailOptions, ref) {
   
-    console.log( "AppFormDetailComp render", { detailOptions });
-
   const { toolbarsItems, 
     isEditable, 
     allowOptionsExp,
@@ -21,6 +19,7 @@ const AppFormDetailComp = React.forwardRef<AppFormDetailRef, IFormDetailProps>(
     parentFields, 
     operationUrl, 
     selection, 
+    summary,
     initialNewRowData,
     masterDetailEnabled, 
     masterDetailProps } = detailOptions;
@@ -231,6 +230,7 @@ const normalizedColumns = React.useMemo(() => {
       remoteOperations={true}
       columnHidingEnabled={true}
       allowColumnResizing={true}
+      summary={summary}
       onEditorPreparing={handleEditorPreparing}
       onInitNewRow={initialNewRowData}
       editing={editing}

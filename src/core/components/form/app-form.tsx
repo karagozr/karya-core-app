@@ -30,6 +30,7 @@ export const AppForm = React.forwardRef<AppFormRef, IAppFormProps>(
         getFormData: () => datasourceOptions?.disableByKey===true ? datasourceOptions?.customFormData : formDatasource.data,
         changedFormData: () => changedFormDataRef.current,
         openModal: (key: string) => appModalContext?.openModal(key, changedFormDataRef.current),
+        closeModal: (key: string) => appModalContext?.closeModal(key),
         currentFormData: formRef.current?.instance().option('formData'),
         updateData: (field: string, value: any) => formRef.current?.instance().updateData(field, value),
         validate: () => formRef.current?.instance().validate().isValid ?? false,

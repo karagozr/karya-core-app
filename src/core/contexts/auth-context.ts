@@ -38,12 +38,14 @@ export const useProvideAuthContext = ():AuthContextType => {
   const [loading, setLoading] = useState<boolean>(false);
   const [user, setUser] = useState<User | undefined>(readUserProfile() ?? undefined);
 
-  const setUserProfile = (profile: User|undefined) => {
+  
+
+  const setUserProfile = (profile: AnalyserNode|undefined) => {
     if (!profile) {
       clearAuthSession();
     }
-    saveUserProfile(profile);
-    setUser(profile);
+    saveUserProfile(profile.user,profile.claims);
+    setUser(profile.user);
   };
 
   useEffect(() => {

@@ -5,7 +5,7 @@ import { readLocalStorage, APP_STORAGE_KEYS } from '../..';
 
 export const TenantSwitcher = () => {
 
-  const tenantId = JSON.parse(readLocalStorage(APP_STORAGE_KEYS.user)).tenantId;
+  const tenantId = readLocalStorage(APP_STORAGE_KEYS.user) ? JSON.parse(readLocalStorage(APP_STORAGE_KEYS.user)).tenantId : '';
   console.log('Tenant ID:', tenantId);
   return (
     <SelectBox

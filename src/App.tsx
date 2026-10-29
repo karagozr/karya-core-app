@@ -11,7 +11,7 @@ import { NavigationProvider } from './contexts/navigation';
 import { useScreenSizeClass } from './utils/media-query';
 import Content from './Content';
 import UnauthenticatedContent from './UnauthenticatedContent';
-import { ThemeContext, useThemeContext} from "./theme";
+import { ThemeContext, useThemeContext} from './core';
 import { AuthContext, useAuthContext,useProvideAuthContext } from './core';
 
 function App() {

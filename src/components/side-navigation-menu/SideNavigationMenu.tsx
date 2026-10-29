@@ -7,7 +7,7 @@ import { useScreenSize } from '../../utils/media-query';
 import './SideNavigationMenu.scss';
 import type { SideNavigationMenuProps } from '../../types';
 
-import { ThemeContext } from '../../theme';
+import { ThemeContext } from '../../core';
 
 export default function SideNavigationMenu(props: React.PropsWithChildren<SideNavigationMenuProps>) {
   const {
@@ -19,6 +19,7 @@ export default function SideNavigationMenu(props: React.PropsWithChildren<SideNa
   } = props;
 
   const theme = useContext(ThemeContext);
+    
   const { isLarge } = useScreenSize();
   const items = useMemo(
     () => navigation.map((item) => (

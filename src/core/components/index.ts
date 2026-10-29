@@ -3,3 +3,7 @@ export * from './list';
 export * from './title';
 export * from './breadcrumb';
 export * from './status-badge';
+export * from './theme-switcher';
+export * from './user-panel';
+export * from './language-switcher';
+export * from './header';

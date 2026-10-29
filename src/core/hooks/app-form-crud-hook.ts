@@ -33,8 +33,13 @@ export const useAppFormDatasource = (url: any, keyName: string) : IAppFormDataso
 
   const byKey = async (key: string) => {
     setIsLoading(true);
+    console.log("Fetching data for key:",keyName, key);
     setTimeout(async () => {
-      var res = await ApiRequest.Get(url + '/' + key, null);
+      var reqUrl = keyName === 'user' ? url : url + '/' + key;
+
+      console.log("Request URL:", reqUrl);
+
+      var res = await ApiRequest.Get(reqUrl, null);
       setIsLoading(false);
       if (res.success) {
         var resData = normalizeApiDataForObject(res)

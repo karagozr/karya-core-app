@@ -17,7 +17,7 @@ const routeData = [
         element: HomePage
     },
     {
-        path: '/profile/form',
+        path: '/profile',
         element: UserProfilePage
     },
     {

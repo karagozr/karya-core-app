@@ -27,7 +27,7 @@ const parentObj = (parentFields: string[], fieldValues: any[]) => {
   }
 };
 
-export const useAppFormDetailDatasource = (url: any, key: any, parentFields: string[], parentValues: any[], gridRef?: React.RefObject<any>) => {
+export const useAppFormDetailDatasource = (url: any, key: any, parentFields: string[]|'session-data', parentValues: any[], gridRef?: React.RefObject<any>) => {
   if (parentValues === null || parentValues === undefined) {
     throw new Error(coreI18n.formDetail.parentKeyRequiredDatasource);
   }
@@ -35,7 +35,7 @@ export const useAppFormDetailDatasource = (url: any, key: any, parentFields: str
   const parentValuesSignature = JSON.stringify(parentValues ?? []);
 
   const hasAllParentValues = (parentValues ?? []).every((value: any) => value !== null && value !== undefined && value !== '');
-  const opUrl = hasAllParentValues
+  const opUrl = parentFields === 'session-data' ? url : hasAllParentValues
     ? url + `(${JSON.stringify(parentObj(parentFields, parentValues))})`
     : null;
 

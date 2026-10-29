@@ -4,7 +4,7 @@ import { ScrollView, type ScrollViewRef } from 'devextreme-react/scroll-view';
 import Toolbar, { Item } from 'devextreme-react/toolbar';
 import React, { useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Header, SideNavigationMenu, Footer } from '../../components';
+import { SideNavigationMenu, Footer } from '../../components';
 import './side-nav-inner-toolbar.scss';
 import { useScreenSize } from '../../utils/media-query';
 import { Template } from 'devextreme-react/core/template';
@@ -12,6 +12,7 @@ import { useMenuPatch } from '../../utils/patches';
 import type { TreeViewTypes } from 'devextreme-react/tree-view';
 import type { SideNavToolbarProps } from '../../types';
 import type { ButtonTypes } from 'devextreme-react/button';
+import { Header } from '../../core';
 
 export default function SideNavInnerToolbar({ title, children }: React.PropsWithChildren<SideNavToolbarProps>) {
   const scrollViewRef = useRef<ScrollViewRef>(null);
@@ -82,7 +83,7 @@ export default function SideNavInnerToolbar({ title, children }: React.PropsWith
             menuToggleEnabled={isXSmall}
             toggleMenu={toggleMenu}
           />
-          <ScrollView ref={scrollViewRef} className={'layout-body with-footer'}>
+          <ScrollView ref={scrollViewRef} className={'layout-body'}>
             <div className={'content'}>
               {React.Children.map(children, (item) => {
                 if (React.isValidElement(item) && item.type !== Footer) {
@@ -91,14 +92,7 @@ export default function SideNavInnerToolbar({ title, children }: React.PropsWith
                 return null;
               })}
             </div>
-            <div className={'content-block'}>
-              {React.Children.map(children, (item) => {
-                if (React.isValidElement(item) && item.type === Footer) {
-                  return item;
-                }
-                return null;
-              })}
-            </div>
+            
           </ScrollView>
         </div>
         <Template name={'menu'}>

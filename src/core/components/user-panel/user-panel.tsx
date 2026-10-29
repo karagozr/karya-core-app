@@ -2,22 +2,27 @@ import { useMemo, useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
 import DropDownButton from 'devextreme-react/drop-down-button';
 import List from 'devextreme-react/list';
-import './UserPanel.scss';
-import type { UserPanelProps } from '../../types';
-import { useAuthContext } from '../../core';
+import './user-panel.scss';
+import { useAuthContext } from '../../contexts';
+import { ThemeSwitcher } from '../theme-switcher';
 
-export default function UserPanel({ menuMode }: UserPanelProps) {
+export interface UserPanelProps {
+    menuMode: 'context' | 'list';
+}
+
+export const UserPanel = ({ menuMode }: UserPanelProps) => {
   const { user, signOut } = useAuthContext();
   const navigate = useNavigate();
 
   const navigateToProfile = useCallback(() => {
-    navigate("/profile");
+    navigate('/profile');
   }, [navigate]);
+
 
   const menuItems = useMemo(() => ([
     {
       text: 'Profile',
-      icon: 'user',
+      icon: 'card',
       onClick: navigateToProfile
     },
     {
@@ -40,7 +45,7 @@ export default function UserPanel({ menuMode }: UserPanelProps) {
       {menuMode === 'context' && (
         <DropDownButton
             stylingMode='text'
-          icon={user?.avatarUrl || 'https://js.devexpress.com/Demos/WidgetsGallery/JSDemos/images/employees/06.png'}
+          icon={user?.avatarUrl?.trim() || 'user'}
             showArrowIcon={false}
             elementAttr={dropDownButtonAttributes}
             dropDownOptions={buttonDropDownOptions}

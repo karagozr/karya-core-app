@@ -2,8 +2,8 @@ import DashboardControl from "devexpress-dashboard-react";
 import React, { memo, useCallback, useContext, useLayoutEffect } from "react";
 import { currentTheme, refreshTheme } from "devextreme/viz/themes";
 import { DockingLayoutSettings } from "devexpress-dashboard/common/docking-layout/_docking-layout-settings";
-import type { IBasePageProps } from "./types";
-import { ThemeContext } from "../../theme";
+import type { IDashPageProps } from "./types/dash-page";
+import { ThemeContext } from "../contexts";
 import "./dash-page.scss";
 import { BaseMainPage } from "./main-page";
 import { dashboardEndpoint, dashboardRemoteService } from "../services/dashboard";
@@ -28,7 +28,7 @@ const DashboardView = memo(({operationUrl,dashboardId,layoutPaddings}: {operatio
   );
 });
 
-export const DashPage = ({ caption,breadcrumb }: React.PropsWithChildren<IBasePageProps>) => {
+export const DashPage = ({ caption,breadcrumb,dashboardId }: React.PropsWithChildren<IDashPageProps>) => {
   
   const theme = useContext(ThemeContext)?.theme ?? 'light';
 
@@ -41,7 +41,7 @@ export const DashPage = ({ caption,breadcrumb }: React.PropsWithChildren<IBasePa
     <div className="dashboard-page" aria-label={caption}>
       <BaseMainPage caption={caption} breadcrumb={breadcrumb}>
         <div className="dashboard-host">
-          <DashboardView operationUrl={dashboardEndpoint} dashboardId="SalesOverview" layoutPaddings={0} />
+          <DashboardView operationUrl={dashboardEndpoint} dashboardId={dashboardId ?? "SalesOverview"} layoutPaddings={0} />
         </div>
       </BaseMainPage>
     </div>

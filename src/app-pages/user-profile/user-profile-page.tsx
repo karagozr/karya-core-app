@@ -1,6 +1,6 @@
 import { BaseFormPage, BaseModal, type AppFormRef, type BaseModalRef } from "../../core"
 import React from "react";
-import { ImageDisplayField } from "../../core/utils";
+import { ImageDisplayField, showMessage } from "../../core/utils";
 
 
 
@@ -15,6 +15,7 @@ export const UserProfilePage = () => {
             formOptions={{
                 operationUrl:"https://localhost:7131/api/AppProfile",
                 ref: formRef,
+                keyField: "user",
                 toolbarItems: [{ location: "before", widget: "dxButton", options: { text: "Change Password" ,
                     icon: "key",
                     onClick: (data:any) => {
@@ -91,35 +92,58 @@ export const UserProfilePage = () => {
                             newPassword: null,
                             confirmNewPassword: null
                         } },
-                        // toolbarItems: [{ location: "before", widget: "dxButton", options: { text: "Change Password", icon: "save", 
-                        //         onClick: (e:any) => {
-                        //             console.log("Form is Valid",    e.currentForm?.instance().validate().isValid);
-                        //             console.log("Form Data",        e.currentForm?.instance().option("formData"));
-                        //             console.log("Form Datasource",  e.datasource);
-                        //             console.log("Main Form Data",   formRef.current?.getFormData());
-                        //         }
-                        //     }
-                        // }],               
-                        operationUrl: "https://localhost:7142/api/user",
+                                       
+                        operationUrl: "https://localhost:7131/api/appuser",
                         colCount: 1,
                         items: [
                             { dataField: "currentPassword", colSpan: 1, label: { text: "Current Password" }, editorType: "dxTextBox", editorOptions: { mode: "password" } ,validationRules: [{ type: "required", message: "Current Password is required" }] },
                             { dataField: "newPassword", colSpan: 1, label: { text: "New Password" }, editorType: "dxTextBox", editorOptions: { mode: "password" }, validationRules: [{ type: "required", message: "New Password is required" }] },
-                            { dataField: "confirmNewPassword", colSpan: 1, label: { text: "Confirm New Password" }, editorType: "dxTextBox", editorOptions: { mode: "password" }, validationRules: [{ type: "required", message: "Confirm New Password is required" }] },
+                            { dataField: "confirmNewPassword", colSpan: 1, label: { text: "Confirm New Password" }, editorType: "dxTextBox", editorOptions: { mode: "password" }, validationRules: [
+                                { type: "required", message: "Confirm New Password is required" },
+                                { type: "compare", message: "New Password and Confirm New Password do not match",
+                                  comparisonTarget: () => modalFormRef.current?.formRef.current?.instance().option("formData")?.newPassword }
+                            ] },
                             { colSpan: 1, label: { text: "Confirm New Password" }, itemType: "button", 
                                 buttonOptions: { text: "Change Password", type: "success", icon: "save"
-                                ,onClick: (e:any) => {
-                                    console.log("Form is Valid",    e.currentForm?.instance().validate().isValid);
-                                    console.log("Form Data",        e.currentForm?.instance().option("formData"));
-                                    console.log("Form Datasource",  e.datasource);
-                                    console.log("Main Form Data",   formRef.current?.getFormData());
+                                ,onClick: async (e:any) => {
+                                    if(!e.currentForm?.instance().validate().isValid) return;
+                                    const dataSource = e.datasource;
+                                    var data =e.currentForm?.instance().option("formData");
+                                    var res = await dataSource?.customPost("update-password", { currentPassword: data?.currentPassword, newPassword: data?.newPassword});
+                                    if(res?.success){
+                                        showMessage({
+                                            message: "Password changed successfully",
+                                            type: "success"
+                                        });
+                                        formRef.current?.closeModal("change-password-modal");
+                                    } else {
+                                        alert("Failed to change password");
+                                    }
                                 }
                             }},
 
                         ]
 
                     }
+                },
+                {
+                    type:"detail",
+                    inTab: true,
+                    title: "App Customization",
+                    formDetailOptions: {
+                        isEditable: true,
+                        keyField: "key",
+                        masterDetailEnabled:false,
+                        operationUrl: `https://localhost:7131/api/AppProfile/claims`,
+                        parentFields: 'session-data',
+                        columns: [
+                            { dataField: "key", caption: "Key" },
+                            { dataField: "value", caption: "Value" }
+                        ]
+                    },
+                   
                 }
+
             ]}
                     
 

@@ -41,7 +41,7 @@ export interface IFormDatasourceOptions{
 
 
 export interface IAppFormProps extends IFormOptions{ 
-  keyField?: string;
+  keyField?: string|'user';
   datasourceOptions?: IFormDatasourceOptions;
   modalKey?: string| null;
   formAllowOptions?: AppFormAllowOptions  | false;

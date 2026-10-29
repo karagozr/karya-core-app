@@ -2,7 +2,8 @@ import Drawer from 'devextreme-react/drawer';
 import { ScrollView, type ScrollViewRef } from 'devextreme-react/scroll-view';
 import React, { useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Header, SideNavigationMenu, Footer } from '../../components';
+import { SideNavigationMenu } from '../../components';
+import { Header } from '../../core';
 import './side-nav-outer-toolbar.scss';
 import { useScreenSize } from '../../utils/media-query';
 import { Template } from 'devextreme-react/core/template';
@@ -83,20 +84,7 @@ export default function SideNavOuterToolbar({ title, children }: React.PropsWith
         <div className={'container'}>
           <ScrollView ref={scrollViewRef} className={'with-footer'}>
             <div className={'content'}>
-              {React.Children.map(children, (item) => {
-                if (React.isValidElement(item) && item.type !== Footer) {
-                  return item;
-                }
-                return null;
-              })}
-            </div>
-            <div className={'content-block'}>
-              {React.Children.map(children, (item) => {
-                if (React.isValidElement(item) && item.type === Footer) {
-                  return item;
-                }
-                return null;
-              })}
+              {children}
             </div>
           </ScrollView>
         </div>

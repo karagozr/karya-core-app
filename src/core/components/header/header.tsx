@@ -1,13 +1,20 @@
 import Toolbar, { Item } from 'devextreme-react/toolbar';
-import Button from 'devextreme-react/button';
-import UserPanel from '../user-panel/UserPanel';
-import './Header.scss';
+import Button, { type ButtonTypes } from 'devextreme-react/button';
+import './header.scss';
 import { Template } from 'devextreme-react/core/template';
-import { ThemeSwitcher } from '../theme-switcher/ThemeSwitcher';
-import { LanguageSwitcher } from '../language-switcher/LanguageSwitcher';
-import type { HeaderProps } from '../../types';
+import { LanguageSwitcher } from '../language-switcher';
+import { TenantSwitcher } from '../tenant-switcher';
+import { ThemeSwitcher } from '../theme-switcher';
+import { UserPanel } from '../user-panel';
 
-export default function Header({ menuToggleEnabled, title, toggleMenu }: HeaderProps) {
+
+export interface HeaderProps {
+    menuToggleEnabled: boolean;
+    title?: string;
+    toggleMenu: (e: ButtonTypes.ClickEvent) => void;
+}
+
+export  const Header = ({ menuToggleEnabled, title, toggleMenu }: HeaderProps)=> {
   return (
     <header className={'header-component'}>
       <Toolbar className={'header-toolbar'}>
@@ -25,12 +32,17 @@ export default function Header({ menuToggleEnabled, title, toggleMenu }: HeaderP
           text={title}
           visible={!!title}
         />
-        <Item
+        <Item locateInMenu='auto'
+          location={'after'}
+        >
+          <TenantSwitcher />
+        </Item>
+        <Item locateInMenu='auto'
           location={'after'}
         >
           <LanguageSwitcher />
         </Item>
-        <Item
+        <Item locateInMenu='auto'
           location={'after'}
         >
           <ThemeSwitcher />

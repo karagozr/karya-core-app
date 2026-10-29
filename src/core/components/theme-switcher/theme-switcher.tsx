@@ -1,8 +1,6 @@
 import { useCallback, useContext } from 'react';
 import Button from 'devextreme-react/button';
-import notify from 'devextreme/ui/notify';
-import { ThemeContext } from '../../theme';
-import { useAuthContext } from '../../core';
+import { ThemeContext,useAuthContext } from '../../contexts';
 
 export const ThemeSwitcher = () => {
   const themeContext = useContext(ThemeContext);

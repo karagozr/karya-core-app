@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ApiRequest, connectToken, type IApiResponse } from '../services';
-import { clearAuthSession, readAuthSession,
+import { clearAuthSession, fetchUserProfile, getUserProfile, readAuthSession,
   readLocalStorage,
   saveLocalStorage,
   subscribeAuthSession, type AuthUser} from '../services/auth';
@@ -26,35 +26,6 @@ const messageBoxDefaults = {
   isActiveInfo: true
 };
 
-export const fetchUserProfile: (url: string) => Promise<User | undefined> = async (url: string) => {
-  if (!readAuthSession()) return undefined;
-  var result = await ApiRequest.Get(url,null,messageBoxDefaults);
-  if (result.success) {
-    saveLocalStorage(APP_STORAGE_KEYS.user, JSON.stringify(result.data.user));
-    Object.keys(result.data.claims).forEach(key => {
-      if(key==="themeId") saveLocalStorage(APP_STORAGE_KEYS.themeId, result.data.claims[key]??'light');
-      if(key==="languageId") saveLocalStorage(APP_STORAGE_KEYS.languageId, result.data.claims[key]??'tr');
-      saveLocalStorage(key, result.data.claims[key]);
-    });
-  }
-
-  return {
-    ...result.data
-  };
-};
-
-export const getUserProfile = () => {
-  var res = readLocalStorage(APP_STORAGE_KEYS.user);
-  try {
-    var user = JSON.parse(res);
-    if (user && typeof user === 'object' && 'tenantId' in user && 'username' in user) {
-      return user as User;
-    }
-  } catch {
-    return undefined;
-  }
-};
-
 
 export const useProvideAuthContext = ():AuthContextType => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -71,17 +42,20 @@ export const useProvideAuthContext = ():AuthContextType => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const profile = await fetchUserProfile('https://localhost:7131/api/AppProfile');
-      console.log("Fetched profile:", profile);
-      setUserProfile(profile);
+      if(loading === false) {
+        const profile = await fetchUserProfile('https://localhost:7131/api/AppProfile/basic');
+        console.log("Fetched profile:", profile);
+        setUserProfile(profile);
+      }
     };
     fetchProfile();
-  }, []);
+  }, [loading]);
 
 
   
 
   const signIn = useCallback(async (tenantId: string, username: string, password: string, rememberMe: boolean) => {
+    setLoading(true);
     const result = await connectToken({ tenantId, username, password, grantType: 'password', rememberMe });
     
     if (!result.success || !result.data) showMessage({ type: 'error', message: coreI18n.auth.authenticationFailed });
@@ -93,8 +67,10 @@ export const useProvideAuthContext = ():AuthContextType => {
         saveLocalStorage(APP_STORAGE_KEYS.authRememberMe, true);
       }
       setSession(result.data);
+      setLoading(false);
       return { ...result };
     } catch {
+      setLoading(false);
       showMessage({ type: 'error', message: coreI18n.auth.authenticationFailed });
       return { ...result, success: false, data: null, message: coreI18n.auth.authenticationFailed };
     }

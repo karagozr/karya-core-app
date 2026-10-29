@@ -27,6 +27,18 @@
       background-clip: padding-box;
     }
 
+    i.dx-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      margin: 0;
+      border-radius: 50%;
+      box-sizing: border-box;
+      border: 1px solid var(--dx-color-border);
+    }
+
 
 
     .dx-buttongroup {
@@ -41,7 +53,8 @@
         &.dx-state-focused {
           background-color: transparent;
 
-          img.dx-icon {
+          img.dx-icon,
+          i.dx-icon {
             border-color: var(--dx-color-primary);
           }
         }

@@ -180,22 +180,30 @@ export const connectToken = async (request: IConnectTokenRequest): Promise<IApiR
   }
 };
 
-export const refreshSession = async (): Promise<string> => {
-  const session = readAuthSession();
-  if (!session?.refreshToken) {
-    clearAuthSession();
-    throw new Error(coreI18n.auth.sessionExpired);
-  }
+let refreshRequest: Promise<string> | null = null;
 
-  try {
-    const response = await connectToken({ grantType: 'refresh_token', refreshToken: session.refreshToken });
-    const data :any = response.data;
-    return data.accessToken;
-  } catch {
-    clearAuthSession();
-    showMessage({ type: 'warning', message: coreI18n.auth.sessionExpired });
-    throw new Error(coreI18n.auth.sessionExpired);
-  }
+export const refreshSession = (): Promise<string> => {
+  refreshRequest ??= (async () => {
+    const session = readAuthSession();
+    if (!session?.refreshToken) {
+      clearAuthSession();
+      throw new Error(coreI18n.auth.sessionExpired);
+    }
+
+    try {
+      const response = await connectToken({ grantType: 'refresh_token', refreshToken: session.refreshToken });
+      const data: any = response.data;
+      if (!response.success || !data?.accessToken) throw new Error(coreI18n.auth.sessionExpired);
+      return data.accessToken as string;
+    } catch {
+      clearAuthSession();
+      showMessage({ type: 'warning', message: coreI18n.auth.sessionExpired });
+      throw new Error(coreI18n.auth.sessionExpired);
+    }
+  })().finally(() => {
+    refreshRequest = null;
+  });
+  return refreshRequest;
 };
 
 export const getAccessToken = async (): Promise<string | null> => {
@@ -218,6 +226,59 @@ export const resetPassword = (email: string): Promise<IApiResponse> => {
   url.searchParams.set('email', email);
   return ApiRequest.Post(url.href, null);
 };
+
+export const fetchUserProfile: (url: string) => Promise<any | undefined> = async (url: string) => {
+  if (!readAuthSession()) return undefined;
+  var result = await ApiRequest.Get(url,null,{
+    isActiveError: true,
+    isActiveSuccess: true,
+    isActiveWarning: true,
+    isActiveInfo: true
+  });
+  if (result.success) {
+    console.log("Fetched user profile:", result.data);
+    saveLocalStorage(APP_STORAGE_KEYS.user, JSON.stringify(result.data.user));
+    Object.keys(result.data.claims).forEach(key => {
+      if(key==="theme") saveLocalStorage(APP_STORAGE_KEYS.themeId, result.data.claims[key]??'light');
+      else if(key==="language") saveLocalStorage(APP_STORAGE_KEYS.languageId, result.data.claims[key]??'tr');
+      else saveLocalStorage(key, result.data.claims[key]);
+    });
+  }
+
+  return {
+    ...result.data
+  };
+};
+
+export const updateUserProfileClaims: (url: string,key: string,value: any) => Promise<any | undefined> = async (url: string,key: string,value: any) => {
+  
+  if (!readAuthSession()) return undefined;
+  var result = await ApiRequest.Put(url,key,value,{
+    isActiveError: true,
+    isActiveSuccess: true,
+    isActiveWarning: true,
+    isActiveInfo: true
+  });
+  
+  console.log("Updated user profile claims:", result);
+
+  return {
+    ...result.data
+  };
+};
+
+export const getUserProfile = () => {
+  var res = readLocalStorage(APP_STORAGE_KEYS.user);
+  try {
+    var user = JSON.parse(res);
+    if (user && typeof user === 'object' && 'tenantId' in user && 'username' in user) {
+      return user as any;
+    }
+  } catch {
+    return undefined;
+  }
+};
+
 
 const notifySubscribers = () => {
   listeners.forEach(listener => listener());

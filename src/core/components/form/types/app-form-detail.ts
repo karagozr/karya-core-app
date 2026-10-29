@@ -45,7 +45,7 @@ export interface IFormDetailProps {
   summary?: Summary<any, any>;
   ref?: any;
   keyField?:string;
-  parentFields: string[];
+  parentFields: string[] | 'session-data';
   operationUrl: string;
   masterDetailEnabled: boolean|false;
   masterDetailProps?: IFormDetailChildProps;
